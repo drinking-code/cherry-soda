@@ -5,6 +5,9 @@
     "target": "esnext",
     "moduleResolution": "node",
 
+    "jsx": "react-jsx",
+    "jsxImportSource": "../../src",
+
     // so that if your project isn't using TypeScript, it still has autocomplete
     "allowJs": true,
 
