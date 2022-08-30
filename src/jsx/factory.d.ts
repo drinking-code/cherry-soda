@@ -1,21 +1,16 @@
-export interface VirtualElementType<P = {}> {
-    type: ComponentType<P> | string;
-    props: P & { children: ComponentChildren };
-    key: Key;
-    ref?: Ref<any> | null;
-}
+import {VirtualElement} from "./factroy";
 
 type ComponentType<P = {}> = FunctionComponent<P>;
 
 export interface FunctionComponent<P = {}> {
-    (props): VirtualElementType<any> | null;
+    (props): VirtualElement | null;
 
     displayName?: string;
     defaultProps?: Partial<P>;
 }
 
 export type ComponentChild =
-    | VirtualElementType<any>
+    | VirtualElement
     | object
     | string
     | number
@@ -24,9 +19,3 @@ export type ComponentChild =
     | null
     | undefined;
 export type ComponentChildren = ComponentChild[] | ComponentChild;
-
-export type Key = string | number | any;
-
-export type RefObject<T> = { current: T | null };
-export type RefCallback<T> = (instance: T | null) => void;
-export type Ref<T> = RefObject<T> | RefCallback<T>;

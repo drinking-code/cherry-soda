@@ -1,18 +1,35 @@
 {
   "name": "cherry-cola",
   "module": "src/index.ts",
-  "devDependencies": {
-    "bun-types": "^0.1.0"
-  },
-  "scripts": {
-    "example": "bun run example/cra-template/index.jsx"
-  },
-  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./jsx-dev-runtime": "./src/jsx-dev-runtime.js"
   },
   "imports": {
     "cherry-cola": "./src/index.ts"
+  },
+  "scripts": {
+    "example": "node example/server.node.js"
+  },
+  "type": "module",
+  "framework": {
+    "displayName": "cherry-cola",
+    "css": "onimportcss"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.18.10",
+    "@babel/preset-typescript": "^7.18.6",
+    "autoprefixer": "^10.4.8",
+    "babel-loader": "^8.2.5",
+    "bun-types": "^0.1.0",
+    "css-loader": "^6.7.1",
+    "mini-css-extract-plugin": "^2.6.1",
+    "postcss-loader": "^7.0.1",
+    "resolve-url-loader": "^5.0.0",
+    "sass-loader": "^13.0.2"
+  },
+  "dependencies": {
+    "express": "^4.18.1",
+    "webpack": "^5.74.0"
   }
 }

@@ -1,28 +1,26 @@
-import {VirtualElementType, ComponentChildren, ComponentChild} from './factory';
+import {ComponentChild, ComponentChildren, ComponentType} from './factory';
+import {renderElement} from "../dom/render";
 
 function createVirtualElement(
-    type: VirtualElementType['type'],
-    props: VirtualElementType['props'],
-    key: VirtualElementType['key'],
+    type: VirtualElement['type'],
+    props: VirtualElement['props'],
+    key: /*VirtualElement['key']*/ any,
     _self: string,
     _source: string
 ): VirtualElement {
     const children = (Array.isArray(props.children) ? [...props.children] : [props.children]).filter(v => v)
     delete props.children
 
-    if (typeof type === 'function')
-        console.log(type(props))
-
     return new VirtualElement(type, props, children)
 }
 
-export class VirtualElement {
-    private type: VirtualElementType['type'];
-    private function?: Function;
-    private props: VirtualElementType['props'];
-    private children: ComponentChild[];
+export class VirtualElement<P = {}> {
+    type: ComponentType<P> | string;
+    function?: Function;
+    props: P & { children: ComponentChildren };
+    children: ComponentChild[];
 
-    constructor(type: VirtualElementType['type'], props: VirtualElementType['props'], children?: ComponentChild[]) {
+    constructor(type: VirtualElement['type'], props: P & { children: ComponentChildren }, children?: ComponentChild[]) {
         this.type = type
         if (typeof type === 'function') {
             this.type = 'function'
@@ -32,8 +30,8 @@ export class VirtualElement {
         this.children = children
     }
 
-    render() {
-
+    render(): string {
+        return renderElement(this)
     }
 }
 
