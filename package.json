@@ -9,7 +9,7 @@
     "cherry-cola": "./src/index.ts"
   },
   "scripts": {
-    "example": "node example/server.node.js"
+    "example": "node --enable-source-maps example/server.node.js"
   },
   "type": "module",
   "framework": {
@@ -29,7 +29,10 @@
     "sass-loader": "^13.0.2"
   },
   "dependencies": {
+    "chalk": "^5.0.1",
     "express": "^4.18.1",
+    "ora": "^6.1.2",
+    "pretty-error": "^4.0.0",
     "webpack": "^5.74.0"
   }
 }

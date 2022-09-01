@@ -1,4 +1,4 @@
-import {VirtualElement} from "./factroy";
+import {VirtualElement} from "./VirtualElement";
 
 type ComponentType<P = {}> = FunctionComponent<P>;
 
@@ -9,7 +9,7 @@ export interface FunctionComponent<P = {}> {
     defaultProps?: Partial<P>;
 }
 
-export type ComponentChild =
+export type ElementChild =
     | VirtualElement
     | object
     | string
@@ -18,4 +18,3 @@ export type ComponentChild =
     | boolean
     | null
     | undefined;
-export type ComponentChildren = ComponentChild[] | ComponentChild;

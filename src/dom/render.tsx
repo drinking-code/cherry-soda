@@ -1,34 +1,39 @@
-import {VirtualElement} from '../jsx/factroy'
+import {VirtualElement} from "../jsx/VirtualElement";
+import {validTags, voidElements} from "./html-props";
+import Document from "./default-document";
 
-export default function render(element: VirtualElement) {
-    return element.render()
+export default function render(element): string {
+    let html = element.render()
+    if (!html.startsWith('<html'))
+        html = render(<Document>{html}</Document>)
+    else
+        html = '<!DOCTYPE html>' + html
+    return html
 }
 
-const validTags = ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figure', 'footer', 'form', 'h', 'h', 'h', 'h', 'h', 'h', 'head', 'header', 'hgroup', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'q', 'rb', 'rp', 'rt', 'rtc', 'ruby', 's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr']
-const voidElements = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']
-
-export function renderElement(element: VirtualElement) {
+export function renderElement(element: VirtualElement): string {
     if (element.type === 'function')
-        return element.function(element.props).render()
+        return element.function({...element.props, children: element.children}).render()
 
     if (!validTags.includes(element.type as string))
         throw new Error('`${element.type}` is not a valid element tag.')
 
-    const stringifiedProps = Array.from(Object.keys(element.props)).map(prop => {
+    const stringifiedProps: string = Array.from(Object.keys(element.props)).map(prop => {
         const htmlPropName = prop === 'className' ? 'class' : prop
         if ([undefined, null].includes(element.props[prop])) return false
         return `${htmlPropName}="${element.props[prop]}"`
     }).filter(v => v).join(' ')
-    const openingTag = `<${element.type} ${stringifiedProps}>`.replace(/ >/, '>')
+
+    const openingTag: string = `<${element.type} ${stringifiedProps}>`.replace(/ >/, '>')
     if (voidElements.includes(element.type as string))
         return openingTag
 
-    const closingTag = `</${element.type}>`
+    const closingTag: string = `</${element.type}>`
 
-    return openingTag + element.children.map(child => {
+    return openingTag + element.children.flat().map(child => {
         if (child instanceof VirtualElement)
             return child.render()
         // todo: handle objects
-        return child
+        return child // todo: escape html
     }).join('') + closingTag
 }

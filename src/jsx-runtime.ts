@@ -1,1 +1,1 @@
-export {jsx, jsxs, jsxDEV, /*Fragment*/} from './jsx/factroy'
+export {jsx, jsxs, jsxDEV, Fragment} from './jsx/factroy'

@@ -1,43 +1,24 @@
-import {ComponentChild, ComponentChildren, ComponentType} from './factory';
-import {renderElement} from "../dom/render";
+import {VirtualElement} from "./VirtualElement";
+import {ElementChildren} from "./ElementChildren";
 
 function createVirtualElement(
     type: VirtualElement['type'],
-    props: VirtualElement['props'],
-    key: /*VirtualElement['key']*/ any,
+    props: {} & { children: ElementChildren },
+    key: any,
     _self: string,
     _source: string
 ): VirtualElement {
-    const children = (Array.isArray(props.children) ? [...props.children] : [props.children]).filter(v => v)
+    const children = new ElementChildren(props.children)
     delete props.children
 
     return new VirtualElement(type, props, children)
 }
 
-export class VirtualElement<P = {}> {
-    type: ComponentType<P> | string;
-    function?: Function;
-    props: P & { children: ComponentChildren };
-    children: ComponentChild[];
-
-    constructor(type: VirtualElement['type'], props: P & { children: ComponentChildren }, children?: ComponentChild[]) {
-        this.type = type
-        if (typeof type === 'function') {
-            this.type = 'function'
-            this.function = type
-        }
-        this.props = props
-        this.children = children
-    }
-
-    render(): string {
-        return renderElement(this)
-    }
-}
+const Fragment = Symbol.for('CherryCola.Fragment')
 
 export {
     createVirtualElement as jsx,
     createVirtualElement as jsxs,
     createVirtualElement as jsxDEV,
-    // Fragment
+    Fragment
 }

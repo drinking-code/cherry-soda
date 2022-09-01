@@ -8,6 +8,9 @@ import webpack from 'webpack'
 import autoprefixer from 'autoprefixer'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 
+import ora from 'ora'
+import chalk from 'chalk'
+
 const isProduction = false
 const baseConfig = {
     mode: isProduction ? 'production' : 'development',
@@ -29,8 +32,8 @@ const baseConfig = {
                     presets: ['@babel/preset-typescript'],
                     plugins: [
                         ["@babel/plugin-transform-react-jsx", {
-                            runtime: "automatic",
-                            importSource: "../../src",
+                            runtime: 'automatic',
+                            importSource: '/src',
                         }]
                     ]
                 }
@@ -118,6 +121,36 @@ const compiler = webpack({
         }),
     ],
 })
-compiler.watch({}, async (err, stats) => {
-    await fs.rmSync(path.resolve('.cc', 'client', 'main.js'))
+const watching = compiler.watch({}, async (err, stats) => {
+    const jsFile = path.resolve('.cc', 'client', 'main.js')
+    if (fs.existsSync(jsFile))
+        await fs.rmSync(jsFile)
 })
+
+let wasRunning = false, runningMessage, startingTime
+// todo: show compile errors
+setInterval(() => {
+    // started running
+    if (!compiler.idle && !wasRunning) {
+        // show compiling in console
+        startingTime = Date.now()
+        runningMessage = ora(
+            chalk.blue(`webpack: `) +
+            'Compiling changes'
+        ).start()
+        runningMessage.color = 'cyan'
+    } else // stopped running
+    if (compiler.idle && wasRunning) {
+        const duration = Date.now() - startingTime
+        // stop showing compiling in console
+        // show compiling complete in console
+        runningMessage.stopAndPersist({
+            text: chalk.blue(`webpack: `) +
+                'Compiled changes in ' +
+                chalk.bold(`${duration} ms`),
+            symbol: chalk.green('✓')
+        })
+        runningMessage = null
+    }
+    wasRunning = !compiler.idle
+}, 1)
