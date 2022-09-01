@@ -121,14 +121,13 @@ const compiler = webpack({
         }),
     ],
 })
-const watching = compiler.watch({}, async (err, stats) => {
+compiler.watch({}, async (err, stats) => {
     const jsFile = path.resolve('.cc', 'client', 'main.js')
     if (fs.existsSync(jsFile))
         await fs.rmSync(jsFile)
 })
 
 let wasRunning = false, runningMessage, startingTime
-// todo: show compile errors
 setInterval(() => {
     // started running
     if (!compiler.idle && !wasRunning) {

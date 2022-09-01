@@ -1,6 +1,7 @@
 {
   "name": "cherry-cola",
   "module": "src/index.ts",
+  "version": "0.1.0",
   "exports": {
     ".": "./src/index.ts",
     "./jsx-dev-runtime": "./src/jsx-dev-runtime.js"
@@ -10,6 +11,9 @@
   },
   "scripts": {
     "example": "node --enable-source-maps example/server.node.js"
+  },
+  "bin": {
+    "cherry-cola": "cli/index"
   },
   "type": "module",
   "framework": {
@@ -26,9 +30,11 @@
     "mini-css-extract-plugin": "^2.6.1",
     "postcss-loader": "^7.0.1",
     "resolve-url-loader": "^5.0.0",
-    "sass-loader": "^13.0.2"
+    "sass-loader": "^13.0.2",
+    "yargs": "^17.5.1"
   },
   "dependencies": {
+    "app-root-path": "^3.1.0",
     "chalk": "^5.0.1",
     "express": "^4.18.1",
     "ora": "^6.1.2",
