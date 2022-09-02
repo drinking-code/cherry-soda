@@ -1,6 +1,6 @@
-import {render} from '../src'
-import './compiler.mjs'
-import CraTemplate from './cra-template'
+import {render} from '../index'
+import './compiler.js'
+import CraTemplate from '../../example/cra-template'
 
 Bun.serve({
     fetch(req) {

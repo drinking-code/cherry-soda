@@ -1,18 +1,19 @@
 import path from 'path'
 import express from 'express'
-import './compiler.mjs'
+import {outputPath as serverOutputPath} from './compiler.node.js'
+import {outputPath as clientOutputPath} from './compiler.js'
 
 import PrettyError from 'pretty-error'
 
 const app = express()
 const pe = new PrettyError()
 
-app.use(express.static(path.resolve('.cc', 'client')))
+app.use(express.static(clientOutputPath))
 
 let importCounter = 0
 app.get('/', async (req, res) => {
     try {
-        const out = (await import(`../.cc/server/main.mjs?ignoreCacheNonce=${importCounter++}`)).default
+        const out = (await import(`${serverOutputPath}?ignoreCacheNonce=${importCounter++}`)).default
         res.send(out())
     } catch (err) {
         console.log(pe.render(err))

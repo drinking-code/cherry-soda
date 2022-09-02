@@ -10,7 +10,7 @@
     "cherry-cola": "./src/index.ts"
   },
   "scripts": {
-    "example": "node --enable-source-maps example/server.node.js"
+    "example": "node --enable-source-maps src/server/server.node.js"
   },
   "bin": {
     "cherry-cola": "cli/index"

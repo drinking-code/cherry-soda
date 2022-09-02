@@ -17,29 +17,41 @@ const packageJson = JSON.parse(
         ), {encoding: 'utf8'})
 )
 
-const addNodeOption = (yargs, description) => {
-    yargs.positional('node', {
+const addNodeOption = (yargs, description) =>
+    yargs.option('node', {
         type: 'boolean',
         default: false,
         description
     })
-}
 
-const program = yargs(hideBin(process.argv))
+const pureArgs = hideBin(
+    Array.from(process.argv).filter(v => v !== '--')
+)
+
+const program = yargs(pureArgs)
     .scriptName(packageJson.name)
     .version('cherry-cola v' + packageJson.version)
-    .usage('$0 <command> [options]')
-    .command('build', 'Build assets for client (and node, if specified).',
+    .usage('$0 <command> [options] <entry>')
+    .command('build [options] <entry>', 'Build assets for client (and node, if specified).',
         (yargs) => {
             addNodeOption(yargs, 'Also compile files for use with Node.js')
         }, build)
-    .command('start', 'Start the built-in webserver.',
+    .command('start [options] <entry>', 'Start the built-in webserver.',
         (yargs) => {
             addNodeOption(yargs, 'Start Node.js server instead of Bun.js')
         }, start)
-    .command('dev', 'Start the built-in webserver and build (and watches) assets for development.',
+    .command('dev [options] <entry>', 'Start the built-in webserver and build (and watches) assets for development.',
         (yargs) => {
             addNodeOption(yargs, 'Use Node.js server instead of Bun.js')
-        }, dev)
+                .version(false)
+                .positional('entry', {
+                    describe: 'Entry file for cherry-cola'
+                })
+        },
+        dev
+    )
+    .coerce('entry', (arg) => {
+        return path.join(process.cwd(), arg)
+    })
     .help()
 program.argv
