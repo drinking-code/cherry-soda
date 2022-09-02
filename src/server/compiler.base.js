@@ -1,3 +1,5 @@
+import appRoot from 'app-root-path'
+
 export const isProduction = process.env.BUN_ENV === 'production'
 const entryPoint = process.env.CHERRY_COLA_ENTRY
 export const baseConfig = {
@@ -22,7 +24,7 @@ export const baseConfig = {
                     plugins: [
                         ["@babel/plugin-transform-react-jsx", {
                             runtime: 'automatic',
-                            importSource: '/src',
+                            importSource: '/../src',
                         }]
                     ]
                 }
