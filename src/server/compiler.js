@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import webpack from 'webpack'
+import PrettyError from 'pretty-error'
 
 import autoprefixer from 'autoprefixer'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
@@ -12,6 +13,7 @@ import chalk from 'chalk'
 import {baseConfig} from './compiler.base.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
+const pe = new PrettyError()
 
 const postcssAndSass = [{
     loader: 'postcss-loader',
@@ -36,6 +38,7 @@ const compilerBase = webpack({
     ...baseConfig,
     target: 'web',
     output: {
+        ...baseConfig.output,
         path: outputPath,
     },
     module: {
@@ -62,19 +65,24 @@ const compilerBase = webpack({
         }),
     ],
 })
+
+if (!global['cherry-cola'])
+global['cherry-cola'] = {}
 compilerBase.watch({}, async (err, stats) => {
-    const jsFile = path.join(outputPath, 'main.js')
+    global['cherry-cola'].currentStats = stats.toJson()
+    const jsFile = path.join(outputPath, 'main.mjs')
     if (fs.existsSync(jsFile))
         await fs.rmSync(jsFile)
+    if (err)
+        console.log(pe.render(err))
 })
 
 let isFirstCompilation = true
-let wasRunning = false, runningMessage, startingTime
+let wasRunning = false, runningMessage
 setInterval(() => {
     // started running
     if (!compilerBase.idle && !wasRunning) {
         // show compiling in console
-        startingTime = Date.now()
         runningMessage = ora(
             chalk.blue(`webpack: `) +
             (!isFirstCompilation ? 'Compiling changes' : 'Compiling assets')
@@ -82,7 +90,7 @@ setInterval(() => {
         runningMessage.color = 'cyan'
     } else // stopped running
     if (compilerBase.idle && wasRunning) {
-        const duration = Date.now() - startingTime
+        const duration = global['cherry-cola'].currentStats.time
         // stop showing compiling in console
         // show compiling complete in console
         runningMessage.stopAndPersist({

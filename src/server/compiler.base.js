@@ -7,7 +7,7 @@ export const baseConfig = {
     entry: entryPoint,
     devtool: !isProduction && 'inline-source-map',
     output: {
-        filename: 'main.js',
+        filename: '[name].mjs',
         clean: true,
     },
     resolve: {
