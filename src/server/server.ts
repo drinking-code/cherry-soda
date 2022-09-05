@@ -1,5 +1,5 @@
 import {render} from '../index'
-import './compiler.js'
+import './compiler.assets.js'
 import CraTemplate from '../../example/cherry-cola-template'
 
 Bun.serve({

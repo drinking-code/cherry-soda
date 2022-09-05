@@ -34,12 +34,16 @@ const postcssAndSass = [{
         sourceMap: true,
     }
 },]
-const compilerBase = webpack({
+const compiler = webpack({
     ...baseConfig,
     target: 'web',
     output: {
         ...baseConfig.output,
         path: outputPath,
+        filename: '_remove_me.js',
+        clean: {
+            keep: /\.js$/,
+        }
     },
     module: {
         rules: [...baseConfig.module.rules, {
@@ -67,12 +71,15 @@ const compilerBase = webpack({
 })
 
 if (!global['cherry-cola'])
-global['cherry-cola'] = {}
-compilerBase.watch({}, async (err, stats) => {
+    global['cherry-cola'] = {}
+
+compiler.watch({}, async (err, stats) => {
     global['cherry-cola'].currentStats = stats.toJson()
-    const jsFile = path.join(outputPath, 'main.mjs')
-    if (fs.existsSync(jsFile))
-        await fs.rmSync(jsFile)
+    const jsFileName = '_remove_me.js'
+    const jsFilePath = path.join(outputPath, jsFileName)
+    global['cherry-cola'].clientAssets = stats.toJson().assets.filter(asset => asset.name !== jsFileName)
+    if (fs.existsSync(jsFilePath))
+        await fs.rmSync(jsFilePath)
     if (err)
         console.log(pe.render(err))
 })
@@ -81,7 +88,7 @@ let isFirstCompilation = true
 let wasRunning = false, runningMessage
 setInterval(() => {
     // started running
-    if (!compilerBase.idle && !wasRunning) {
+    if (!compiler.idle && !wasRunning) {
         // show compiling in console
         runningMessage = ora(
             chalk.blue(`webpack: `) +
@@ -89,7 +96,7 @@ setInterval(() => {
         ).start()
         runningMessage.color = 'cyan'
     } else // stopped running
-    if (compilerBase.idle && wasRunning) {
+    if (compiler.idle && wasRunning) {
         const duration = global['cherry-cola'].currentStats.time
         // stop showing compiling in console
         // show compiling complete in console
@@ -102,5 +109,5 @@ setInterval(() => {
         runningMessage = null
         isFirstCompilation = false
     }
-    wasRunning = !compilerBase.idle
+    wasRunning = !compiler.idle
 }, 1)

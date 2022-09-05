@@ -1,6 +1,7 @@
 import express from 'express'
 import {outputPath as serverOutputPath} from './compiler.node.js'
-import {outputPath as clientOutputPath} from './compiler.js'
+import {outputPath as clientOutputPath} from './compiler.assets.js'
+import './compiler.javascript.js'
 import dynamicCodeSynchronisation from './dynamic-code-synchronisation.js'
 
 import PrettyError from 'pretty-error'
