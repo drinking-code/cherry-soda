@@ -9,6 +9,7 @@ export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'c
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
 const pe = new PrettyError()
 
+console.log(webpack)
 webpack({
     ...baseConfig,
     target: 'node16',

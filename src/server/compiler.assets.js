@@ -7,8 +7,6 @@ import autoprefixer from 'autoprefixer'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 
 import appRoot from 'app-root-path'
-import ora from 'ora'
-import chalk from 'chalk'
 
 import {baseConfig} from './compiler.base.js'
 import {showCompilationStatus} from './compiler.logger.js'
@@ -100,8 +98,19 @@ compiler.watch({}, async (err, stats) => {
         console.log(pe.render(err))
 })
 
-showCompilationStatus(
-    chalk.bgHex('#006434').hex('#ddd')(' assets '),
-    compiler,
-    'currentStats'
-)
+;(async () => {
+    if (typeof Bun !== 'undefined') { // todo: remove when chalk works on bun
+        showCompilationStatus(
+            'assets',
+            compiler,
+            'currentStats'
+        )
+    } else {
+        const chalk = (await import('chalk')).default
+        showCompilationStatus(
+            chalk.bgHex('#006434').hex('#ddd')(' assets '),
+            compiler,
+            'currentStats'
+        )
+    }
+})()

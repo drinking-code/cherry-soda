@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#if command /usr/bin/env bun &> /dev/null
-#then
-#    /usr/bin/env bun cli/main.js -- "$@"
-#elif command /usr/bin/env node &> /dev/null
-#then
-    /usr/bin/env node cli/main.js -- "$@"
-#fi
+if [[ "$*" == *"--node"* ]]; then
+  /usr/bin/env node cli/main.js -- "$@"
+elif command /usr/bin/env bun &>/dev/null; then
+  /usr/bin/env bun cli/main.js -- "$@"
+elif command /usr/bin/env node &>/dev/null; then
+  /usr/bin/env node cli/main.js -- "$@"
+fi

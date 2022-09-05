@@ -7,7 +7,6 @@ import appRoot from 'app-root-path'
 
 import {baseConfig} from './compiler.base.js'
 import {showCompilationStatus} from './compiler.logger.js'
-import chalk from 'chalk'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
@@ -56,8 +55,19 @@ compiler.watch({}, async (err, stats) => {
     global['cherry-cola'].jsStats = stats.toJson()
 })
 
-showCompilationStatus(
-    chalk.bgHex('#c09a00').black(' javascript '),
-    compiler,
-    'jsStats'
-)
+;(async () => {
+    if (typeof Bun !== 'undefined') { // todo: remove when chalk works on bun
+        showCompilationStatus(
+            'javascript',
+            compiler,
+            'jsStats'
+        )
+    } else {
+        const chalk = (await import('chalk')).default
+        showCompilationStatus(
+            chalk.bgHex('#c09a00').black(' javascript '),
+            compiler,
+            'jsStats'
+        )
+    }
+})()

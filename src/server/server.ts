@@ -1,10 +1,11 @@
-import {render} from '../index'
-import './compiler.assets.js'
-import CraTemplate from '../../example/cherry-cola-template'
+import {outputPath as serverOutputPath} from "./compiler.node";
 
+let importCounter = 0
 Bun.serve({
-    fetch(req) {
-        return new Response(CraTemplate(), {
+    async fetch(req) {
+        const App = (await import(`${serverOutputPath}/App.mjs?ignoreCacheNonce=${importCounter}&from=server`)).default
+        const {render} = await import(`${serverOutputPath}/cherry-cola.mjs?ignoreCacheNonce=${importCounter++}&from=server`)
+        return new Response(render(App()), {
             headers: {
                 "Content-Type": "text/html; charset=utf-8"
             }

@@ -7,7 +7,6 @@ import {hideBin} from 'yargs/helpers'
 import build from './build.js'
 import start from './start.js'
 import dev from './dev.js'
-import appRoot from 'app-root-path'
 
 const packageJson = JSON.parse(
     fs.readFileSync(
@@ -26,15 +25,18 @@ const addNodeOption = (yargs, description) =>
     })
 
 const pureArgs = hideBin(
-    Array.from(process.argv).filter(v => v !== '--')
-)
+        Array.from(process.argv).filter(v => v !== '--')
+    )
 
-if (JSON.parse(
-    fs.readFileSync(
-        appRoot.resolve('package.json'),
-        {encoding: 'utf8'})
-).name === packageJson.name)
-    process.env.CHERRY_COLA_ENV = 'development'
+;(async () => {
+    const appRoot = (await import(typeof Bun !== 'undefined' ? '../src/utils/bun-project-root.js' : 'app-root-path')).default
+    if (JSON.parse(
+        fs.readFileSync(
+            appRoot.resolve('package.json'),
+            {encoding: 'utf8'})
+    ).name === packageJson.name)
+        process.env.CHERRY_COLA_ENV = 'development'
+})()
 
 const program = yargs(pureArgs)
     .scriptName(packageJson.name)

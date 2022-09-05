@@ -1,15 +1,16 @@
 import ora from 'ora'
-import chalk from 'chalk'
 
-export function showCompilationStatus(label, compiler, stats) {
+export async function showCompilationStatus(label, compiler, stats) {
     let isFirstCompilation = true
     let wasRunning = false, runningMessage
+    const isBun = typeof Bun !== 'undefined' // todo: remove when chalk works on bun
+    const chalk = !isBun && (await import('chalk')).default
     setInterval(() => {
         // started running
         if (!compiler.idle && !wasRunning) {
             // show compiling in console
             runningMessage = ora([
-                chalk.blue(`webpack:`),
+                isBun ? `webpack:` : chalk.blue(`webpack:`),
                 'Compiling',
                 label,
                 (!isFirstCompilation && 'changes'),
@@ -21,14 +22,14 @@ export function showCompilationStatus(label, compiler, stats) {
             // stop showing compiling in console
             // show compiling complete in console
             runningMessage.stopAndPersist({
-                text: [chalk.blue(`webpack:`),
+                text: [isBun ? `webpack:` : chalk.blue(`webpack:`),
                     'Compiled',
                     label,
                     (!isFirstCompilation && 'changes'),
                     'in',
-                    chalk.bold(`${duration} ms`)
+                    isBun ? `${duration} ms` : chalk.bold(`${duration} ms`)
                 ].filter(v => v).join(' '),
-                symbol: chalk.green('✓')
+                symbol: isBun ? '✓' : chalk.green('✓')
             })
             runningMessage = null
             isFirstCompilation = false
