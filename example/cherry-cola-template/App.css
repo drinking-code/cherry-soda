@@ -8,6 +8,13 @@
     justify-content: center;
 }
 
+@media (prefers-color-scheme: dark) {
+    .App {
+        background: #383535;
+        color: #fff;
+    }
+}
+
 .App-logo {
     position: relative;
     height: 40vmin;
@@ -23,7 +30,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
     .App-logo-animated {
-        transform-origin: center 42%;
+        transform-origin: center 39%;
         animation: App-logo-spin infinite 10s linear;
     }
 }
