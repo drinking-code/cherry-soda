@@ -6,6 +6,8 @@ import PrettyError from 'pretty-error'
 import appRoot from 'app-root-path'
 
 import {baseConfig} from './compiler.base.js'
+import {showCompilationStatus} from './compiler.logger.js'
+import chalk from 'chalk'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
@@ -33,8 +35,29 @@ const compiler = webpack({
     },
 })
 
+if (!global['cherry-cola'])
+    global['cherry-cola'] = {}
+
 compiler.inputFileSystem = hfs
-// compiler.outputFileSystem = hfs
 compiler.watch({}, async (err, stats) => {
-    stats.toJson().assets.map(asset => path.join('/out', asset.name))
+    let assets = global['cherry-cola'].clientAssets
+    if (!assets) assets = global['cherry-cola'].clientAssets = []
+    assets.forEach((asset, index) => {
+        if (asset.from === 'javascript-compiler')
+            delete assets[index]
+    })
+    assets.push(
+        ...stats.toJson().assets.map(asset => {
+            asset.from = 'javascript-compiler'
+            return asset
+        })
+    )
+
+    global['cherry-cola'].jsStats = stats.toJson()
 })
+
+showCompilationStatus(
+    chalk.bgHex('#c09a00').black(' javascript '),
+    compiler,
+    'jsStats'
+)

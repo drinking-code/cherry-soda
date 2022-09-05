@@ -11,6 +11,7 @@ import ora from 'ora'
 import chalk from 'chalk'
 
 import {baseConfig} from './compiler.base.js'
+import {showCompilationStatus} from './compiler.logger.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
 const pe = new PrettyError()
@@ -77,37 +78,30 @@ compiler.watch({}, async (err, stats) => {
     global['cherry-cola'].currentStats = stats.toJson()
     const jsFileName = '_remove_me.js'
     const jsFilePath = path.join(outputPath, jsFileName)
-    global['cherry-cola'].clientAssets = stats.toJson().assets.filter(asset => asset.name !== jsFileName)
+
+    let assets = global['cherry-cola'].clientAssets
+    if (!assets) assets = global['cherry-cola'].clientAssets = []
+    assets.forEach((asset, index) => {
+        if (asset.from === 'assets-compiler')
+            delete assets[index]
+    })
+    assets.push(
+        ...stats.toJson().assets
+            .filter(asset => !asset.name.endsWith(jsFileName))
+            .map(asset => {
+                asset.from = 'assets-compiler'
+                return asset
+            })
+    )
+
     if (fs.existsSync(jsFilePath))
         await fs.rmSync(jsFilePath)
     if (err)
         console.log(pe.render(err))
 })
 
-let isFirstCompilation = true
-let wasRunning = false, runningMessage
-setInterval(() => {
-    // started running
-    if (!compiler.idle && !wasRunning) {
-        // show compiling in console
-        runningMessage = ora(
-            chalk.blue(`webpack: `) +
-            (!isFirstCompilation ? 'Compiling changes' : 'Compiling assets')
-        ).start()
-        runningMessage.color = 'cyan'
-    } else // stopped running
-    if (compiler.idle && wasRunning) {
-        const duration = global['cherry-cola'].currentStats.time
-        // stop showing compiling in console
-        // show compiling complete in console
-        runningMessage.stopAndPersist({
-            text: chalk.blue(`webpack: `) +
-                (!isFirstCompilation ? 'Compiled changes in ' : 'Compiled assets in ') +
-                chalk.bold(`${duration} ms`),
-            symbol: chalk.green('✓')
-        })
-        runningMessage = null
-        isFirstCompilation = false
-    }
-    wasRunning = !compiler.idle
-}, 1)
+showCompilationStatus(
+    chalk.bgHex('#006434').hex('#ddd')(' assets '),
+    compiler,
+    'currentStats'
+)

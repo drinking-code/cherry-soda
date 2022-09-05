@@ -34,4 +34,12 @@ export class ElementChildren<T = ElementChild> extends Array {
                         .includes(false)
             }, thisArg)
     }
+
+    filter<S extends T>(predicate: (value: T, index: number, array: T[]) => value is S, thisArg?: any): S[] {
+        return new ElementChildren(Array.from(this).filter(predicate, thisArg))
+    }
+
+    map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[] {
+        return new ElementChildren(Array.from(this).map(callbackfn, thisArg))
+    }
 }

@@ -1,6 +1,7 @@
 import {ElementId, VirtualElement} from "../jsx/VirtualElement";
 import {validTags, voidElements} from "./html-props";
 import Document from "./default-document";
+import {ElementChildren} from "../jsx/ElementChildren";
 
 export default function render(element): string {
     const phantomBodyId = new ElementId(0, null, <body/>)
@@ -25,6 +26,8 @@ export function renderElement(element: VirtualElement): string {
                 const htmlPropName = prop === 'className' ? 'class' : prop
                 if ([undefined, null].includes(element.props[prop]))
                     return false
+                if (element.props[prop] === true)
+                    return htmlPropName
 
                 return `${htmlPropName}="${element.props[prop]}"`
             })
@@ -40,8 +43,8 @@ export function renderElement(element: VirtualElement): string {
 
     const closingTag: string = `</${element.type}>`
 
-    const renderedChildren: string = element.children.flat()
-        .filter(v => v)
+    const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
+    const renderedChildren: string = filteredChildren
         .map((child, i) => {
             if (child instanceof VirtualElement)
                 return child.render(i, element.id)
