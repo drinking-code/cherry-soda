@@ -1,8 +1,10 @@
-import appRoot from 'app-root-path'
+import GetChangedFilesPlugin from './GetChangedFilesPlugin.js'
+import {mergeDeep, isObject, cloneDeep} from '../../utils/object.js'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 const entryPoint = process.env.CHERRY_COLA_ENTRY
-export const baseConfig = {
+
+const baseConfig = {
     mode: isProduction ? 'production' : 'development',
     entry: entryPoint,
     devtool: !isProduction && 'inline-source-map',
@@ -32,3 +34,17 @@ export const baseConfig = {
         },],
     },
 }
+
+/**
+ * @param {import('webpack/types').Configuration} config
+ * */
+export function extendBaseConfig(config) {
+    if (!isObject(baseConfig) || !isObject(config)) return
+
+    const baseConfigCopy = cloneDeep(baseConfig)
+    mergeDeep(baseConfigCopy, config)
+
+    return baseConfigCopy
+}
+
+export {baseConfig}

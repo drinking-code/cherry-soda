@@ -8,8 +8,10 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 
 import appRoot from 'app-root-path'
 
-import {baseConfig} from './compiler.base.js'
-import {showCompilationStatus} from './compiler.logger.js'
+import {extendBaseConfig} from './base.js'
+import {showCompilationStatus} from './logger.js'
+import {reportNewAsset} from '../dynamic-code-synchronisation/report.js'
+import GetChangedFilesPlugin from './GetChangedFilesPlugin.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
 const pe = new PrettyError()
@@ -33,11 +35,9 @@ const postcssAndSass = [{
         sourceMap: true,
     }
 },]
-const compiler = webpack({
-    ...baseConfig,
+const compiler = webpack(extendBaseConfig({
     target: 'web',
     output: {
-        ...baseConfig.output,
         path: outputPath,
         filename: '_remove_me.js',
         clean: {
@@ -45,7 +45,7 @@ const compiler = webpack({
         }
     },
     module: {
-        rules: [...baseConfig.module.rules, {
+        rules: [{
             test: /\.(png|svg)$/i,
             type: 'asset/resource',
         }, {
@@ -63,19 +63,24 @@ const compiler = webpack({
         },],
     },
     plugins: [
+        new GetChangedFilesPlugin(reportNewAsset),
         new MiniCssExtractPlugin({
             filename: 'style.css',
         }),
     ],
-})
+}))
 
 if (!global['cherry-cola'])
     global['cherry-cola'] = {}
 
 compiler.watch({}, async (err, stats) => {
-    global['cherry-cola'].currentStats = stats.toJson()
+    const statsJson = stats.toJson()
+    global['cherry-cola'].assetsStats = statsJson
+
     const jsFileName = '_remove_me.js'
     const jsFilePath = path.join(outputPath, jsFileName)
+    if (fs.existsSync(jsFilePath))
+        await fs.rmSync(jsFilePath)
 
     let assets = global['cherry-cola'].clientAssets
     if (!assets) assets = global['cherry-cola'].clientAssets = []
@@ -83,34 +88,25 @@ compiler.watch({}, async (err, stats) => {
         if (asset.from === 'assets-compiler')
             delete assets[index]
     })
+    const newAssets = statsJson.assets
+        .filter(asset => !asset.name.endsWith(jsFileName))
     assets.push(
-        ...stats.toJson().assets
-            .filter(asset => !asset.name.endsWith(jsFileName))
+        ...newAssets
             .map(asset => {
                 asset.from = 'assets-compiler'
                 return asset
             })
     )
 
-    if (fs.existsSync(jsFilePath))
-        await fs.rmSync(jsFilePath)
     if (err)
         console.log(pe.render(err))
 })
 
 ;(async () => {
-    if (typeof Bun !== 'undefined') { // todo: remove when chalk works on bun
-        showCompilationStatus(
-            'assets',
-            compiler,
-            'currentStats'
-        )
-    } else {
-        const chalk = (await import('chalk')).default
-        showCompilationStatus(
-            chalk.bgHex('#006434').hex('#ddd')(' assets '),
-            compiler,
-            'currentStats'
-        )
-    }
+    showCompilationStatus(
+        typeof Bun !== 'undefined' ? label
+            : (await import('chalk')).default.bgHex('#006434').hex('#ddd')(' assets '),
+        compiler,
+        'assetsStats'
+    )
 })()

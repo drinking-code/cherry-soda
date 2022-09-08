@@ -1,4 +1,4 @@
-import {outputPath as serverOutputPath} from "./compiler.node";
+import {outputPath as serverOutputPath} from "./compiler/node";
 
 let importCounter = 0
 Bun.serve({

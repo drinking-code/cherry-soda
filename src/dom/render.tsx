@@ -24,6 +24,7 @@ export function renderElement(element: VirtualElement): string {
         Array.from(Object.keys(element.props))
             .map(prop => {
                 const htmlPropName = prop === 'className' ? 'class' : prop
+                // todo: convert prop names like "charSet", "onClick", and "dataValue"
                 if ([undefined, null].includes(element.props[prop]))
                     return false
                 if (element.props[prop] === true)
