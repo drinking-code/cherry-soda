@@ -13,57 +13,37 @@ export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'c
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
 const pe = new PrettyError()
 
-/*const hfs = createHybridFs([
-    appRoot.resolve('node_modules'),
-    path.join(dirname, '..', '..', '..', 'package.json'),
-    [path.join(dirname, '..', '..', 'runtime'), '/runtime'],
-])
-hfs.mkdirSync('/app')
-hfs.mkdirSync('/out')*/
-
-esbuild.build(extendBaseConfig({
-    entryPoints: ['/runtime/index.js'],
-    output: {
-        filename: 'main.js',
-        path: outputPath,
-        clean: {
-            keep: (name) => !name.endsWith('.js')
-        },
-    },
-    plugins: [
-        new GetChangedFilesPlugin(reportNewScripts),
-    ]
-}))
-
 if (!global['cherry-cola'])
     global['cherry-cola'] = {}
 
-// compiler.inputFileSystem = hfs
-/*compiler.watch({}, async (err, stats) => {
-    if (!stats) return
+const label = 'javascript'
+esbuild.build(extendBaseConfig({
+    entryPoints: [path.join(dirname, '..', '..', 'runtime', 'index.js')],
+    outdir: outputPath,
+    plugins: [
+        showCompilationStatus(typeof Bun !== 'undefined' ? label
+            : (await import('chalk')).default.bgHex('#c09a00').black(' ' + label + ' ')
+        ),
+    ],
+    watch: process.env.BUN_ENV === 'development' && {
+        async onRebuild(error, result) {
+            // if (!stats) return
 
-    const statsJson = stats.toJson()
-    global['cherry-cola'].jsStats = statsJson
+            // const statsJson = stats.toJson()
+            // global['cherry-cola'].jsStats = statsJson
 
-    let assets = global['cherry-cola'].clientAssets
-    if (!assets) assets = global['cherry-cola'].clientAssets = []
-    assets.forEach((asset, index) => {
-        if (asset.from === 'javascript-compiler')
-            delete assets[index]
-    })
-    assets.push(
-        ...statsJson.assets.map(asset => {
-            asset.from = 'javascript-compiler'
-            return asset
-        })
-    )
-})*/
-
-/*;(async () => {
-    showCompilationStatus(
-        typeof Bun !== 'undefined' ? label
-            : (await import('chalk')).default.bgHex('#c09a00').black(' javascript '),
-        compiler,
-        'jsStats'
-    )
-})()*/
+            // let assets = global['cherry-cola'].clientAssets
+            // if (!assets) assets = global['cherry-cola'].clientAssets = []
+            /*assets.forEach((asset, index) => {
+                if (asset.from === 'javascript-compiler')
+                    delete assets[index]
+            })*/
+            /*assets.push(
+                ...statsJson.assets.map(asset => {
+                    asset.from = 'javascript-compiler'
+                    return asset
+                })
+            )*/
+        }
+    }
+}))

@@ -3,7 +3,7 @@ import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 
 import appRoot from 'app-root-path'
-import {baseConfig, extendBaseConfig} from './base.js'
+import {baseConfig, entryPoint, extendBaseConfig} from './base.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
@@ -14,7 +14,7 @@ esbuild.build(extendBaseConfig({
     platform: 'node',
     entryPoints: {
         'cherry-cola': path.join(dirname, '..', '..', 'index.ts'),
-        App: baseConfig.entryPoints,
+        App: entryPoint,
     },
     outdir: outputPath,
     outExtension: {

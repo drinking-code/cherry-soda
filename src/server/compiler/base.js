@@ -7,7 +7,7 @@ import autoprefixer from 'autoprefixer'
 import {imageLoader} from '../../imports/images.js'
 
 export const isProduction = process.env.BUN_ENV === 'production'
-const entryPoint = process.env.CHERRY_COLA_ENTRY
+export const entryPoint = process.env.CHERRY_COLA_ENTRY
 
 const browserslistEsbuildMap = {
     'chrome': 'chrome',
@@ -31,7 +31,6 @@ const baseConfig = {
         .filter(v => v),
     bundle: true,
     sourcemap: 'inline',
-    entryPoints: [entryPoint],
     external: ['bun', 'fs', 'crypto'],
     plugins: [
         imageLoader

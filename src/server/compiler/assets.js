@@ -8,7 +8,7 @@ import autoprefixer from 'autoprefixer'
 
 import appRoot from 'app-root-path'
 
-import {extendBaseConfig} from './base.js'
+import {entryPoint, extendBaseConfig} from './base.js'
 import {showCompilationStatus} from './logger.js'
 import {reportNewAsset} from '../dynamic-code-synchronisation/report.js'
 import GetChangedFilesPlugin from './GetChangedFilesPlugin.js'
@@ -21,6 +21,7 @@ if (!global['cherry-cola'])
 
 const label = 'assets'
 esbuild.build(extendBaseConfig({
+    entryPoints: [entryPoint],
     outfile: path.join(outputPath, '_remove_me.js'),
     plugins: [
         postCssPlugin({
