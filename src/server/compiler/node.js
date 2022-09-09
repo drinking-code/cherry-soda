@@ -1,5 +1,5 @@
 import path from 'path'
-import webpack from 'webpack'
+import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 
 import appRoot from 'app-root-path'
@@ -9,35 +9,22 @@ export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'c
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
 const pe = new PrettyError()
 
-webpack(extendBaseConfig({
-    target: 'node16',
-    entry: {
+esbuild.build(extendBaseConfig({
+    target: 'node16', // todo: use current node version
+    platform: 'node',
+    entryPoints: {
         'cherry-cola': path.join(dirname, '..', '..', 'index.ts'),
-        App: baseConfig.entry,
+        App: baseConfig.entryPoints,
     },
-    output: {
-        path: outputPath,
-        library: {
-            type: 'module',
+    outdir: outputPath,
+    outExtension: {
+        '.js': '.mjs'
+    },
+    format: 'esm',
+    watch: process.env.BUN_ENV === 'development' && {
+        onRebuild(error, result) {
+            if (error)
+                console.log(pe.render(error))
         },
     },
-    module: {
-        rules: [{
-            test: /\.(png|svg)$/i,
-            type: 'asset/resource',
-            generator: {
-                publicPath: '/',
-                emit: false,
-            }
-        }, {
-            test: /\.css$/i,
-            use: ['css-loader'],
-        },],
-    },
-    experiments: {
-        outputModule: true,
-    },
-})).watch({}, (err, stats) => {
-    if (err)
-        console.log(pe.render(err))
-})
+}))

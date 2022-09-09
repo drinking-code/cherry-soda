@@ -26,8 +26,8 @@ app.get('/', async (req, res) => {
     }
 })
 
-const server = app.listen(3000, () => {
-    console.log(chalk.magenta('dev server: ') + 'listening at http://localhost:3000')
+const server = app.listen(Number(process.env.PORT), () => {
+    console.log(chalk.magenta('dev server: ') + `listening at http://localhost:${process.env.PORT}`)
 })
 
 dynamicCodeSynchronisation(server)

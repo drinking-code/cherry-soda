@@ -1,6 +1,5 @@
 import path from 'path'
-import createHybridFs from 'hybridfs'
-import webpack from 'webpack'
+import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 
 import appRoot from 'app-root-path'
@@ -14,17 +13,16 @@ export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'c
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
 const pe = new PrettyError()
 
-const hfs = createHybridFs([
+/*const hfs = createHybridFs([
     appRoot.resolve('node_modules'),
     path.join(dirname, '..', '..', '..', 'package.json'),
     [path.join(dirname, '..', '..', 'runtime'), '/runtime'],
 ])
 hfs.mkdirSync('/app')
-hfs.mkdirSync('/out')
+hfs.mkdirSync('/out')*/
 
-const compiler = webpack(extendBaseConfig({
-    target: 'web',
-    entry: ['/runtime/index.js'],
+esbuild.build(extendBaseConfig({
+    entryPoints: ['/runtime/index.js'],
     output: {
         filename: 'main.js',
         path: outputPath,
@@ -40,8 +38,8 @@ const compiler = webpack(extendBaseConfig({
 if (!global['cherry-cola'])
     global['cherry-cola'] = {}
 
-compiler.inputFileSystem = hfs
-compiler.watch({}, async (err, stats) => {
+// compiler.inputFileSystem = hfs
+/*compiler.watch({}, async (err, stats) => {
     if (!stats) return
 
     const statsJson = stats.toJson()
@@ -59,13 +57,13 @@ compiler.watch({}, async (err, stats) => {
             return asset
         })
     )
-})
+})*/
 
-;(async () => {
+/*;(async () => {
     showCompilationStatus(
         typeof Bun !== 'undefined' ? label
             : (await import('chalk')).default.bgHex('#c09a00').black(' javascript '),
         compiler,
         'jsStats'
     )
-})()
+})()*/

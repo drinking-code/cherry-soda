@@ -21,27 +21,20 @@
     "css": "onimportcss"
   },
   "devDependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.18.10",
-    "@babel/preset-typescript": "^7.18.6",
+    "@deanc/esbuild-plugin-postcss": "^1.0.2",
     "autoprefixer": "^10.4.8",
-    "babel-loader": "^8.2.5",
+    "browserslist": "^4.21.3",
     "bun-types": "^0.1.0",
-    "css-loader": "^6.7.1",
-    "mini-css-extract-plugin": "^2.6.1",
-    "postcss-loader": "^7.0.1",
-    "resolve-url-loader": "^5.0.0",
-    "sass-loader": "^13.0.2",
-    "ws": "^8.8.1",
-    "yargs": "^17.5.1"
+    "esbuild": "^0.15.7",
+    "ora": "^6.1.2",
+    "ws": "^8.8.1"
   },
   "dependencies": {
     "app-root-path": "^3.1.0",
     "chalk": "^5.0.1",
     "express": "^4.18.1",
-    "hybridfs": "github:drinking-code/hybridfs",
-    "ora": "^6.1.2",
     "pretty-error": "^4.0.0",
     "shrink-ray-current": "^4.1.3",
-    "webpack": "^5.74.0"
+    "yargs": "^17.5.1"
   }
 }

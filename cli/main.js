@@ -38,6 +38,9 @@ const pureArgs = hideBin(
         process.env.CHERRY_COLA_ENV = 'development'
 })()
 
+if (!process.env.PORT)
+    process.env.PORT = '3000'
+
 const program = yargs(pureArgs)
     .scriptName(packageJson.name)
     .version('cherry-cola v' + packageJson.version)
