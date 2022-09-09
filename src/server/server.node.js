@@ -1,7 +1,6 @@
 import express from 'express'
 import {outputPath as serverOutputPath} from './compiler/node.js'
 import {outputPath as clientOutputPath} from './compiler/assets.js'
-import './compiler/javascript.js'
 import dynamicCodeSynchronisation from './dynamic-code-synchronisation/websocket.js'
 
 import PrettyError from 'pretty-error'
@@ -17,10 +16,11 @@ app.use(express.static(clientOutputPath))
 let importCounter = 0
 app.get('/', async (req, res) => {
     try {
-        const App = (await import(`${serverOutputPath}/App.mjs?ignoreCacheNonce=${importCounter}&from=server`)).default
+        const App = (await import(`${serverOutputPath}/App.mjs?ignoreCacheNonce=${importCounter}&from=server`)).main
         const {render} = await import(`${serverOutputPath}/cherry-cola.mjs?ignoreCacheNonce=${importCounter++}&from=server`)
         res.send(render(App()))
     } catch (err) {
+        console.error('Error during rendering:')
         console.log(pe.render(err))
         res.status(500).send('Internal Error')
     }

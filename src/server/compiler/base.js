@@ -31,10 +31,6 @@ const baseConfig = {
         .filter(v => v),
     bundle: true,
     sourcemap: 'inline',
-    external: ['bun', 'fs', 'crypto'],
-    plugins: [
-        imageLoader
-    ],
 }
 
 /**

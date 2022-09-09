@@ -1,6 +1,6 @@
 import './index.css';
 import App from './App'
 
-export default function () {
+export function main() {
     return <App/>
 }

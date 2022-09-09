@@ -1,8 +1,6 @@
 import './compiler/assets'
 import {render} from '../'
 
-// console.log(outputPath)
-
 let importCounter = 0
 Bun.serve({
     async fetch(req: Request) {

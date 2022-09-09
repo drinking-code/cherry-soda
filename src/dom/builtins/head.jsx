@@ -3,8 +3,7 @@ export default function Head({children, ...props}) {
     delete children[children.indexOf(charset)]
     const title = children.find(<title/>) ?? <title>Title</title>
     delete children[children.indexOf(title)]
-    /*const assets = global['cherry-cola'].clientAssets
-        .map(asset => asset.name)
+    const assets = global['cherry-cola'].clientAssets
         .filter(asset =>
             ['.css', '.js']
                 .map(suffix => asset.endsWith(suffix))
@@ -17,14 +16,14 @@ export default function Head({children, ...props}) {
                 return <link rel={'stylesheet'} href={asset}/>
             else if (asset.endsWith('.js'))
                 return <script src={asset} defer/>
-        })*/
+        })
 
     return (
         <head {...props}>
             {charset}
             {title}
             {children}
-            {'assets'}
+            {assets}
             {/* todo: preload important non-code assets */}
         </head>
     )

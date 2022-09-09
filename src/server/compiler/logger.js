@@ -7,7 +7,7 @@ export function showCompilationStatus(label) {
         async setup(build) {
             let start, isFirstCompilation = true, runningMessage
             const isBun = typeof Bun !== 'undefined' // todo: remove when chalk works on bun
-            const chalk = !isBun && (await import('chalk')).default
+            const chalk = /*!isBun && (await import('chalk')).default*/ false
             const durationDecimalPlaces = 2
 
             build.onStart(() => {

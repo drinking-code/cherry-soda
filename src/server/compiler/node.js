@@ -4,6 +4,7 @@ import PrettyError from 'pretty-error'
 
 import appRoot from 'app-root-path'
 import {baseConfig, entryPoint, extendBaseConfig} from './base.js'
+import {imageLoader} from '../../imports/images.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
@@ -21,6 +22,10 @@ esbuild.build(extendBaseConfig({
         '.js': '.mjs'
     },
     format: 'esm',
+    external: ['bun', 'fs', 'crypto'],
+    plugins: [
+        imageLoader({emit: false}),
+    ],
     watch: process.env.BUN_ENV === 'development' && {
         onRebuild(error, result) {
             if (error)
