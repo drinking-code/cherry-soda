@@ -19,7 +19,7 @@ export class VirtualElement<P = {}> {
         this.children = children
     }
 
-    render(index: number = 0, parent: ElementId | null): string {
+    render(index: number = 0, parent: ElementId | null): string | string[] {
         this._id = new ElementId(index, parent, this)
         return renderElement(this)
     }

@@ -7,14 +7,15 @@ export function showCompilationStatus(label) {
         async setup(build) {
             let start, isFirstCompilation = true, runningMessage
             const isBun = typeof Bun !== 'undefined' // todo: remove when chalk works on bun
-            const chalk = /*!isBun && (await import('chalk')).default*/ false
+            const chalk = !isBun && (await import('chalk')).default
             const durationDecimalPlaces = 2
+            const compilerName = 'Compiler'
 
             build.onStart(() => {
                 start = performance.now()
                 // show compiling in console
                 runningMessage = ora([
-                        isBun ? `webpack:` : chalk.blue(`webpack:`),
+                        isBun ? `${compilerName}:` : chalk.blue(`${compilerName}:`),
                         'Compiling',
                         label,
                         (!isFirstCompilation && 'changes'),
@@ -29,7 +30,7 @@ export function showCompilationStatus(label) {
                 ) / (10 ** durationDecimalPlaces)
                 // show compiling complete in console
                 runningMessage.stopAndPersist({
-                    text: [isBun ? `webpack:` : chalk.blue(`webpack:`),
+                    text: [isBun ? `${compilerName}:` : chalk.blue(`${compilerName}:`),
                         'Compiled',
                         label,
                         (!isFirstCompilation && 'changes'),

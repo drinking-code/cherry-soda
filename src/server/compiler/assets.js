@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import esbuild from 'esbuild'
-import postCssPlugin from '@deanc/esbuild-plugin-postcss'
+import stylePlugin from 'esbuild-style-plugin'
 import PrettyError from 'pretty-error'
 
 import autoprefixer from 'autoprefixer'
@@ -9,10 +9,11 @@ import autoprefixer from 'autoprefixer'
 import appRoot from 'app-root-path'
 
 import {entryPoint, extendBaseConfig} from './base.js'
-// import {showCompilationStatus} from './logger.js'
+import {showCompilationStatus} from './logger.js'
 import {reportNewAsset} from '../dynamic-code-synchronisation/report.js'
 import GetChangedFilesPlugin from './GetChangedFilesPlugin.js'
 import {imageLoader} from '../../imports/images.js'
+import extractClientCodePlugin from './ExtractClientCodePlugin.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
@@ -30,12 +31,15 @@ esbuild.build(extendBaseConfig({
     outfile: path.join(outputPath, 'main.js'),
     plugins: [
         imageLoader({path: outputPath}),
-        postCssPlugin({
-            plugins: [autoprefixer],
+        stylePlugin({
+            postcss: {
+                plugins: [autoprefixer],
+            }
         }),
-        /*showCompilationStatus(typeof Bun !== 'undefined' ? label
+        showCompilationStatus(typeof Bun !== 'undefined' ? label
             : (await import('chalk')).default.bgBlue(` ${label} `)
-        ),*/
+        ),
+        extractClientCodePlugin(),
     ],
     watch: process.env.BUN_ENV === 'development' && {
         async onRebuild(error, result) {

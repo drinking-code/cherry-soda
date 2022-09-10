@@ -25,8 +25,10 @@ export function imageLoader(options) {
                     .digest('hex')
                     .substring(0, 8)
                 const newFileName = originalFileName.replace(/\.([^.]+)$/, `-${contentHash}.$1`)
-                if (options.emit !== false && options.path)
+                if (options.emit !== false && options.path) {
+                    fs.mkdirSync(options.path, {recursive: true})
                     fs.writeFileSync(path.join(options.path, newFileName), fileContents)
+                }
 
                 return (typeof Bun !== 'undefined')
                     ? {

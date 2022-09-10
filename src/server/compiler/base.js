@@ -1,10 +1,7 @@
 import browserslist from 'browserslist'
 
-import GetChangedFilesPlugin from './GetChangedFilesPlugin.js'
 import {mergeDeep, isObject, cloneDeep} from '../../utils/object.js'
-import postCssPlugin from '@deanc/esbuild-plugin-postcss'
-import autoprefixer from 'autoprefixer'
-import {imageLoader} from '../../imports/images.js'
+import cleanUpPlugin from './CleanUpPlugin.js'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const entryPoint = process.env.CHERRY_COLA_ENTRY
@@ -30,7 +27,10 @@ const baseConfig = {
         })
         .filter(v => v),
     bundle: true,
-    sourcemap: 'inline',
+    sourcemap: !isProduction && 'inline',
+    plugins: [
+        cleanUpPlugin
+    ],
 }
 
 /**

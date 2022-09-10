@@ -14,7 +14,7 @@ function createVirtualElement(
     return new VirtualElement(type, props, children)
 }
 
-const Fragment = Symbol.for('CherryCola.Fragment')
+const Fragment = Symbol.for('cherry-cola.fragment')
 
 export {
     createVirtualElement as jsx,

@@ -3,7 +3,7 @@ import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 
 import appRoot from 'app-root-path'
-import {baseConfig, entryPoint, extendBaseConfig} from './base.js'
+import {entryPoint, extendBaseConfig} from './base.js'
 import {imageLoader} from '../../imports/images.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))

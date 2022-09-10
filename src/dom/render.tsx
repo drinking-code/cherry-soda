@@ -1,11 +1,15 @@
 import {ElementId, VirtualElement} from "../jsx/VirtualElement";
+import {ElementChildren} from "../jsx/ElementChildren";
 import {validTags, voidElements} from "./html-props";
 import Document from "./default-document";
-import {ElementChildren} from "../jsx/ElementChildren";
+import {Fragment} from "../jsx/factroy";
 
 export default function render(element): string {
     const phantomBodyId = new ElementId(0, null, <body/>)
     let html = element.render(0, phantomBodyId)
+    // in the case "element" is a fragment "element.render" returns an array
+    if (Array.isArray(html))
+        html = html.join('')
     if (!html.startsWith('<html'))
         html = render(<Document>{html}</Document>)
     else
@@ -13,9 +17,30 @@ export default function render(element): string {
     return html
 }
 
-export function renderElement(element: VirtualElement): string {
+export function renderElement(element: VirtualElement): string | string[] {
     if (element.type === 'function')
         return element.function({...element.props, children: element.children}).render(0, element.id)
+
+    const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
+    let i = -1
+    const renderedChildren: string[] = filteredChildren
+        .map((child) => {
+            i++
+            if (child instanceof VirtualElement) {
+                const rendered = child.render(i, element.id)
+                if (Array.isArray(rendered)) {
+                    i += rendered.length - 1
+                    return rendered.join('')
+                }
+                return rendered
+            }
+            // todo: handle objects
+            return child.toString() // todo: escape html
+        })
+
+    // @ts-ignore
+    if (element.type === Fragment)
+        return Array.from(renderedChildren)
 
     if (!validTags.includes(element.type as string))
         throw new Error(`\`${element.type}\` is not a valid element tag.`)
@@ -44,17 +69,7 @@ export function renderElement(element: VirtualElement): string {
 
     const closingTag: string = `</${element.type}>`
 
-    const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
-    const renderedChildren: string = filteredChildren
-        .map((child, i) => {
-            if (child instanceof VirtualElement)
-                return child.render(i, element.id)
-            // todo: handle objects
-            return child.toString() // todo: escape html
-        })
-        .join('')
-
     return openingTag +
-        renderedChildren +
+        renderedChildren.join('') +
         closingTag
 }
