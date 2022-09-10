@@ -1,10 +1,6 @@
 import path from 'path'
-import fs from 'fs'
 import esbuild from 'esbuild'
-import stylePlugin from 'esbuild-style-plugin'
 import PrettyError from 'pretty-error'
-
-import autoprefixer from 'autoprefixer'
 
 import appRoot from 'app-root-path'
 
@@ -31,11 +27,6 @@ esbuild.build(extendBaseConfig({
     outfile: path.join(outputPath, 'main.js'),
     plugins: [
         imageLoader({path: outputPath}),
-        stylePlugin({
-            postcss: {
-                plugins: [autoprefixer],
-            }
-        }),
         showCompilationStatus(typeof Bun !== 'undefined' ? label
             : (await import('chalk')).default.bgBlue(` ${label} `)
         ),

@@ -18,10 +18,6 @@ esbuild.build(extendBaseConfig({
         App: entryPoint,
     },
     outdir: outputPath,
-    outExtension: {
-        '.js': '.mjs'
-    },
-    format: 'esm',
     external: ['bun', 'fs', 'crypto'],
     plugins: [
         imageLoader({emit: false}),

@@ -10,7 +10,7 @@
 
 @media (prefers-color-scheme: dark) {
     .App {
-        background: #383535;
+        background: #232020;
         color: #fff;
     }
 }
@@ -19,6 +19,7 @@
     position: relative;
     height: 40vmin;
     width: 40vmin;
+    margin-bottom: -3vmin;
     pointer-events: none;
 }
 
@@ -30,7 +31,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
     .App-logo-animated {
-        transform-origin: center 39%;
+        transform-origin: center 38%;
         animation: App-logo-spin infinite 10s linear;
     }
 }

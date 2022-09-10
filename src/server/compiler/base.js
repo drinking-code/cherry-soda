@@ -1,4 +1,6 @@
 import browserslist from 'browserslist'
+import stylePlugin from 'esbuild-style-plugin'
+import autoprefixer from 'autoprefixer'
 
 import {mergeDeep, isObject, cloneDeep} from '../../utils/object.js'
 import cleanUpPlugin from './CleanUpPlugin.js'
@@ -29,7 +31,12 @@ const baseConfig = {
     bundle: true,
     sourcemap: !isProduction && 'inline',
     plugins: [
-        cleanUpPlugin
+        stylePlugin({
+            postcss: {
+                plugins: [autoprefixer],
+            }
+        }),
+        cleanUpPlugin,
     ],
 }
 

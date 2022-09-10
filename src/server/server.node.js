@@ -16,8 +16,8 @@ app.use(express.static(clientOutputPath))
 let importCounter = 0
 app.get('/', async (req, res) => {
     try {
-        const App = (await import(`${serverOutputPath}/App.mjs?ignoreCacheNonce=${importCounter}&from=server`)).main
-        const {render} = await import(`${serverOutputPath}/cherry-cola.mjs?ignoreCacheNonce=${importCounter++}&from=server`)
+        const App = (await import(`${serverOutputPath}/App.js?ignoreCacheNonce=${importCounter}&from=server`)).main
+        const {render} = await import(`${serverOutputPath}/cherry-cola.js?ignoreCacheNonce=${importCounter++}&from=server`)
         res.send(render(App()))
     } catch (err) {
         console.error('Error during rendering:')
