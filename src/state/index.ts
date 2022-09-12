@@ -6,8 +6,8 @@ export default function createState(initialValue) {
         stateValue = new StringState(initialValue)
     } else if (typeof initialValue === 'number') {
         stateValue = new NumberState(initialValue)
-    } else
-        return stateValue
+    }
+    return stateValue
 }
 
 class StateId {

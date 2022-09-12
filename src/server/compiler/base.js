@@ -3,7 +3,7 @@ import stylePlugin from 'esbuild-style-plugin'
 import autoprefixer from 'autoprefixer'
 
 import {mergeDeep, isObject, cloneDeep} from '../../utils/object.js'
-import cleanUpPlugin from './CleanUpPlugin.js'
+import cleanUpPlugin from './plugins/CleanUpPlugin.js'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const entryPoint = process.env.CHERRY_COLA_ENTRY

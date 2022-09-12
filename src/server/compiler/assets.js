@@ -5,11 +5,11 @@ import PrettyError from 'pretty-error'
 import appRoot from 'app-root-path'
 
 import {entryPoint, extendBaseConfig} from './base.js'
-import {showCompilationStatus} from './logger.js'
+import {showCompilationStatus} from './helpers/logger.js'
 import {reportNewAsset} from '../dynamic-code-synchronisation/report.js'
-import GetChangedFilesPlugin from './GetChangedFilesPlugin.js'
+import GetChangedFilesPlugin from './plugins/GetChangedFilesPlugin.js'
 import {imageLoader} from '../../imports/images.js'
-import extractClientCodePlugin from './ExtractClientCodePlugin.js'
+import extractClientCodePlugin from './plugins/ExtractClientCodePlugin.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
 const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')

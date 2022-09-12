@@ -1,11 +1,12 @@
 import express from 'express'
-import {outputPath as serverOutputPath} from './compiler/node.js'
-import {outputPath as clientOutputPath} from './compiler/assets.js'
-import dynamicCodeSynchronisation from './dynamic-code-synchronisation/websocket.js'
-
 import PrettyError from 'pretty-error'
 import shrinkRay from 'shrink-ray-current'
 import chalk from 'chalk'
+
+import './compiler/node.js'
+import {outputPath as clientOutputPath} from './compiler/assets.js'
+import dynamicCodeSynchronisation from './dynamic-code-synchronisation/websocket.js'
+import render from './render.js'
 
 const app = express()
 const pe = new PrettyError()
@@ -13,12 +14,9 @@ const pe = new PrettyError()
 app.use(shrinkRay())
 app.use(express.static(clientOutputPath))
 
-let importCounter = 0
 app.get('/', async (req, res) => {
     try {
-        const App = (await import(`${serverOutputPath}/App.js?ignoreCacheNonce=${importCounter}&from=server`)).main
-        const {render} = await import(`${serverOutputPath}/cherry-cola.js?ignoreCacheNonce=${importCounter++}&from=server`)
-        res.send(render(App()))
+        res.send(await render())
     } catch (err) {
         console.error('Error during rendering:')
         console.log(pe.render(err))
