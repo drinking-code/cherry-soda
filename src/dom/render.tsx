@@ -2,7 +2,8 @@ import {ElementId, VirtualElement} from "../jsx/VirtualElement";
 import {ElementChildren} from "../jsx/ElementChildren";
 import {validTags, voidElements} from "./html-props";
 import Document from "./default-document";
-import {Fragment} from "../jsx/factroy";
+import {Fragment} from "../jsx/factory";
+import callFunctionComponent from "../module-collector";
 
 export default function render(element): string {
     const phantomBodyId = new ElementId(0, null, <body/>)
@@ -19,7 +20,7 @@ export default function render(element): string {
 
 export function renderElement(element: VirtualElement): string | string[] {
     if (element.type === 'function')
-        return element.function({...element.props, children: element.children}).render(0, element.id)
+        return callFunctionComponent(element)
 
     const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
     let i = -1

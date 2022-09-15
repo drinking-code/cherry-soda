@@ -7,7 +7,6 @@ import appRoot from 'app-root-path'
 import {entryPoint, extendBaseConfig} from './base.js'
 import {showCompilationStatus} from './helpers/logger.js'
 import {reportNewAsset} from '../dynamic-code-synchronisation/report.js'
-import GetChangedFilesPlugin from './plugins/GetChangedFilesPlugin.js'
 import {imageLoader} from '../../imports/images.js'
 import buildFileTreeOfComponentsOnly from './plugins/BuildFileTreeOfComponentsOnly.js'
 

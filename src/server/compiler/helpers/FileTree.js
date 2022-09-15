@@ -1,3 +1,5 @@
+import console from '../../../utils/console.js'
+
 export class Import {
     // file tree of file imported
     fileTree;
@@ -47,14 +49,14 @@ export default class FileTree {
     }
 
     get relativePath() {
-        return this.filename.replace(process.env.APP_ROOT_PATH, '')
+        return this.filename?.replace(process.env.APP_ROOT_PATH, '')
     }
 
     print(level = 0, isLast = false) {
         console.log(
-            Array(Math.max(level - 1, 0)).fill(' ') +
+            Array(Math.max(level - 1, 0)).fill('  ') +
             (level !== 0 ? (
-                isLast ? '└' : '├'
+                isLast ? '└╴' : '├╴'
             ) : '') +
             this.relativePath
         )

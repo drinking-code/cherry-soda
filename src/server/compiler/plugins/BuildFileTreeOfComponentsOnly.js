@@ -3,11 +3,13 @@ import path from 'path'
 
 import babelParser from '@babel/parser'
 
-import '../../../utils/bun-project-root.js'
+import console from '../../../utils/console.js'
 import exportsFunctionComponent from '../helpers/exports-function-component.js'
 import getImports from '../helpers/get-imports.js'
 import FileTree, {Import} from '../helpers/FileTree.js'
 import resolveFile from '../helpers/resolve-file.js'
+
+global['cherry-cola'].importTrees = []
 
 /**
  * Build a file tree with only files that export function components.
@@ -45,10 +47,18 @@ export default function buildFileTreeOfComponentsOnly() {
                     } else {
                         trees.forEach(tree => tree.addImportsTo(filename, imports))
                     }
+
+                    // empty array
+                    global['cherry-cola'].importTrees.splice(0, global['cherry-cola'].importTrees.length)
+                    // update with current entries
+                    global['cherry-cola'].importTrees.push(...trees)
                 }
 
-                // console.log('')
-                // trees.forEach(tree => tree.print())
+                /*console.log('')
+                trees.forEach((tree, i) => {
+                    console.log('tree', i)
+                    tree.print()
+                })*/
 
                 return {
                     contents: fileContents,

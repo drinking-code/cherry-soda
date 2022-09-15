@@ -9,12 +9,13 @@ import {imageLoader} from '../../imports/images.js'
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))
 const dirname = path.dirname((new URL(import.meta.url)).pathname)
 const pe = new PrettyError()
+export const compilerFinishEventTarget = new EventTarget()
 
 esbuild.build(extendBaseConfig({
     target: 'node16', // todo: use current node version
     platform: 'node',
     entryPoints: {
-        'cherry-cola': path.join(dirname, '..', '..', 'index.ts'),
+        'cherry-cola': path.join(dirname, '..', '..', 'server.ts'),
         App: entryPoint,
     },
     outdir: outputPath,
@@ -22,10 +23,11 @@ esbuild.build(extendBaseConfig({
     plugins: [
         imageLoader({emit: false}),
         {
-            name: 'apoisfjepiorgfae',
+            name: 'renderend-event',
             setup(build) {
                 build.onEnd((result) => {
-                    // console.log(result)
+                    let event = new CustomEvent('renderend')
+                    compilerFinishEventTarget.dispatchEvent(event)
                 })
             }
         }

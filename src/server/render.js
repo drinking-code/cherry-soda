@@ -1,11 +1,11 @@
 import child_process from 'child_process'
 import path from 'path'
-import fs from 'fs'
 
-let rendering_process
-let serverFilePath
+let rendering_process, serverFilePath, compilerFinishEventTarget
 if (typeof Bun === 'undefined') {
-    serverFilePath = (await import('./compiler/node.js')).outputPath
+    const nodeCompiler = await import('./compiler/node.js')
+    serverFilePath = nodeCompiler.outputPath
+    compilerFinishEventTarget = nodeCompiler.compilerFinishEventTarget
 } else {
     // todo
 }
@@ -51,9 +51,10 @@ async function restartProgram() {
     })
 }
 
-if (typeof Bun === 'undefined') {
-    // todo: replace with esbuild plugin
-    fs.watchFile(path.join(serverFilePath, 'App.js'), restartProgram)
-} else {
-    // todo
+export function startWatching() {
+    if (typeof Bun === 'undefined') {
+        compilerFinishEventTarget.addEventListener('renderend', restartProgram)
+    } else {
+        // todo
+    }
 }

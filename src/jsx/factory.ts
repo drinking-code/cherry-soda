@@ -1,5 +1,5 @@
-import {VirtualElement} from "./VirtualElement";
-import {ElementChildren} from "./ElementChildren";
+import {VirtualElement} from './VirtualElement';
+import {ElementChildren} from './ElementChildren';
 
 function createVirtualElement(
     type: VirtualElement['type'],

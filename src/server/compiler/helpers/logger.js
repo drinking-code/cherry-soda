@@ -1,4 +1,4 @@
-import ora from 'ora'
+import console from '../../../utils/console.js'
 import {performance} from 'perf_hooks'
 
 export function showCompilationStatus(label) {
@@ -14,7 +14,7 @@ export function showCompilationStatus(label) {
             build.onStart(() => {
                 start = performance.now()
                 // show compiling in console
-                runningMessage = ora([
+                runningMessage = console.spinner([
                         isBun ? `${compilerName}:` : chalk.blue(`${compilerName}:`),
                         'Compiling',
                         label,

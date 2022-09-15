@@ -1,6 +1,14 @@
-import {ComponentType} from "./factory";
-import {renderElement} from "../dom/render";
-import {ElementChildren} from "./ElementChildren";
+import {renderElement} from '../dom/render';
+import {ElementChildren} from './ElementChildren'
+
+type ComponentType<P = {}> = FunctionComponent<P>;
+
+export interface FunctionComponent<P = {}> {
+    (props): VirtualElement | null;
+
+    displayName?: string;
+    defaultProps?: Partial<P>;
+}
 
 export class VirtualElement<P = {}> {
     type: ComponentType<P> | string;

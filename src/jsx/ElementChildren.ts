@@ -1,7 +1,16 @@
-import {ElementChild} from "./factory";
 import {VirtualElement} from "./VirtualElement";
 
 export type VirtualElementMatcher = VirtualElement
+
+export type ElementChild =
+    | VirtualElement
+    | object
+    | string
+    | number
+    | bigint
+    | boolean
+    | null
+    | undefined;
 
 export class ElementChildren<T = ElementChild> extends Array {
     constructor(children: ElementChild | ElementChild[]) {
