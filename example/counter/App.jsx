@@ -9,7 +9,8 @@ export default function App() {
     // const subtractButton = createRef()
 
     doSomething(([count, setCount]) => {
-
+        console.log('count: ', count)
+        console.log('setCount: ', setCount)
     }, [count])
 
     return (

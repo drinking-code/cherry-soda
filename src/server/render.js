@@ -41,7 +41,7 @@ export default function render() {
 }
 
 async function restartProgram() {
-    const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
+    const dirname = path.dirname((new URL(import.meta.url)).pathname)
     rendering_process?.kill('SIGABRT')
     rendering_process = child_process.spawn('node', [
         path.join(dirname, 'renderer.js'),
@@ -57,5 +57,3 @@ if (typeof Bun === 'undefined') {
 } else {
     // todo
 }
-
-restartProgram()

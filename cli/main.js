@@ -11,7 +11,7 @@ import dev from './dev.js'
 const packageJson = JSON.parse(
     fs.readFileSync(
         path.join(
-            (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, ''),
+            path.dirname((new URL(import.meta.url)).pathname),
             '..',
             'package.json'
         ), {encoding: 'utf8'})

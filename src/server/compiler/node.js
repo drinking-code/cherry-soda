@@ -7,7 +7,7 @@ import {entryPoint, extendBaseConfig} from './base.js'
 import {imageLoader} from '../../imports/images.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))
-const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
+const dirname = path.dirname((new URL(import.meta.url)).pathname)
 const pe = new PrettyError()
 
 esbuild.build(extendBaseConfig({
@@ -21,6 +21,14 @@ esbuild.build(extendBaseConfig({
     external: ['bun', 'fs', 'crypto'],
     plugins: [
         imageLoader({emit: false}),
+        {
+            name: 'apoisfjepiorgfae',
+            setup(build) {
+                build.onEnd((result) => {
+                    // console.log(result)
+                })
+            }
+        }
     ],
     watch: process.env.BUN_ENV === 'development' && {
         onRebuild(error, result) {

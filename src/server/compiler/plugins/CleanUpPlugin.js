@@ -7,7 +7,7 @@ export default {
         build.onStart(() => {
             let {outdir, outfile} = build.initialOptions
             if (outfile) {
-                outdir = outfile.replace(/[^/]+$/, '')
+                outdir = path.dirname(outfile)
             }
             const files = fs.readdirSync(outdir)
             files.forEach(file => {

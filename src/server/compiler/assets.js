@@ -9,10 +9,10 @@ import {showCompilationStatus} from './helpers/logger.js'
 import {reportNewAsset} from '../dynamic-code-synchronisation/report.js'
 import GetChangedFilesPlugin from './plugins/GetChangedFilesPlugin.js'
 import {imageLoader} from '../../imports/images.js'
-import extractClientCodePlugin from './plugins/ExtractClientCodePlugin.js'
+import buildFileTreeOfComponentsOnly from './plugins/BuildFileTreeOfComponentsOnly.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
-const dirname = (new URL(import.meta.url)).pathname.replace(/\/[^/]+$/, '')
+const dirname = path.dirname((new URL(import.meta.url)).pathname)
 const pe = new PrettyError()
 
 if (!global['cherry-cola'])
@@ -30,7 +30,7 @@ esbuild.build(extendBaseConfig({
         showCompilationStatus(typeof Bun !== 'undefined' ? label
             : (await import('chalk')).default.bgBlue(` ${label} `)
         ),
-        extractClientCodePlugin(),
+        buildFileTreeOfComponentsOnly(),
     ],
     watch: process.env.BUN_ENV === 'development' && {
         async onRebuild(error, result) {

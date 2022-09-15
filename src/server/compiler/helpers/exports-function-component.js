@@ -1,17 +1,8 @@
-import babelParser from '@babel/parser'
-
-export default async function isFunctionComponent(javascript) {
+export default async function exportsFunctionComponent(ast) {
     // criteria:
     // exports a function.
     // function returns type VirtualElement.
-    const ast = babelParser.parse(javascript, {
-        sourceType: 'module',
-        plugins: [
-            'jsx',
-            'typescript',
-        ],
-    })
-    // todo: test arrow functions, and return statements inside of nested code block (e.g. if statement)
+    // todo: test arrow functions, and return statements inside nested code block (e.g. if statement)
     return ast.program.body
             // filter exports
             .filter(v => ['ExportDefaultDeclaration', 'ExportNamedDeclaration'].includes(v.type))
