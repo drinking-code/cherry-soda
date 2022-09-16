@@ -1,13 +1,21 @@
-import console from '../../../utils/console.js'
-
 export class Import {
     // file tree of file imported
     fileTree;
-    specifiers = [];
+    specifiers = {};
 
     constructor(filename, specifiers) {
-        this.fileTree = new FileTree(filename)
+        if (filename instanceof FileTree)
+            this.fileTree = filename
+        else
+            this.fileTree = new FileTree(filename)
         this.specifiers = specifiers
+    }
+
+    static fromObject(object) {
+        return new Import(
+            FileTree.fromObject(object.fileTree),
+            object.specifiers,
+        )
     }
 }
 
@@ -36,6 +44,16 @@ export default class FileTree {
         }
     }
 
+    find(filename, level = 0) {
+        if (this.filename === filename) {
+            return this
+        } else {
+            return this.imports
+                .map(imp => imp.fileTree.find(filename, level + 1))
+                .filter(v => v)[0]
+        }
+    }
+
     /**
      * @param {string} source
      * @param {Array<Import>} targets
@@ -52,7 +70,7 @@ export default class FileTree {
         return this.filename?.replace(process.env.APP_ROOT_PATH, '')
     }
 
-    print(level = 0, isLast = false) {
+    print(console = console, level = 0, isLast = false) {
         console.log(
             Array(Math.max(level - 1, 0)).fill('  ') +
             (level !== 0 ? (
@@ -61,7 +79,14 @@ export default class FileTree {
             this.relativePath
         )
         this.imports.forEach((imp, i) => {
-            imp.fileTree.print(level + 1, this.imports.length - 1 === i)
+            imp.fileTree.print(console, level + 1, this.imports.length - 1 === i)
         })
+    }
+
+    static fromObject(object) {
+        return new FileTree(
+            object.filename,
+            object.imports.map(imp => Import.fromObject(imp))
+        )
     }
 }

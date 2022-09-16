@@ -5,8 +5,13 @@ export default function getImports(ast) {
         .filter(v => ['ImportDeclaration'].includes(v.type))
         .map(imp => {
             return {
-                filename: imp.source.value,
-                specifiers: imp.specifiers,
+                source: imp.source.value,
+                specifiers: Object.fromEntries(
+                    imp.specifiers.map(specifier => [
+                        (specifier.type === 'ImportDefaultSpecifier' ? 'Symbol(default-import)' : specifier.imported.name),
+                        specifier.local.name
+                    ])
+                ),
             }
         })
 }

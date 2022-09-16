@@ -53,8 +53,11 @@ export class ElementId {
             // @ts-ignore Type 'string | ComponentType<{}>' is not assignable to type '"head" | "body"'
             this.origin = element.type
             this.fullPath = []
-        } else if (parent?.origin)
+        } else if (parent?.origin) {
             this.origin = parent.origin
+        } else if (!parent) {
+            this.origin = 'body'
+        }
         this.element = element
     }
 }

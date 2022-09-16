@@ -26,9 +26,9 @@ esbuild.build(extendBaseConfig({
     outfile: path.join(outputPath, 'main.js'),
     plugins: [
         imageLoader({path: outputPath}),
-        showCompilationStatus(typeof Bun !== 'undefined' ? label
+        /*showCompilationStatus(typeof Bun !== 'undefined' ? label
             : (await import('chalk')).default.bgBlue(` ${label} `)
-        ),
+        ),*/
         buildFileTreeOfComponentsOnly(),
     ],
     watch: process.env.BUN_ENV === 'development' && {

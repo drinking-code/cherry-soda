@@ -37,10 +37,11 @@ export default function buildFileTreeOfComponentsOnly() {
                     const imports = getImports(ast)
                         // resolve paths
                         .map(v => {
-                            v.filename = resolveFile(fileDir, v.filename)
+                            if (v.source.startsWith('.'))
+                                v.source = resolveFile(fileDir, v.source)
                             return v
                         })
-                        .map(v => new Import(v.filename, v.specifiers))
+                        .map(v => new Import(v.source, v.specifiers))
 
                     if (trees.length === 0 || !trees.map(tree => tree.has(filename)).includes(true)) {
                         trees.push(new FileTree(filename, imports))
@@ -57,7 +58,7 @@ export default function buildFileTreeOfComponentsOnly() {
                 /*console.log('')
                 trees.forEach((tree, i) => {
                     console.log('tree', i)
-                    tree.print()
+                    tree.print(console)
                 })*/
 
                 return {

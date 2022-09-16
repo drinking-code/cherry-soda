@@ -4,7 +4,7 @@ import styles from './App.module.scss'
 
 export default function App() {
     const count = createState(0)
-    console.log(count)
+    // console.log(count)
     // const addButton = createRef()
     // const subtractButton = createRef()
 

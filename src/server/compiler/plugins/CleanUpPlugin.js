@@ -1,22 +1,22 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import path from 'path'
 
 export default {
     name: 'clean-up-plugin',
-    async setup(build) {
-        build.onStart(() => {
+    setup(build) {
+        build.onStart(async () => {
             let {outdir, outfile} = build.initialOptions
             if (outfile) {
                 outdir = path.dirname(outfile)
             }
-            const files = fs.readdirSync(outdir)
-            files.forEach(file => {
+            const files = await fs.readdir(outdir)
+            await Promise.all(files.map(file => {
                 try {
-                    fs.rmSync(path.join(outdir, file))
+                    return fs.rm(path.join(outdir, file))
                 } catch (e) {
                     // fail silently
                 }
-            })
+            }))
         })
     },
 }
