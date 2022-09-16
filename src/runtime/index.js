@@ -1,3 +1,3 @@
 import './dev.js'
 
-// console.log(main)
+console.log(modules, states, modulesStatesMap)

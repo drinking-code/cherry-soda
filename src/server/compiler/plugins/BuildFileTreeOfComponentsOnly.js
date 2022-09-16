@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import path from 'path'
 
 import babelParser from '@babel/parser'
@@ -8,7 +8,9 @@ import exportsFunctionComponent from '../helpers/exports-function-component.js'
 import getImports from '../helpers/get-imports.js'
 import FileTree, {Import} from '../helpers/FileTree.js'
 import resolveFile from '../helpers/resolve-file.js'
+import {outputPath as modulesJsPath} from '../../../module-collector/module-builder.js'
 
+if (!global['cherry-cola'].importTrees)
 global['cherry-cola'].importTrees = []
 
 /**
@@ -22,8 +24,16 @@ export default function buildFileTreeOfComponentsOnly() {
         async setup(build) {
             const trees = []
 
+            build.onStart(async () => {
+                await fs.truncate(modulesJsPath)
+            })
+
+            build.onEnd(async () => {
+                // tree is built -> trigger module collection
+            })
+
             build.onLoad({filter: /\.[jt]sx?$/}, async (args) => {
-                const fileContents = await fs.promises.readFile(args.path, 'utf8')
+                const fileContents = await fs.readFile(args.path, 'utf8')
                 const ast = babelParser.parse(fileContents, {
                     sourceType: 'module',
                     plugins: [

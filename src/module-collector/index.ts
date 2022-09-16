@@ -34,7 +34,7 @@ export default function callFunctionComponent(element: VirtualElement) {
             ?.fileTree
 
     dataStore.parentFile = dataStore.currentFile
-    dataStore.currentFile = functionComponentsFile.filename
+    dataStore.currentFile = functionComponentsFile?.filename
 
     // console.log(element.function.name, dataStore.currentFile)
     // console.log(dataStore.parentFile, dataStore.currentFile)

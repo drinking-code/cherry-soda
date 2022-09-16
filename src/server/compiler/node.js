@@ -5,6 +5,7 @@ import PrettyError from 'pretty-error'
 import appRoot from 'app-root-path'
 import {entryPoint, extendBaseConfig} from './base.js'
 import {imageLoader} from '../../imports/images.js'
+import buildFileTreeOfComponentsOnly from './plugins/BuildFileTreeOfComponentsOnly.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))
 const dirname = path.dirname((new URL(import.meta.url)).pathname)
@@ -22,6 +23,7 @@ esbuild.build(extendBaseConfig({
     external: ['bun', 'fs', 'crypto'],
     plugins: [
         imageLoader({emit: false}),
+        buildFileTreeOfComponentsOnly(),
         {
             name: 'renderend-event',
             setup(build) {
@@ -30,7 +32,7 @@ esbuild.build(extendBaseConfig({
                     compilerFinishEventTarget.dispatchEvent(event)
                 })
             }
-        }
+        },
     ],
     watch: process.env.BUN_ENV === 'development' && {
         onRebuild(error, result) {

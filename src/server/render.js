@@ -10,18 +10,40 @@ if (typeof Bun === 'undefined') {
     // todo
 }
 
+let renderedContent
+
 export default function render() {
     let resolve
     const promise = new Promise(res => resolve = res)
+
+    const checkRenderedContentInterval = setInterval(() => {
+        if (!renderedContent) return
+        clearInterval(checkRenderedContentInterval)
+        resolve(renderedContent)
+    })
+
+    return promise
+}
+
+async function restartProgram() {
+    renderedContent = null
+    const dirname = path.dirname((new URL(import.meta.url)).pathname)
+    rendering_process?.kill('SIGABRT')
+    rendering_process = child_process.spawn('node', [
+        path.join(dirname, 'renderer.js'),
+        serverFilePath,
+    ], {
+        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
+    })
+    // render immediately to start off module collecting / compilation
     rendering_process.once('message', message => {
         try {
             message = JSON.parse(message)
         } catch (e) {
             // fail silently
         }
-
         if (message.type === 'response')
-            resolve(message.content)
+            renderedContent = message.content
     })
 
     for (const key in global['cherry-cola']) {
@@ -36,19 +58,6 @@ export default function render() {
         type: 'instruction',
         do: 'render',
     }))
-
-    return promise
-}
-
-async function restartProgram() {
-    const dirname = path.dirname((new URL(import.meta.url)).pathname)
-    rendering_process?.kill('SIGABRT')
-    rendering_process = child_process.spawn('node', [
-        path.join(dirname, 'renderer.js'),
-        serverFilePath,
-    ], {
-        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
-    })
 }
 
 export function startWatching() {

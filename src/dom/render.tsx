@@ -1,9 +1,9 @@
-import {ElementId, VirtualElement} from "../jsx/VirtualElement";
-import {ElementChildren} from "../jsx/ElementChildren";
-import {validTags, voidElements} from "./html-props";
-import Document from "./default-document";
-import {Fragment} from "../jsx/factory";
-import callFunctionComponent from "../module-collector";
+import {ElementId, VirtualElement} from '../jsx/VirtualElement'
+import {ElementChildren} from '../jsx/ElementChildren'
+import {Fragment} from '../jsx/factory'
+import Document from './default-document'
+import {validTags, voidElements} from './html-props'
+import callFunctionComponent from '../module-collector'
 
 export default function render(element): string {
     const phantomBodyId = new ElementId(0, null, <body/>)
