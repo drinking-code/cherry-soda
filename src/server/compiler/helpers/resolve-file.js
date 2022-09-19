@@ -4,7 +4,7 @@ import fs from 'fs'
 import console from '../../../utils/console.js'
 
 const possibleNames = ['index']
-const possibleExtensions = ['.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx']
+export const possibleExtensions = ['.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx']
 
 export default function resolveFile(basePath, file) {
     const resolvedFilePath = path.join(basePath, file)

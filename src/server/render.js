@@ -1,5 +1,6 @@
 import child_process from 'child_process'
 import path from 'path'
+import ipos from '../ipos.js'
 
 let rendering_process, serverFilePath, compilerFinishEventTarget
 if (typeof Bun === 'undefined') {
@@ -35,6 +36,7 @@ async function restartProgram() {
     ], {
         stdio: ['inherit', 'inherit', 'inherit', 'ipc']
     })
+    await ipos.addProcess(rendering_process)
     // render immediately to start off module collecting / compilation
     rendering_process.once('message', message => {
         try {

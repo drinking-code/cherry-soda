@@ -1,6 +1,7 @@
 import FileTree from '../server/compiler/helpers/FileTree'
 import isState from '../state/is-state'
 import {addModule} from './module-builder'
+import console from '../utils/console'
 
 let trees: Array<FileTree> | undefined
 
@@ -15,10 +16,11 @@ export default function doSomething(callback: Function, parameters: Array<any>):
 
     // console.log(callback.toString(), currentFile)
 
-    // todo: turn states into [state, setState]
     // todo: serialize complex parameters (such as imports) -> imports with "currentFile"
     parameters = parameters
         .map(parameter => {
+            // todo: turn states into [state, setState]
+            // perhaps do that on the client for smaller package
             if (!isState(parameter))
                 return parameter
             return [parameter, () => 0]
@@ -32,6 +34,5 @@ export default function doSomething(callback: Function, parameters: Array<any>):
             // todo
         })
 
-    console.log(parameters)
     addModule(callback.toString(), parameters, currentFile.filename)
 }

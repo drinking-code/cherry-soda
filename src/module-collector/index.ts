@@ -2,6 +2,7 @@ import {VirtualElement} from '../jsx/VirtualElement'
 import {Body, Head, Html} from '../index'
 import Document from '../dom/default-document'
 import FileTree from '../server/compiler/helpers/FileTree'
+import {addImports, closeModuleBuilder} from "./module-builder";
 
 let trees: Array<FileTree> | undefined
 
@@ -9,6 +10,7 @@ export default function callFunctionComponent(element: VirtualElement) {
     if (!global['cherry-cola'].moduleCollector)
         global['cherry-cola'].moduleCollector = {}
     const dataStore = global['cherry-cola'].moduleCollector
+    const isFirstCall = !element.id.parent
 
     // @ts-ignore "Function" does not match "({ ...props }: { [x: string]: any; }) => any"
     if ([Document, Html, Head, Body].includes(element.function))
@@ -20,7 +22,7 @@ export default function callFunctionComponent(element: VirtualElement) {
     trees = trees ?? global['cherry-cola'].importTrees
         .map(tree => FileTree.fromObject(tree))
 
-    if (!element.id.parent)
+    if (isFirstCall)
         dataStore.currentFile = process.env.CHERRY_COLA_ENTRY
 
     const functionComponentsFile =
@@ -39,7 +41,11 @@ export default function callFunctionComponent(element: VirtualElement) {
     // console.log(element.function.name, dataStore.currentFile)
     // console.log(dataStore.parentFile, dataStore.currentFile)
 
-    return element
+    const virtualElement = element
         .function({...element.props, children: element.children})
-        .render(0, element.id)
+
+    if (isFirstCall)
+        closeModuleBuilder()
+
+    return virtualElement.render(0, element.id)
 }

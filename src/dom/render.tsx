@@ -6,7 +6,6 @@ import {validTags, voidElements} from './html-props'
 import callFunctionComponent from '../module-collector'
 
 export default function render(element): string {
-    const phantomBodyId = new ElementId(0, null, <body/>)
     let html = element.render(0)
     // in the case "element" is a fragment "element.render" returns an array
     if (Array.isArray(html))

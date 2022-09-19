@@ -8,7 +8,7 @@ import exportsFunctionComponent from '../helpers/exports-function-component.js'
 import getImports from '../helpers/get-imports.js'
 import FileTree, {Import} from '../helpers/FileTree.js'
 import resolveFile from '../helpers/resolve-file.js'
-import {outputPath as modulesJsPath} from '../../../module-collector/module-builder.js'
+import {addImports, outputPath as modulesJsPath} from '../../../module-collector/module-builder.js'
 
 if (!global['cherry-cola'].importTrees)
 global['cherry-cola'].importTrees = []
@@ -24,12 +24,8 @@ export default function buildFileTreeOfComponentsOnly() {
         async setup(build) {
             const trees = []
 
-            build.onStart(async () => {
-                await fs.truncate(modulesJsPath)
-            })
-
-            build.onEnd(async () => {
-                // tree is built -> trigger module collection
+            build.onStart(() => {
+                trees.splice(0, trees.length)
             })
 
             build.onLoad({filter: /\.[jt]sx?$/}, async (args) => {
@@ -58,6 +54,12 @@ export default function buildFileTreeOfComponentsOnly() {
                     } else {
                         trees.forEach(tree => tree.addImportsTo(filename, imports))
                     }
+
+                    addImports(filename,
+                        Object.fromEntries(
+                            imports.map(imp => [imp.fileTree.filename, imp.specifiers])
+                        )
+                    )
 
                     // empty array
                     global['cherry-cola'].importTrees.splice(0, global['cherry-cola'].importTrees.length)

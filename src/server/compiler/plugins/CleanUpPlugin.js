@@ -9,6 +9,7 @@ export default {
             if (outfile) {
                 outdir = path.dirname(outfile)
             }
+            try {
             const files = await fs.readdir(outdir)
             await Promise.all(files.map(file => {
                 try {
@@ -17,6 +18,9 @@ export default {
                     // fail silently
                 }
             }))
+            } catch (e) {
+                // fail silently
+            }
         })
     },
 }
