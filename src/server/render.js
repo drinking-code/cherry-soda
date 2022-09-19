@@ -38,28 +38,23 @@ async function restartProgram() {
     })
     await ipos.addProcess(rendering_process)
     // render immediately to start off module collecting / compilation
-    rendering_process.once('message', message => {
-        try {
-            message = JSON.parse(message)
-        } catch (e) {
-            // fail silently
-        }
+    rendering_process.on('message', message => {
         if (message.type === 'response')
             renderedContent = message.content
     })
 
     for (const key in global['cherry-cola']) {
         if (!global['cherry-cola'].hasOwnProperty(key)) continue
-        rendering_process.send(JSON.stringify({
+        rendering_process.send({
             type: 'variable',
             key,
             value: global['cherry-cola'][key]
-        }))
+        })
     }
-    rendering_process.send(JSON.stringify({
+    rendering_process.send({
         type: 'instruction',
         do: 'render',
-    }))
+    })
 }
 
 export function startWatching() {

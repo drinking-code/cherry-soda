@@ -9,18 +9,13 @@ const {render} = await import(`${serverOutputPath}/cherry-cola.js`)
 ;(async () => {
     global['cherry-cola'] = {}
     process.on('message', message => {
-        try {
-            message = JSON.parse(message)
-        } catch (e) {
-            // fail silently
-        }
-
         if (message.type === 'instruction') {
             if (message.do === 'render') {
-                process.send(JSON.stringify({
+                const rendered = render(App())
+                process.send({
                     type: 'response',
-                    content: render(App()),
-                }))
+                    content: rendered,
+                })
             }
         } else if (message.type === 'variable') {
             global['cherry-cola'][message.key] = message.value
