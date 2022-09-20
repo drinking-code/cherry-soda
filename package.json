@@ -21,14 +21,14 @@
     "css": "onimportcss"
   },
   "devDependencies": {
-    "@babel/parser": "^7.19.0",
-    "autoprefixer": "^10.4.8",
-    "browserslist": "^4.21.3",
+    "@babel/parser": "^7.19.1",
+    "autoprefixer": "^10.4.11",
+    "browserslist": "^4.21.4",
     "bun-types": "^0.1.0",
-    "esbuild": "^0.15.7",
+    "esbuild": "^0.15.8",
     "esbuild-style-plugin": "^1.6.0",
-    "ora": "^6.1.2",
     "sass": "^1.54.9",
+    "source-map": "^0.7.4",
     "ws": "^8.8.1"
   },
   "dependencies": {
@@ -36,6 +36,7 @@
     "chalk": "^5.0.1",
     "express": "^4.18.1",
     "ipos": "^0.1.0",
+    "ora": "^6.1.2",
     "pretty-error": "^4.0.0",
     "shrink-ray-current": "^4.1.3",
     "uuid": "^9.0.0",

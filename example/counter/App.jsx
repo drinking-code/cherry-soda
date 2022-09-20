@@ -16,7 +16,7 @@ export default function App() {
     return (
         <Fragment>
             <button className={styles.button}>+</button>
-            <span className={styles.count}>{count}</span>
+            <span className={styles.count}>Count: {count}</span>
             <button className={styles.button}>-</button>
         </Fragment>
     )

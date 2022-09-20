@@ -27,6 +27,7 @@ export default function render() {
 }
 
 async function restartProgram() {
+    // todo: two rendering processes, one immediately after restart (module-collection) one at request time (actual render)
     renderedContent = null
     const dirname = path.dirname((new URL(import.meta.url)).pathname)
     rendering_process?.kill('SIGABRT')
@@ -43,6 +44,7 @@ async function restartProgram() {
             renderedContent = message.content
     })
 
+    // replace with ipos
     for (const key in global['cherry-cola']) {
         if (!global['cherry-cola'].hasOwnProperty(key)) continue
         rendering_process.send({
