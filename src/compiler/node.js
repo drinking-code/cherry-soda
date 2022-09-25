@@ -4,19 +4,19 @@ import PrettyError from 'pretty-error'
 
 import appRoot from 'app-root-path'
 import {entryPoint, extendBaseConfig} from './base.js'
-import {imageLoader} from '../../imports/images.js'
+import {imageLoader} from '../imports/images.js'
 import buildFileTreeOfComponentsOnly from './plugins/BuildFileTreeOfComponentsOnly.js'
+import {runModuleBuilder} from './module-compiler/index.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))
 const dirname = path.dirname((new URL(import.meta.url)).pathname)
 const pe = new PrettyError()
-export const compilerFinishEventTarget = new EventTarget()
 
 esbuild.build(extendBaseConfig({
     target: 'node16', // todo: use current node version
     platform: 'node',
     entryPoints: {
-        'cherry-cola': path.join(dirname, '..', '..', 'server.ts'),
+        'cherry-cola': path.join(dirname, '..', 'server.ts'),
         App: entryPoint,
     },
     outdir: outputPath,
@@ -27,10 +27,7 @@ esbuild.build(extendBaseConfig({
         {
             name: 'renderend-event',
             setup(build) {
-                build.onEnd((result) => {
-                    let event = new CustomEvent('renderend')
-                    compilerFinishEventTarget.dispatchEvent(event)
-                })
+                build.onEnd(runModuleBuilder)
             }
         },
     ],

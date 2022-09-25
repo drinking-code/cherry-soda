@@ -2,7 +2,7 @@ import browserslist from 'browserslist'
 import stylePlugin from 'esbuild-style-plugin'
 import autoprefixer from 'autoprefixer'
 
-import {mergeDeep, isObject, cloneDeep} from '../../utils/object.js'
+import {mergeDeep, isObject, cloneDeep} from '../utils/object.js'
 import cleanUpPlugin from './plugins/CleanUpPlugin.js'
 
 export const isProduction = process.env.BUN_ENV === 'production'

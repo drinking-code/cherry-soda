@@ -7,7 +7,9 @@
     "./jsx-dev-runtime": "./src/jsx-dev-runtime.js"
   },
   "imports": {
-    "cherry-cola": "./src/index.ts"
+    "cherry-cola": "./src/index.ts",
+    "#server/express": "./src/server/express.js",
+    "#compiler": "./src/compiler/index.js"
   },
   "scripts": {
     "example": "node --enable-source-maps src/server/server.node.js"

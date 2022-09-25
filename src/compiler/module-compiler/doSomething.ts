@@ -1,8 +1,8 @@
 import FileTree from '../server/compiler/helpers/FileTree'
-import isState from '../state/is-state'
+import isState from '../../state/is-state'
 import {addModule} from './module-builder'
-import console from '../utils/console'
-import {default as iposPromise} from '../ipos'
+import console from '../../utils/console'
+import {default as iposPromise} from '../../ipos'
 
 let trees: Array<FileTree> | undefined
 

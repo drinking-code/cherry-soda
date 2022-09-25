@@ -1,4 +1,4 @@
-import './compiler/assets'
+import '../compiler/assets'
 
 let importCounter = 0
 Bun.serve({

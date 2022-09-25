@@ -1,4 +1,4 @@
-import console from '../../../utils/console.js'
+import console from '../../utils/console.js'
 import {performance} from 'perf_hooks'
 
 export function showCompilationStatus(label) {

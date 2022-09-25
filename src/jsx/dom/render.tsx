@@ -1,9 +1,8 @@
-import {ElementId, VirtualElement} from '../jsx/VirtualElement'
-import {ElementChildren} from '../jsx/ElementChildren'
-import {Fragment} from '../jsx/factory'
+import {ElementId, VirtualElement} from '../VirtualElement'
+import {ElementChildren} from '../ElementChildren'
+import {Fragment} from '../factory'
 import Document from './default-document'
 import {validTags, voidElements} from './html-props'
-import callFunctionComponent from '../module-collector'
 
 export default function render(element): string {
     let html = element.render(0)
@@ -19,7 +18,9 @@ export default function render(element): string {
 
 export function renderElement(element: VirtualElement): string | string[] {
     if (element.type === 'function')
-        return callFunctionComponent(element)
+        return element
+            .function({...element.props, children: element.children})
+            .render(0, element.id)
 
     const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
     let i = -1

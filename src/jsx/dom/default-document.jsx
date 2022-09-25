@@ -1,4 +1,4 @@
-import {Html, Head, Body} from '../';
+import {Html, Head, Body} from '../../index.js';
 
 export default function Document({...props}) {
     return (

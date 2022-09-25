@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 
-import console from '../../../utils/console.js'
+import console from '../../utils/console.js'
 
 const possibleNames = ['index']
 export const possibleExtensions = ['.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx']

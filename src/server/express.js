@@ -1,10 +1,10 @@
 import express, {Router} from 'express'
 import PrettyError from 'pretty-error'
 
-import './utils/bun-project-root.js'
-import console from './utils/console.js'
-import render, {startWatching} from './server/render.js'
-import {outputPath as assetsOutputPath} from './server/compiler/assets.js'
+import '../utils/project-root.js'
+import console from '../utils/console.js'
+import render, {startWatching} from './render.js'
+import {assetsOutputPath, serverFilePath} from '#compiler'
 
 const pe = new PrettyError()
 
@@ -22,6 +22,7 @@ export default function cherryCola(entry) {
         // todo: routing; next if request should not be handled
         // todo: serve static assets
         try {
+            // todo: render with app
             res.send(await render())
         } catch (err) {
             console.error('Error during rendering:')

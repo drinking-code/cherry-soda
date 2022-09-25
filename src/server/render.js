@@ -4,7 +4,7 @@ import ipos from '../ipos.js'
 
 let rendering_process, serverFilePath, compilerFinishEventTarget
 if (typeof Bun === 'undefined') {
-    const nodeCompiler = await import('./compiler/node.js')
+    const nodeCompiler = await import('../compiler/node.js')
     serverFilePath = nodeCompiler.outputPath
     compilerFinishEventTarget = nodeCompiler.compilerFinishEventTarget
 } else {
@@ -52,7 +52,7 @@ async function restartProgram() {
 
 export function startWatching() {
     if (typeof Bun === 'undefined') {
-        compilerFinishEventTarget.addEventListener('renderend', restartProgram)
+        // compilerFinishEventTarget.addEventListener('renderend', restartProgram)
     } else {
         // todo
     }
