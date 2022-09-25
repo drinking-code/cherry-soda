@@ -11,9 +11,16 @@ export class Import {
         this.specifiers = specifiers
     }
 
-    static fromObject(object) {
+    serialize() {
+        return {
+            fileTree: this.fileTree.serialize(),
+            specifiers: this.specifiers,
+        }
+    }
+
+    static from(object) {
         return new Import(
-            FileTree.fromObject(object.fileTree),
+            FileTree.from(object.fileTree),
             object.specifiers,
         )
     }
@@ -83,10 +90,17 @@ export default class FileTree {
         })
     }
 
-    static fromObject(object) {
+    serialize() {
+        return {
+            filename: this.filename,
+            imports: this.imports.map(imp => imp.serialize()),
+        }
+    }
+
+    static from(object) {
         return new FileTree(
             object.filename,
-            object.imports.map(imp => Import.fromObject(imp))
+            object.imports.map(imp => Import.from(imp))
         )
     }
 }

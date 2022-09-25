@@ -8,10 +8,15 @@ import exportsFunctionComponent from '../helpers/exports-function-component.js'
 import getImports from '../helpers/get-imports.js'
 import FileTree, {Import} from '../helpers/FileTree.js'
 import resolveFile from '../helpers/resolve-file.js'
-import {addImports, outputPath as modulesJsPath} from '../../../module-collector/module-builder.js'
+import {addImports} from '../../../module-collector/module-builder.js'
+import {default as iposPromise} from '../../../ipos.js'
 
-if (!global['cherry-cola'].importTrees)
-global['cherry-cola'].importTrees = []
+let ipos
+;(async () => {
+    ipos = await iposPromise
+    if (!ipos.importTrees)
+        ipos.create('importTrees', [])
+})()
 
 /**
  * Build a file tree with only files that export function components.
@@ -62,9 +67,9 @@ export default function buildFileTreeOfComponentsOnly() {
                     )
 
                     // empty array
-                    global['cherry-cola'].importTrees.splice(0, global['cherry-cola'].importTrees.length)
+                    ipos.importTrees.splice(0, ipos.importTrees.length)
                     // update with current entries
-                    global['cherry-cola'].importTrees.push(...trees)
+                    ipos.importTrees.push(...trees)
                 }
 
                 /*console.log('')

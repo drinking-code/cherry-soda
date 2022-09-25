@@ -1,5 +1,10 @@
 import IPOS from 'ipos'
+import FileTree, {Import} from './server/compiler/helpers/FileTree.js'
 
-global.ipos = global.ipos ?? IPOS.new()
+IPOS.registerClass(FileTree)
+IPOS.registerClass(Import)
 
-export default ipos
+if (!global.ipos)
+    global.ipos = IPOS.new()
+
+export default global.ipos

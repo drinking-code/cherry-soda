@@ -9,15 +9,16 @@ import {showCompilationStatus} from './helpers/logger.js'
 import {reportNewAsset} from '../dynamic-code-synchronisation/report.js'
 import {imageLoader} from '../../imports/images.js'
 import {outputPath as modulesJsPath} from '../../module-collector/module-builder.js'
+import {default as iposPromise} from '../../ipos.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))
 const dirname = path.dirname((new URL(import.meta.url)).pathname)
 const pe = new PrettyError()
 
-if (!global['cherry-cola'])
-    global['cherry-cola'] = {}
-
-global['cherry-cola'].clientAssets = ['main.js', 'main.css']
+;(async () => {
+    const ipos = await iposPromise
+    ipos.create('clientAssets', ['main.js', 'main.css'])
+})()
 
 const label = 'client-side'
 // todo: node: start only after initial node build

@@ -16,7 +16,6 @@ if (!fsSync.existsSync(outputPath, fs.constants.R_OK | fs.constants.W_OK)) {
 export {outputPath}
 
 let modules = []
-let addModulePromises = []
 let ipos
 
 ;(async () => {
@@ -32,7 +31,6 @@ let ipos
  * @param {string} key
  * */
 export function addModule(func, parameters, key) {
-    // todo: generate a sourcemap
     modules.push([func, parameters, key])
 }
 
@@ -44,7 +42,6 @@ export function addModule(func, parameters, key) {
 export function addImports(key, imports) {
     Array.from(Object.keys(imports)).forEach(impFile => {
         let importedBy = []
-        // console.log(ipos.moduleImports)
         if (ipos.moduleImports.has(impFile))
             importedBy = ipos.moduleImports.get(impFile)
         importedBy.push(key)

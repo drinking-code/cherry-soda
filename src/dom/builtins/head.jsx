@@ -1,9 +1,16 @@
+import {default as iposPromise} from '../../ipos.js'
+
+let ipos
+;(async () => {
+    ipos = await iposPromise
+})()
+
 export default function Head({children, ...props}) {
     const charset = children.find(<meta charSet/>) ?? <meta charSet={'UTF-8'}/>
     delete children[children.indexOf(charset)]
     const title = children.find(<title/>) ?? <title>Title</title>
     delete children[children.indexOf(title)]
-    const assets = global['cherry-cola'].clientAssets
+    const assets = ipos.clientAssets
         .filter(asset =>
             ['.css', '.js']
                 .map(suffix => asset.endsWith(suffix))

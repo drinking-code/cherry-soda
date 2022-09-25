@@ -2,9 +2,15 @@ import {VirtualElement} from '../jsx/VirtualElement'
 import {Body, Head, Html} from '../index'
 import Document from '../dom/default-document'
 import FileTree from '../server/compiler/helpers/FileTree'
-import {addImports, closeModuleBuilder} from "./module-builder";
+import {closeModuleBuilder} from './module-builder'
+import {default as iposPromise} from '../ipos'
 
 let trees: Array<FileTree> | undefined
+
+let ipos
+;(async () => {
+    ipos = await iposPromise
+})()
 
 export default function callFunctionComponent(element: VirtualElement) {
     if (!global['cherry-cola'].moduleCollector)
@@ -19,8 +25,7 @@ export default function callFunctionComponent(element: VirtualElement) {
             .function({...element.props, children: element.children})
             .render(0, element.id)
 
-    trees = trees ?? global['cherry-cola'].importTrees
-        .map(tree => FileTree.fromObject(tree))
+    trees = trees ?? ipos.importTrees
 
     if (isFirstCall)
         dataStore.currentFile = process.env.CHERRY_COLA_ENTRY

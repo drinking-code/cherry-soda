@@ -6,19 +6,15 @@ const serverOutputPath = process.argv[2]
 const App = (await import(`${serverOutputPath}/App.js`)).main
 const {render} = await import(`${serverOutputPath}/cherry-cola.js`)
 
-;(async () => {
-    global['cherry-cola'] = {}
-    process.on('message', message => {
-        if (message.type === 'instruction') {
-            if (message.do === 'render') {
-                const rendered = render(App())
-                process.send({
-                    type: 'response',
-                    content: rendered,
-                })
-            }
-        } else if (message.type === 'variable') {
-            global['cherry-cola'][message.key] = message.value
+global['cherry-cola'] = {}
+process.on('message', message => {
+    if (message.type === 'instruction') {
+        if (message.do === 'render') {
+            const rendered = render(App())
+            process.send({
+                type: 'response',
+                content: rendered,
+            })
         }
-    })
-})()
+    }
+})

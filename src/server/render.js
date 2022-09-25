@@ -44,15 +44,6 @@ async function restartProgram() {
             renderedContent = message.content
     })
 
-    // replace with ipos
-    for (const key in global['cherry-cola']) {
-        if (!global['cherry-cola'].hasOwnProperty(key)) continue
-        rendering_process.send({
-            type: 'variable',
-            key,
-            value: global['cherry-cola'][key]
-        })
-    }
     rendering_process.send({
         type: 'instruction',
         do: 'render',

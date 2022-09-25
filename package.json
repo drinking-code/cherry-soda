@@ -35,7 +35,7 @@
     "app-root-path": "^3.1.0",
     "chalk": "^5.0.1",
     "express": "^4.18.1",
-    "ipos": "^0.1.0",
+    "ipos": "^0.2.0",
     "ora": "^6.1.2",
     "pretty-error": "^4.0.0",
     "shrink-ray-current": "^4.1.3",
