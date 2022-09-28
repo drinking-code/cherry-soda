@@ -2,7 +2,7 @@ import path from 'path'
 import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 
-import appRoot from 'app-root-path'
+import appRoot from '../utils/project-root.js'
 
 import {extendBaseConfig} from './base.js'
 import {showCompilationStatus} from './helpers/logger.js'

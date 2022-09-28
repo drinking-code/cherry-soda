@@ -1,5 +1,5 @@
 import {default as iposPromise} from '../../ipos.js'
-import {VirtualElement} from '../../jsx/VirtualElement.js'
+import {VirtualElement} from '../../jsx/VirtualElement.ts'
 
 const ipos = await iposPromise
 
@@ -34,7 +34,7 @@ function collectModules(element, isFirstCall = false) {
         .flat()
         .filter(v => v)
         .forEach((child) => {
-            if (!child instanceof VirtualElement) return
+            if (!(child instanceof VirtualElement)) return
             collectModules(element)
         })
 }

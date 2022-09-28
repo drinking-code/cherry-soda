@@ -1,17 +1,17 @@
-import {createState, doSomething, Fragment} from '../../src'
+import {/*createState, doSomething, */Fragment} from '#cherry-cola'
 
 import styles from './App.module.scss'
 
 export default function App() {
-    const count = createState(0)
+    // const count = createState(0)
     // console.log(count)
     // const addButton = createRef()
     // const subtractButton = createRef()
 
-    doSomething(([count, setCount]) => {
+    /*doSomething(([count, setCount]) => {
         console.log('count: ', count)
         console.log('setCount: ', setCount)
-    }, [count])
+    }, [count])*/
 
     return (
         <Fragment>

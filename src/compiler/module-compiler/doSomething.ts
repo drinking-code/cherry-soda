@@ -1,10 +1,10 @@
-import FileTree from '../server/compiler/helpers/FileTree'
-import isState from '../../state/is-state'
-import {addModule} from './module-builder'
+// import FileTree from '../server/compiler/helpers/FileTree'
+// import isState from '../../state/is-state'
+// import {addModule} from './module-builder'
 import console from '../../utils/console'
 import {default as iposPromise} from '../../ipos'
 
-let trees: Array<FileTree> | undefined
+// let trees: Array<FileTree> | undefined
 
 let ipos
 ;(async () => {
@@ -12,7 +12,7 @@ let ipos
 })()
 
 export default function doSomething(callback: Function, parameters: Array<any>): void {
-    trees = trees ?? ipos.importTrees
+    /*trees = trees ?? ipos.importTrees
     const dataStore = global['cherry-cola'].moduleCollector
 
     const currentFile: FileTree = trees
@@ -39,5 +39,5 @@ export default function doSomething(callback: Function, parameters: Array<any>):
             // todo
         })
 
-    addModule(callback.toString(), parameters, currentFile.filename)
+    addModule(callback.toString(), parameters, currentFile.filename)*/
 }

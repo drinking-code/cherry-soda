@@ -1,4 +1,4 @@
-import {Html, Head, Body} from '../../index.js';
+import {Html, Head, Body} from '#cherry-cola'
 
 export default function Document({...props}) {
     return (

@@ -4,9 +4,9 @@ import ipos from '../ipos.js'
 
 let rendering_process, serverFilePath, compilerFinishEventTarget
 if (typeof Bun === 'undefined') {
-    const nodeCompiler = await import('../compiler/node.js')
+    /*const nodeCompiler = await import('../compiler/node.js')
     serverFilePath = nodeCompiler.outputPath
-    compilerFinishEventTarget = nodeCompiler.compilerFinishEventTarget
+    compilerFinishEventTarget = nodeCompiler.compilerFinishEventTarget*/
 } else {
     // todo
 }
@@ -14,6 +14,7 @@ if (typeof Bun === 'undefined') {
 let renderedContent
 
 export default function render() {
+    console.log('render')
     let resolve
     const promise = new Promise(res => resolve = res)
 
