@@ -1,8 +1,10 @@
 import serveStatic from 'serve-static-bun'
 import PrettyError from 'pretty-error'
 
-import {assetsOutputPath} from '../compiler'
-import render, {startWatching} from './render'
+// import {assetsOutputPath} from '#compiler'
+import {outputPath as assetsOutputPath} from '../compiler/assets.js'
+// import render, {startWatching} from '#node:render'
+import render, {startWatching} from './render.js'
 import console from '../utils/console'
 
 const pe = new PrettyError()

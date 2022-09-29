@@ -10,14 +10,14 @@ export default {
                 outdir = path.dirname(outfile)
             }
             try {
-            const files = await fs.readdir(outdir)
-            await Promise.all(files.map(file => {
-                try {
-                    return fs.rm(path.join(outdir, file))
-                } catch (e) {
-                    // fail silently
-                }
-            }))
+                const files = await fs.readdir(outdir)
+                await Promise.all(files.map(file => {
+                    try {
+                        return fs.rm(path.join(outdir, file))
+                    } catch (e) {
+                        // fail silently
+                    }
+                }))
             } catch (e) {
                 // fail silently
             }

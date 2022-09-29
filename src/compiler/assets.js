@@ -8,7 +8,7 @@ import {extendBaseConfig} from './base.js'
 import {showCompilationStatus} from './helpers/logger.js'
 import {reportNewAsset} from '../server/dynamic-code-synchronisation/report.js'
 import {imageLoader} from '../imports/images.js'
-import {outputPath as modulesJsPath} from './module-compiler/index.js'
+import {outputPath as modulesJsPath} from './module-compiler/index'
 import {default as iposPromise} from '../ipos.js'
 
 export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'client'))

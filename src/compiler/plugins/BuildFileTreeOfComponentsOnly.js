@@ -5,10 +5,10 @@ import babelParser from '@babel/parser'
 
 import console from '../../utils/console.js'
 import exportsFunctionComponent from '../helpers/exports-function-component.js'
-import getImports from '../helpers/get-imports.js'
+import getImports from '../helpers/get-imports.ts'
 import FileTree, {Import} from '../helpers/FileTree.js'
 import resolveFile from '../helpers/resolve-file.js'
-import {addImports} from '../module-compiler/index.js'
+import {addImports} from '../module-compiler/index'
 import {default as iposPromise} from '../../ipos.js'
 
 let ipos

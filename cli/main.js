@@ -10,6 +10,8 @@ import dev from './dev.js'
 
 import appRoot from '../src/utils/project-root.js'
 
+process.env.NODE_NO_WARNINGS = '1'
+
 const packageJson = JSON.parse(
     fs.readFileSync(
         path.join(

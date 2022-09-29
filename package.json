@@ -10,8 +10,9 @@
     "#cherry-cola": "./src/index.ts",
     "#node:cherry-cola": "./lib/cherry-cola.index.js",
     "#server/express": "./src/server/express.js",
-    "#compiler": "./src/compiler/index.js",
+    "#compiler": "./src/compiler/assets.js",
     "#node:compiler": "./lib/compiler.js",
+    "#render": "./src/server/render.js",
     "#node:render": "./lib/render.js"
   },
   "scripts": {
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@babel/parser": "^7.19.1",
+    "@babel/types": "^7.19.3",
     "autoprefixer": "^10.4.11",
     "browserslist": "^4.21.4",
     "bun-types": "^0.1.0",
