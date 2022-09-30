@@ -3,7 +3,7 @@ export default function stringifyProps(props: { [key: string]: any }): string {
         .map(prop => {
             const htmlPropName = prop === 'className' ? 'class' : prop
             // todo: convert prop names like "charSet", "onClick", and "dataValue"
-            if ([undefined, null].includes(props[prop]))
+            if ([undefined, null].includes(props[prop]) || ['unsafeInnerHtml'].includes(prop))
                 return false
             if (props[prop] === true)
                 return htmlPropName

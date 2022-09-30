@@ -29,7 +29,9 @@ export function renderElement(element: VirtualElement): string | string[] {
             .render(0, element.id)
 
     const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
-    const renderedChildren: string[] = stringifyChildren(filteredChildren, element.id)
+    const renderedChildren: string[] = 'unsafeInnerHtml' in element.props
+        ? [element.props['unsafeInnerHtml']]
+        : stringifyChildren(filteredChildren, element.id)
 
     // @ts-ignore
     if (element.type === Fragment)
