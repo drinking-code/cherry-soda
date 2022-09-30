@@ -12,10 +12,20 @@ const pe = new PrettyError()
  * */
 export default async function cherryCola(entry) {
     await startNodeCompiler()
-    const {outputPath: assetsOutputPath} = await import('#node:compiler')
-    const {default: render, startWatching} = await import('#node:render')
+    const {endEventListener} = await import('#node:compiler')
+    const {default: render} = await import('#node:render-function')
+
+    await new Promise(resolve => {
+        function endHandler() {
+            endEventListener.removeEventListener('end', endHandler)
+            resolve()
+        }
+
+        endEventListener.addEventListener('end', endHandler)
+    })
+
+    const {outputPath: assetsOutputPath} = await import('#node:asset-compiler')
     process.env.CHERRY_COLA_ENTRY = entry
-    startWatching()
 
     const router = new Router()
     router.use(express.static(assetsOutputPath))

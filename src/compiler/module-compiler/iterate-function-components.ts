@@ -48,5 +48,5 @@ function iterateFunctionComponents(element: VirtualElement, isFirstCall: boolean
 }
 
 iterateFunctionComponents(App(), true)
-
+ipos.delete('moduleCollector')
 process.exit(0)

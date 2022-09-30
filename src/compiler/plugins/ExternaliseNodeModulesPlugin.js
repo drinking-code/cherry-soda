@@ -1,34 +1,43 @@
+import path from 'path'
+
 import resolveFile from '../helpers/resolve-file.js'
 import packageJson from '../../../package.json' assert {type: 'json'}
+import tsConfig from '../../../tsconfig.json' assert {type: 'json'}
 import moduleRoot from '../../utils/module-root.js'
+import {getEntryPointKey} from '../helpers/node.lib-entries.js'
 
 const ExternaliseNodeModulesPlugin = {
     name: 'externalise-node-moules-plugin',
     setup(build) {
-        build.onResolve({filter: /./}, args => {
-            const isProxy = args.path.startsWith('#')
-            if (isProxy) {
-                args.path = moduleRoot.resolve(packageJson.imports[args.path])
-            }
-            const isAbsolute = args.path.startsWith('/')
-            const isModule = !args.path.startsWith('.') && !isAbsolute
-            const isEntry = args.kind === 'entry-point'
+        const libDir = moduleRoot.resolve('lib')
+        const expectedJSXRuntimePath = path.join(tsConfig.compilerOptions.jsxImportSource, 'jsx-runtime')
 
-            const resolvedPath = !isModule && !isAbsolute
-                ? resolveFile(args.resolveDir, args.path)
-                : args.path
+        function getLibPathIfEntry(filePath) {
+            const entryKey = getEntryPointKey(filePath)
+            if (!entryKey)
+                return false
+            return path.join(libDir, entryKey + '.js')
+        }
 
-            const entryKey = new Map(
-                Array.from(Object.entries(build.initialOptions.entryPoints))
-                    .map(([a, b]) => [b, a])
-            ).get(resolvedPath)
-
+        build.onResolve({filter: /^#/}, args => {
+            args.path = moduleRoot.resolve(packageJson.imports[args.path])
+            const libPath = getLibPathIfEntry(args.path)
             return {
-                path: (entryKey && !isEntry)
-                    ? (args.resolveDir.replace(/\/cherry-cola\/.*$/, '/cherry-cola/lib/') + entryKey + '.js')
-                    : resolvedPath,
-                external: isModule || (entryKey && !isEntry)
+                path: libPath || args.path,
+                external: !!libPath
             }
+        })
+
+        build.onResolve({filter: /^[A-Za-z@]/}, args => {
+            if (args.path === expectedJSXRuntimePath)
+                return {
+                    path: resolveFile(process.env.APP_MODULE_PATH, args.path),
+                }
+            else
+                return {
+                    path: args.path,
+                    external: true
+                }
         })
     }
 }

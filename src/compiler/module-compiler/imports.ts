@@ -18,6 +18,7 @@ export function addImports(key: string, imports: { [filename: string]: { [import
 
 export function getImportsAsString() {
     const importsString = Array.from(moduleImports.keys())
+        .filter(impFile => !impFile.startsWith('#'))
         .filter(impFile => !possibleExtensions.find(extension => impFile.endsWith(extension)))
         .map(impFile => `import "${impFile}"`)
         .join("\n")

@@ -1,10 +1,10 @@
-/*if (!process.send) {
+if (!process.send) {
     throw new Error('`renderer.js` cannot be run directly')
 }
 
 const serverOutputPath = process.argv[2]
-const App = (await import(`${serverOutputPath}/App.js`)).main
-const {render} = await import(`${serverOutputPath}/cherry-cola.js`)
+const App = (await import(`${serverOutputPath}/App.mjs`)).main
+const render = (await import('#render-element')).default
 
 global['cherry-cola'] = {}
 process.on('message', message => {
@@ -17,4 +17,4 @@ process.on('message', message => {
             })
         }
     }
-})*/
+})

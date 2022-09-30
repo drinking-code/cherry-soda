@@ -10,10 +10,13 @@
     "#cherry-cola": "./src/index.ts",
     "#node:cherry-cola": "./lib/cherry-cola.index.js",
     "#server/express": "./src/server/express.js",
-    "#compiler": "./src/compiler/assets.js",
+    "#compiler": "./src/compiler/node.app.js",
     "#node:compiler": "./lib/compiler.js",
-    "#render": "./src/server/render.js",
-    "#node:render": "./lib/render.js"
+    "#asset-compiler": "./src/compiler/assets.js",
+    "#node:asset-compiler": "./lib/asset-compiler.js",
+    "#render-function": "./src/server/render.js",
+    "#node:render-function": "./lib/render-function.js",
+    "#render-element": "./src/jsx/dom/render.tsx"
   },
   "scripts": {
     "example": "node --enable-source-maps src/server/server.node.js"
@@ -41,6 +44,7 @@
   "dependencies": {
     "bun-utilities": "^0.2.1",
     "chalk": "^5.0.1",
+    "escape-html": "^1.0.3",
     "express": "^4.18.1",
     "ipos": "^0.2.0",
     "ora": "^6.1.2",

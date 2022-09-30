@@ -9,6 +9,7 @@ let trees: Array<FileTree> | undefined
 const ipos = await iposPromise
 
 export default function doSomething(callback: Function, parameters: Array<any>): void {
+    if (!ipos.moduleCollector) return
     trees = trees ?? ipos.importTrees
     const dataStore = ipos.moduleCollector
 

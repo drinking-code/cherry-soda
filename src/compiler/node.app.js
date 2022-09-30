@@ -6,12 +6,14 @@ import {entryPoint, extendBaseConfig} from './base.js'
 import {imageLoader} from '../imports/images.js'
 import buildFileTreeOfComponentsOnly from './plugins/BuildFileTreeOfComponentsOnly.js'
 import {runModuleBuilder} from './module-compiler/index.ts'
-import packageJson from '../../package.json'
-import moduleRoot from '../utils/module-root.js'
-import {config as libConfig} from './node.lib.js'
+import {restartRenderer} from '#render-function'
+import ExternaliseNodeModulesPlugin from './plugins/ExternaliseNodeModulesPlugin.js'
 
 export const outputPath = appRoot.resolve('node_modules', '.cache', 'cherry-cola', 'server')
 const pe = new PrettyError()
+
+export const endEventListener = new EventTarget()
+const endEvent = new CustomEvent('end')
 
 esbuild.build(extendBaseConfig({
     target: 'node16', // todo: use current node version
@@ -22,35 +24,22 @@ esbuild.build(extendBaseConfig({
         App: entryPoint,
     },
     outdir: outputPath,
-    jsxImportSource: 'src',
     plugins: [
         imageLoader({emit: false}),
         buildFileTreeOfComponentsOnly(),
         {
             name: 'renderend-event',
             setup(build) {
-                build.onEnd(runModuleBuilder)
-            }
-        },
-        {
-            name: 'externalise-package-exports-plugin',
-            setup(build) {
-                build.onResolve({filter: /^#/}, args => {
-                    args.path = moduleRoot.resolve(packageJson.imports[args.path])
-                    const entryKey = new Map(
-                        Array.from(Object.entries(libConfig.entryPoints))
-                            .map(([a, b]) => [b, a])
-                    ).get(args.path)
-
-                    return {
-                        path: entryKey
-                            ? (args.resolveDir.replace(/\/cherry-cola\/.*$/, '/cherry-cola/lib/') + entryKey + '.js')
-                            : args.path,
-                        external: true
-                    }
+                build.onEnd(async () => {
+                    await Promise.all([
+                        runModuleBuilder(),
+                        restartRenderer(outputPath)
+                    ])
+                    endEventListener.dispatchEvent(endEvent)
                 })
             }
-        }
+        },
+        ExternaliseNodeModulesPlugin
     ],
     watch: process.env.BUN_ENV === 'development' && {
         onRebuild(error) {

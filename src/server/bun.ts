@@ -4,7 +4,7 @@ import PrettyError from 'pretty-error'
 // import {assetsOutputPath} from '#compiler'
 import {outputPath as assetsOutputPath} from '../compiler/assets.js'
 // import render, {startWatching} from '#node:render'
-import render, {startWatching} from './render.js'
+import render from './render.js'
 import console from '../utils/console'
 
 const pe = new PrettyError()
@@ -14,7 +14,6 @@ const pe = new PrettyError()
  * */
 export default function cherryCola(entry): (req: Request) => Promise<Response> {
     process.env.CHERRY_COLA_ENTRY = entry
-    startWatching()
     const serveStaticListener: (req: Request) => Promise<Response> = serveStatic(assetsOutputPath)
 
     return async (req) => {

@@ -23,6 +23,8 @@ export async function runModuleBuilder() {
     ], {
         stdio: ['inherit', 'inherit', 'inherit', 'ipc']
     })
+    let resolveFinishPromise
+    const finishPromise = new Promise<void>(resolve => resolveFinishPromise = resolve)
     collector_process.on('exit', async () => {
         await new Promise(res => setTimeout(res))
         const sourcemap = new SourceMapGenerator()
@@ -46,8 +48,11 @@ export async function runModuleBuilder() {
         await fs.writeFile(outputPath, modulesJsContents + "\n" +
             `//# sourceMappingURL=data:application/json;base64,${(new Buffer(sourcemap.toString())).toString('base64')}`
         )
+
+        resolveFinishPromise()
     })
     await ipos.addProcess(collector_process)
+    await finishPromise
 }
 
 export {default as outputPath} from './path.js'

@@ -19,7 +19,7 @@ const ipos = await iposPromise
 ipos.create('clientAssets', ['main.js', 'main.css'])
 
 const label = 'client-side'
-// todo: node: start only after initial node build
+
 // todo: clear modulesJsPath before initial build to remove previous errors
 esbuild.build(extendBaseConfig({
     entryPoints: [moduleRoot.resolve('src', 'runtime', 'index.js')],

@@ -19,7 +19,7 @@ export async function getModulesAsString(sourcemap: SourceMapGenerator, linesOff
 
     const modulesMappings = modules
         .map(([func, parameters, key], index) => {
-            return (async () => {
+            return new Promise<void>(async resolve => {
                 const fileContents = await fs.readFile(key, {encoding: 'utf8'})
                 sourcemap.setSourceContent(key, fileContents)
                 // todo: handle multiple "doSomething"
@@ -50,7 +50,9 @@ export async function getModulesAsString(sourcemap: SourceMapGenerator, linesOff
                         },
                     })
                 })
-            })()
+
+                resolve()
+            })
         })
 
     modules.slice(0, modules.length)
