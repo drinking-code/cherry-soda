@@ -1,2 +1,2 @@
 // import './imports'
-export {default as render} from './dom/render'
+// export {default as render} from './jsx/dom/render'

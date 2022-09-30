@@ -3,8 +3,8 @@ if (!process.send) {
 }
 
 const serverOutputPath = process.argv[2]
-const App = (await import(`${serverOutputPath}/App.js`)).main
-const {render} = await import(`${serverOutputPath}/cherry-cola.js`)
+const App = (await import(`${serverOutputPath}/App.mjs`)).main
+const render = (await import('#render-element')).default
 
 global['cherry-cola'] = {}
 process.on('message', message => {

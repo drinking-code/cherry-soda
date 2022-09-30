@@ -1,4 +1,4 @@
-import {renderElement} from '../dom/render';
+import {renderElement} from './dom/render';
 import {ElementChildren} from './ElementChildren'
 
 type ComponentType<P = {}> = FunctionComponent<P>;

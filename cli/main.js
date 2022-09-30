@@ -8,6 +8,10 @@ import build from './build.js'
 import start from './start.js'
 import dev from './dev.js'
 
+import appRoot from '../src/utils/project-root.js'
+
+process.env.NODE_NO_WARNINGS = '1'
+
 const packageJson = JSON.parse(
     fs.readFileSync(
         path.join(
@@ -25,18 +29,15 @@ const addNodeOption = (yargs, description) =>
     })
 
 const pureArgs = hideBin(
-        Array.from(process.argv).filter(v => v !== '--')
-    )
+    Array.from(process.argv).filter(v => v !== '--')
+)
 
-;(async () => {
-    const appRoot = (await import(typeof Bun !== 'undefined' ? '../src/utils/bun-project-root.js' : 'app-root-path')).default
-    if (JSON.parse(
-        fs.readFileSync(
-            appRoot.resolve('package.json'),
-            {encoding: 'utf8'})
-    ).name === packageJson.name)
-        process.env.CHERRY_COLA_ENV = 'development'
-})()
+if (JSON.parse(
+    fs.readFileSync(
+        appRoot.resolve('package.json'),
+        {encoding: 'utf8'})
+).name === packageJson.name)
+    process.env.CHERRY_COLA_ENV = 'development'
 
 if (!process.env.PORT)
     process.env.PORT = '3000'

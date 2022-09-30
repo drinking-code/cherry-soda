@@ -1,4 +1,4 @@
-import {default as iposPromise} from '../../ipos.js'
+import {default as iposPromise} from '../../../ipos.js'
 
 let ipos
 ;(async () => {

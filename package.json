@@ -7,7 +7,16 @@
     "./jsx-dev-runtime": "./src/jsx-dev-runtime.js"
   },
   "imports": {
-    "cherry-cola": "./src/index.ts"
+    "#cherry-cola": "./src/index.ts",
+    "#node:cherry-cola": "./lib/cherry-cola.index.js",
+    "#server/express": "./src/server/express.js",
+    "#compiler": "./src/compiler/node.app.js",
+    "#node:compiler": "./lib/compiler.js",
+    "#asset-compiler": "./src/compiler/assets.js",
+    "#node:asset-compiler": "./lib/asset-compiler.js",
+    "#render-function": "./src/server/render.js",
+    "#node:render-function": "./lib/render-function.js",
+    "#render-element": "./src/jsx/dom/render.tsx"
   },
   "scripts": {
     "example": "node --enable-source-maps src/server/server.node.js"
@@ -22,6 +31,7 @@
   },
   "devDependencies": {
     "@babel/parser": "^7.19.1",
+    "@babel/types": "^7.19.3",
     "autoprefixer": "^10.4.11",
     "browserslist": "^4.21.4",
     "bun-types": "^0.1.0",
@@ -32,12 +42,14 @@
     "ws": "^8.8.1"
   },
   "dependencies": {
-    "app-root-path": "^3.1.0",
+    "bun-utilities": "^0.2.1",
     "chalk": "^5.0.1",
+    "escape-html": "^1.0.3",
     "express": "^4.18.1",
     "ipos": "^0.2.0",
     "ora": "^6.1.2",
     "pretty-error": "^4.0.0",
+    "serve-static-bun": "^0.2.0",
     "shrink-ray-current": "^4.1.3",
     "uuid": "^9.0.0",
     "yargs": "^17.5.1"

@@ -1,5 +1,5 @@
 import IPOS from 'ipos'
-import FileTree, {Import} from './server/compiler/helpers/FileTree.js'
+import FileTree, {Import} from './compiler/helpers/FileTree.js'
 
 IPOS.registerClass(FileTree)
 IPOS.registerClass(Import)

@@ -1,4 +1,4 @@
-import {createState, doSomething, Fragment} from '../../src'
+import {createState, doSomething, Fragment} from '#cherry-cola'
 
 import styles from './App.module.scss'
 
