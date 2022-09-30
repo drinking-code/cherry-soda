@@ -1,5 +1,3 @@
-import path from 'path'
-import fs from 'fs'
 import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 
@@ -8,18 +6,12 @@ import {entryPoint, extendBaseConfig} from './base.js'
 import {imageLoader} from '../imports/images.js'
 import buildFileTreeOfComponentsOnly from './plugins/BuildFileTreeOfComponentsOnly.js'
 import {runModuleBuilder} from './module-compiler/index.ts'
-import ExternaliseNodeModulesPlugin from './plugins/ExternaliseNodeModulesPlugin.js'
+import packageJson from '../../package.json'
+import moduleRoot from '../utils/module-root.js'
+import {config as libConfig} from './node.lib.js'
 
-const dirname = path.dirname((new URL(import.meta.url)).pathname)
-export const outputPath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))
+export const outputPath = appRoot.resolve('node_modules', '.cache', 'cherry-cola', 'server')
 const pe = new PrettyError()
-
-function findTsconfig() {
-    let currentDirname = dirname
-    while (!fs.readdirSync(currentDirname).includes('tsconfig.json'))
-        currentDirname = path.join(currentDirname, '..')
-    return path.join(currentDirname, 'tsconfig.json')
-}
 
 esbuild.build(extendBaseConfig({
     target: 'node16', // todo: use current node version
@@ -30,7 +22,6 @@ esbuild.build(extendBaseConfig({
         App: entryPoint,
     },
     outdir: outputPath,
-    // tsconfig: findTsconfig(),
     jsxImportSource: 'src',
     plugins: [
         imageLoader({emit: false}),
@@ -41,7 +32,25 @@ esbuild.build(extendBaseConfig({
                 build.onEnd(runModuleBuilder)
             }
         },
-        ExternaliseNodeModulesPlugin
+        {
+            name: 'externalise-package-exports-plugin',
+            setup(build) {
+                build.onResolve({filter: /^#/}, args => {
+                    args.path = moduleRoot.resolve(packageJson.imports[args.path])
+                    const entryKey = new Map(
+                        Array.from(Object.entries(libConfig.entryPoints))
+                            .map(([a, b]) => [b, a])
+                    ).get(args.path)
+
+                    return {
+                        path: entryKey
+                            ? (args.resolveDir.replace(/\/cherry-cola\/.*$/, '/cherry-cola/lib/') + entryKey + '.js')
+                            : args.path,
+                        external: true
+                    }
+                })
+            }
+        }
     ],
     watch: process.env.BUN_ENV === 'development' && {
         onRebuild(error) {

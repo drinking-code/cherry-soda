@@ -6,10 +6,7 @@ import {default as iposPromise} from '../../ipos'
 
 let trees: Array<FileTree> | undefined
 
-let ipos
-;(async () => {
-    ipos = await iposPromise
-})()
+const ipos = await iposPromise
 
 export default function doSomething(callback: Function, parameters: Array<any>): void {
     trees = trees ?? ipos.importTrees

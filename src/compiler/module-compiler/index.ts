@@ -11,7 +11,7 @@ const ipos: IPOS = await iposPromise
 
 // getImportsAsString
 const dirname = path.dirname((new URL(import.meta.url)).pathname)
-const serverFilePath = appRoot.resolve(path.join('node_modules', '.cache', 'cherry-cola', 'server'))
+const serverFilePath = appRoot.resolve('node_modules', '.cache', 'cherry-cola', 'server')
 
 export async function runModuleBuilder() {
     const collector_process = child_process.spawn('node', [
@@ -20,8 +20,10 @@ export async function runModuleBuilder() {
     ], {
         stdio: ['inherit', 'inherit', 'inherit', 'ipc']
     })
+    collector_process.on('exit', () => {
+        console.log(ipos.moduleImports)
+    })
     await ipos.addProcess(collector_process)
-    console.log('runModuleBuilder')
 }
 
 export {default as outputPath} from './path.js'

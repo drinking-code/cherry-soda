@@ -1,29 +1,24 @@
-import path from 'path'
 import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 
 import {extendBaseConfig} from './base.js'
-import resolveFile from './helpers/resolve-file.js'
 import console from '../utils/console.js'
 import ExternaliseNodeModulesPlugin from './plugins/ExternaliseNodeModulesPlugin.js'
+import moduleRoot from '../utils/module-root.js'
 
-const dirname = path.dirname((new URL(import.meta.url)).pathname)
-export const outputPath = path.join(dirname, '..', '..', 'lib')
+export const outputPath = moduleRoot.resolve('lib')
 const pe = new PrettyError()
 
-let resolveReadyPromise
-export const readyPromise = new Promise(resolve => resolveReadyPromise = resolve)
-
-const config = extendBaseConfig({
+export const config = extendBaseConfig({
     target: 'node16', // todo: use current node version
     platform: 'node',
     format: 'esm',
     entryPoints: {
-        'cherry-cola': path.join(dirname, '..', 'index.ts'),
-        'compiler': path.join(dirname, '..', 'compiler', 'node.app.js'),
-        'render': path.join(dirname, '..', 'server', 'render.js'),
-        'renderer': path.join(dirname, '..', 'server', 'renderer.js'),
-        'iterate-function-components': path.join(dirname, '..', 'compiler', 'module-compiler', 'iterate-function-components.ts'),
+        'cherry-cola': moduleRoot.resolve('src', 'index.ts'),
+        'compiler': moduleRoot.resolve('src', 'compiler', 'node.app.js'),
+        'render': moduleRoot.resolve('src', 'server', 'render.js'),
+        'renderer': moduleRoot.resolve('src', 'server', 'renderer.js'),
+        'iterate-function-components': moduleRoot.resolve('src', 'compiler', 'module-compiler', 'iterate-function-components.ts'),
     },
     outdir: outputPath,
     watch: process.env.BUN_ENV === 'development' && {
@@ -35,15 +30,7 @@ const config = extendBaseConfig({
 })
 
 delete config.plugins
-config.plugins = [
-    ExternaliseNodeModulesPlugin,
-    {
-        name: 'resolve-ready-promise',
-        setup(build) {
-            build.onEnd(() => {
-                resolveReadyPromise()
-            })
-        }
-    }
-]
-esbuild.build(config)
+config.plugins = [ExternaliseNodeModulesPlugin]
+export default async function () {
+    await esbuild.build(config)
+}

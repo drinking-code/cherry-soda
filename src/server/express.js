@@ -3,7 +3,7 @@ import PrettyError from 'pretty-error'
 
 import '../utils/project-root.js'
 import console from '../utils/console.js'
-import {readyPromise} from '../compiler/node.lib.js'
+import startNodeCompiler from '../compiler/node.lib.js'
 
 const pe = new PrettyError()
 
@@ -11,7 +11,7 @@ const pe = new PrettyError()
  * @param entry Absolute path to entry file
  * */
 export default async function cherryCola(entry) {
-    await readyPromise
+    await startNodeCompiler()
     const {outputPath: assetsOutputPath} = await import('#node:compiler')
     const {default: render, startWatching} = await import('#node:render')
     process.env.CHERRY_COLA_ENTRY = entry

@@ -1,13 +1,10 @@
 import {default as iposPromise} from '../../ipos.js'
 import {possibleExtensions} from '../helpers/resolve-file.js'
 
-let ipos, moduleImports: Map<string, Array<string>>
-;(async () => {
-    ipos = await iposPromise
-    if (!ipos.moduleImports)
-        ipos.create('moduleImports', new Map())
-    moduleImports = ipos.moduleImports
-})()
+const ipos = await iposPromise
+if (!ipos.moduleImports)
+    ipos.create('moduleImports', new Map())
+const moduleImports: Map<string, Array<string>> = ipos.moduleImports
 
 export function addImports(key: string, imports: { [filename: string]: { [importedName: string]: string } }) {
     Array.from(Object.keys(imports)).forEach(impFile => {

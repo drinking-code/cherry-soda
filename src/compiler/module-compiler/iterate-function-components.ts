@@ -45,8 +45,8 @@ function iterateFunctionComponents(element: VirtualElement, isFirstCall: boolean
             if (!(child instanceof VirtualElement)) return
             iterateFunctionComponents(element)
         })
-    console.log(element
-        .function.name)
 }
 
 iterateFunctionComponents(App(), true)
+
+process.exit(0)

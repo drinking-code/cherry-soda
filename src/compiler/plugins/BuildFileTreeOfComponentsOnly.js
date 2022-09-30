@@ -11,12 +11,9 @@ import resolveFile from '../helpers/resolve-file.js'
 import {addImports} from '../module-compiler/index'
 import {default as iposPromise} from '../../ipos.js'
 
-let ipos
-;(async () => {
-    ipos = await iposPromise
-    if (!ipos.importTrees)
-        ipos.create('importTrees', [])
-})()
+const ipos = await iposPromise
+if (!ipos.importTrees)
+    ipos.create('importTrees', [])
 
 /**
  * Build a file tree with only files that export function components.
