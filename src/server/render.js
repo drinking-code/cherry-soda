@@ -38,7 +38,7 @@ async function restartProgram() {
     ], {
         stdio: ['inherit', 'inherit', 'inherit', 'ipc']
     })
-    await ipos.addProcess(rendering_process)
+    // await ipos.addProcess(rendering_process)
     // render immediately to start off module collecting / compilation
     rendering_process.on('message', message => {
         if (message.type === 'response')

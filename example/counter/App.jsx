@@ -1,22 +1,22 @@
-import {/*createState, doSomething, */Fragment} from '#cherry-cola'
+import {createState, doSomething, Fragment} from '#cherry-cola'
 
 import styles from './App.module.scss'
 
 export default function App() {
-    // const count = createState(0)
+    const count = createState(0)
     // console.log(count)
     // const addButton = createRef()
     // const subtractButton = createRef()
 
-    /*doSomething(([count, setCount]) => {
+    doSomething(([count, setCount]) => {
         console.log('count: ', count)
         console.log('setCount: ', setCount)
-    }, [count])*/
+    }, [count])
 
     return (
         <Fragment>
             <button className={styles.button}>+</button>
-            <span className={styles.count}>Count: {{/*count*/}}</span>
+            <span className={styles.count}>Count: {count}</span>
             <button className={styles.button}>-</button>
         </Fragment>
     )

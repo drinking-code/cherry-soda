@@ -1,4 +1,4 @@
-if (!process.send) {
+/*if (!process.send) {
     throw new Error('`renderer.js` cannot be run directly')
 }
 
@@ -17,4 +17,4 @@ process.on('message', message => {
             })
         }
     }
-})
+})*/
