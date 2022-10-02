@@ -1,26 +1,27 @@
 import IPOS from 'ipos'
 
 import {default as iposPromise} from '../../ipos.js'
-import {VirtualElement} from '../../jsx/VirtualElement'
+import {isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import {ElementChild} from '../../jsx/ElementChildren'
 import FileTree, {Import} from '../helpers/FileTree'
+import {Fragment} from '../../jsx/factory'
 
 const ipos: IPOS = await iposPromise
 
-const serverOutputPath = process.argv[2]
-const App: () => VirtualElement = (await import(`${serverOutputPath}/App.mjs`)).main
-if (!ipos.moduleCollector) {
-    ipos.create('moduleCollector', {})
-}
-const moduleCollector: {
+let moduleCollector: {
     currentFile?: string,
     parentFile?: string
-} = ipos.moduleCollector
+}
 const importTrees: Array<FileTree> = ipos.importTrees as Array<FileTree>
 
-function iterateFunctionComponents(element: VirtualElement, isFirstCall: boolean = false) {
-    if (isFirstCall)
+export function iterateFunctionComponents(element: VirtualElement, isFirstCall: boolean = false) {
+    if (isFirstCall) {
+        if (!ipos.moduleCollector) {
+            ipos.create('moduleCollector', {})
+            moduleCollector = ipos.moduleCollector
+        }
         moduleCollector.currentFile = process.env.CHERRY_COLA_ENTRY
+    }
 
     const functionComponentsFile: FileTree =
         importTrees
@@ -35,18 +36,34 @@ function iterateFunctionComponents(element: VirtualElement, isFirstCall: boolean
     moduleCollector.parentFile = moduleCollector.currentFile
     moduleCollector.currentFile = functionComponentsFile?.filename
 
-    const virtualElement: VirtualElement = element
-        .function({...element.props, children: element.children})
+    const returnedVirtualElement: VirtualElement = element.function({...element.props, children: element.children})
+    const flattenedReturnedVirtualElement: VirtualElement[] = flattenFragments([returnedVirtualElement])
+    flattenedReturnedVirtualElement.forEach(element => element.trace(0, element.id))
 
-    virtualElement.children
+    let i = -1
+    returnedVirtualElement.children
         .flat()
         .filter(v => v)
-        .forEach((child: ElementChild) => {
-            if (!(child instanceof VirtualElement)) return
-            iterateFunctionComponents(element)
+        .forEach((child: ElementChild, index) => {
+            if (!isVirtualElement(child)) return
+            child.trace(++i, returnedVirtualElement.id)
+            if (child.props.ref) {
+                child.props.ref.populate(child)
+            }
+            if (child.type === 'function')
+                iterateFunctionComponents(child)
         })
+
+    if (isFirstCall) {
+        ipos.delete('moduleCollector')
+    }
 }
 
-iterateFunctionComponents(App(), true)
-ipos.delete('moduleCollector')
-process.exit(0)
+function flattenFragments(elements: VirtualElement[]): VirtualElement[] {
+   return elements.map(element => {
+       if (element.type === Fragment)
+           return element.children
+       else
+           return element
+   }).flat()
+}

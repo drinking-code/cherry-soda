@@ -22,8 +22,8 @@ const label = 'client-side'
 
 // todo: clear modulesJsPath before initial build to remove previous errors
 esbuild.build(extendBaseConfig({
-    entryPoints: [moduleRoot.resolve('src', 'runtime', 'index.js')],
-    inject: [modulesJsPath],
+    entryPoints: [modulesJsPath],
+    inject: [moduleRoot.resolve('src', 'runtime', 'index.js')],
     outfile: path.join(outputPath, 'main.js'),
     plugins: [
         imageLoader({path: outputPath}),

@@ -46,7 +46,7 @@
     "chalk": "^5.0.1",
     "escape-html": "^1.0.3",
     "express": "^4.18.1",
-    "ipos": "^0.2.0",
+    "ipos": "^0.2.1",
     "ora": "^6.1.2",
     "pretty-error": "^4.0.0",
     "serve-static-bun": "^0.2.0",

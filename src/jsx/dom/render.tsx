@@ -26,18 +26,18 @@ export function renderElement(element: VirtualElement): string | string[] {
     if (element.type === 'function')
         return element
             .function({...element.props, children: element.children})
-            .render(0, element.id)
+            .render(/*0, element.id*/)
 
     const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
     const renderedChildren: string[] = 'unsafeInnerHtml' in element.props
-        ? [element.props['unsafeInnerHtml']]
+        ? [element.props.unsafeInnerHtml]
         : stringifyChildren(filteredChildren, element.id)
 
     // @ts-ignore
     if (element.type === Fragment)
         return Array.from(renderedChildren)
 
-    if (!validTags.includes(element.type as string))
+    if (!validTags.some(tag => tag === element.type))
         throw new Error(`\`${element.type}\` is not a valid element tag.`)
 
     const stringifiedProps: string = stringifyProps(element.props)
@@ -45,7 +45,7 @@ export function renderElement(element: VirtualElement): string | string[] {
         `<${element.type} ${stringifiedProps}>`
             .replace(/ >/, '>')
 
-    if (voidElements.includes(element.type as string))
+    if (voidElements.some(tag => tag === element.type))
         return openingTag
 
     const closingTag: string = `</${element.type}>`

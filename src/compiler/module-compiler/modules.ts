@@ -1,12 +1,10 @@
-import {default as iposPromise} from '../../ipos'
 import fs from 'fs/promises'
 import {SourceMapGenerator} from 'source-map'
+import {stringify} from './stringify'
 
-const ipos = await iposPromise
-
-if (!ipos.modules)
-    ipos.create('modules', [])
-export const modules: Array<[string, Array<any>, string]> = ipos.modules
+if (!global['modules'])
+    global['modules'] = []
+export const modules: Array<[string, Array<any>, string]> = global['modules']
 
 export function addModule(func: string, parameters: Array<any>, key: string) {
     modules.push([func, parameters, key])
@@ -60,4 +58,16 @@ export async function getModulesAsString(sourcemap: SourceMapGenerator, linesOff
     await Promise.all(modulesMappings)
 
     return modulesString
+}
+
+export function getModuleParametersAsString() {
+    return modules
+        .map(([func, parameters, key]) => {
+            parameters = parameters
+                .map(parameter => {
+                    return stringify(parameter)
+                })
+            return `modulesParametersMap.set('${key}', [${parameters.join(', ')}])`
+        })
+        .join("\n")
 }

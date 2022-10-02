@@ -1,23 +1,17 @@
-import {renderElement} from './dom/render';
+import {renderElement} from './dom/render'
 import {ElementChildren} from './ElementChildren'
+import {PropsType} from './dom/props-type'
+import {validTags, voidElements} from './dom/html-props'
+import {Fragment} from './factory'
 
-type ComponentType<P = {}> = FunctionComponent<P>;
-
-export interface FunctionComponent<P = {}> {
-    (props): VirtualElement | null;
-
-    displayName?: string;
-    defaultProps?: Partial<P>;
-}
-
-export class VirtualElement<P = {}> {
-    type: ComponentType<P> | string;
+export class VirtualElement<P = PropsType> {
+    type: 'function' | typeof validTags[number] | typeof voidElements[number] | typeof Fragment;
     function?: Function;
-    props: P;
+    props: PropsType;
     children: ElementChildren;
     private _id?: ElementId;
 
-    constructor(type: VirtualElement['type'], props: P, children?: ElementChildren) {
+    constructor(type: VirtualElement['type'], props: PropsType, children?: ElementChildren) {
         this.type = type
         if (typeof type === 'function') {
             this.type = 'function'
@@ -27,14 +21,23 @@ export class VirtualElement<P = {}> {
         this.children = children
     }
 
-    render(index: number = 0, parent: ElementId | null): string | string[] {
-        this._id = new ElementId(index, parent, this)
+    render(/*index: number = 0, parent: ElementId | null*/): string | string[] {
+        // this.trace(index, parent)
         return renderElement(this)
+    }
+
+    trace(index: number = 0, parent: ElementId | null) {
+        this._id = new ElementId(index, parent, this)
     }
 
     get id() {
         return this._id
     }
+}
+
+export function isVirtualElement(item): item is VirtualElement {
+    // instanceof VirtualElement won't work in node because esbuild generates multiple files with the same class
+    return item.constructor?.name === VirtualElement.name
 }
 
 export class ElementId {
@@ -44,20 +47,21 @@ export class ElementId {
     fullPath?: number[];
     element: VirtualElement
 
+    // <body> would be {origin: 'body', fullPath: []} OR {origin: 'html', fullPath: [0]}
+    // first child of <body> would be {origin: 'body', fullPath: [0]}
+
     constructor(index: number, parent: ElementId | null, element: VirtualElement) {
         this.parent = parent
         this.index = index
-        if (parent?.fullPath)
-            this.fullPath = [...this.parent.fullPath, this.index]
-        if (['html', 'head', 'body'].includes(element.type as string)) {
-            // @ts-ignore Type 'string | ComponentType<{}>' is not assignable to type '"head" | "body"'
-            this.origin = element.type
-            this.fullPath = []
-        } else if (parent?.origin) {
-            this.origin = parent.origin
-        } else if (!parent) {
-            this.origin = 'body'
-        }
         this.element = element
+
+        this.fullPath = [...(this.parent?.fullPath ?? [])]
+        this.fullPath.push(this.index)
+        this.origin = parent?.origin
+
+        if (['html', 'head', 'body'].includes(element.type.toString())) {
+            this.origin = element.type as typeof this.origin
+            this.fullPath = []
+        }
     }
 }
