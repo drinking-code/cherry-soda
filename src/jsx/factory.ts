@@ -8,9 +8,11 @@ function createVirtualElement(
     key: any,
     _self: string,
     _source: string
-): VirtualElement {
+): VirtualElement | ElementChildren {
     const children = new ElementChildren(props.children)
     delete props.children
+    if (type === Fragment)
+        return children
 
     return new VirtualElement(type, props, children)
 }

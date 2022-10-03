@@ -2,19 +2,22 @@ import escapeHtml from 'escape-html'
 
 import {ElementChildren} from '../ElementChildren'
 import {ElementId, isVirtualElement} from '../VirtualElement'
+import isState from '../../state/is-state'
 
 export default function stringifyChildren(children: ElementChildren, elementId: ElementId): Array<string> {
-    let i = -1
+    let elementIndex = 0, textIndex = 0
     return children
         .map((child) => {
             if (isVirtualElement(child)) {
-                const rendered = child.render(/*++i, elementId*/)
+                child.props.ref?.populate(child)
+                const rendered = child.render(elementIndex++, elementId)
                 if (Array.isArray(rendered)) {
-                    i += rendered.length - 1
+                    elementIndex += rendered.length - 1
                     return rendered.join('')
                 }
                 return rendered
             }
+            console.log(isState(child), elementId.fullPath, textIndex++, elementId.element.type)
             // todo: handle objects
             return escapeHtml(child.toString())
         })
