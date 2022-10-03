@@ -9,9 +9,10 @@ export default function App() {
 
     doSomething(([count, setCount], addButton, subtractButton) => {
         addButton.addEventListener('click', () => {
-            console.log(count)
             setCount(count + 1)
-            console.log(count)
+        })
+        subtractButton.addEventListener('click', () => {
+            setCount(Math.max(count - 1, 0))
         })
     }, [count, addButton, subtractButton])
 

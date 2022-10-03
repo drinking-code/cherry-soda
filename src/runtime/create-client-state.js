@@ -1,10 +1,4 @@
-const states = {}
-
-function generateId() {
-    const array = new Uint32Array(1)
-    self.crypto.getRandomValues(array)
-    return array[0].toString(16)
-}
+const states = new Map()
 
 function MakeMutable(PrimitiveWrapper) {
     return class Mutable extends PrimitiveWrapper {
@@ -16,20 +10,25 @@ function MakeMutable(PrimitiveWrapper) {
         valueOf() {
             return this.value
         }
+
+        clone() {
+            return new Mutable(this.valueOf())
+        }
     }
 }
 
-export function createClientState(value) {
-    let id
-    do {
-        id = generateId()
-    } while (id in states)
-
-    states[id] = new (MakeMutable(Number))(value)
+export function createClientState(value, id) {
+    states.set(id, new (MakeMutable(Number))(value))
+    const clone = states.get(id).clone()
 
     function changeValue(newValue) {
-        states[id].value = newValue
+        if (states.get(id).valueOf() === newValue) {
+            return false
+        }
+        states.get(id).value = newValue
+        clone.value = newValue
+        return true
     }
 
-    return [states[id], changeValue]
+    return [clone, changeValue]
 }

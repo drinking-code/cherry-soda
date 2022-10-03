@@ -10,7 +10,7 @@ export default function createState(initialValue) {
     return stateValue
 }
 
-class StringState extends String {
+export class StringState extends String {
     $$stateId: StateId
 
     constructor(value: string) {
@@ -23,7 +23,7 @@ class StringState extends String {
     }
 }
 
-class NumberState extends Number {
+export class NumberState extends Number {
     $$stateId: StateId
 
     constructor(value: number) {

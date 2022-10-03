@@ -14,7 +14,6 @@ export async function buildFile() {
 
     const header = [
         'export const modules = new Map()',
-        'export const states = new Map()',
         'export const modulesParametersMap = new Map()',
     ].join("\n")
 
@@ -31,7 +30,8 @@ export async function buildFile() {
         header,
         parametersString,
         modulesString
-    ].join("\n")
+    ].join("\n") +
+        "\nexecModules(modules, modulesParametersMap)"
 
     await fs.writeFile(outputPath, modulesJsContents + "\n" +
         `//# sourceMappingURL=data:application/json;base64,${(new Buffer(sourcemap.toString())).toString('base64')}`

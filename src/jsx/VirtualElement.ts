@@ -5,8 +5,8 @@ import {validTags, voidElements} from './dom/html-props'
 import {Fragment} from './factory'
 
 export class VirtualElement<P = PropsType> {
-    type: 'function' | typeof validTags[number] | typeof voidElements[number] | typeof Fragment;
-    function?: Function;
+    type: 'function' | typeof validTags[number] | typeof voidElements[number];
+    function?: (PropsType) => VirtualElement | ElementChildren;
     props: PropsType;
     children: ElementChildren;
     private _id?: ElementId;
@@ -21,8 +21,8 @@ export class VirtualElement<P = PropsType> {
         this.children = children
     }
 
-    render(/*index: number = 0, parent: ElementId | null*/): string | string[] {
-        // this.trace(index, parent)
+    render(index: number = 0, parent: ElementId | null): string | string[] {
+        this.trace(index, parent)
         return renderElement(this)
     }
 

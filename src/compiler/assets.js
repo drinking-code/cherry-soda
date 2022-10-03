@@ -4,7 +4,7 @@ import PrettyError from 'pretty-error'
 
 import appRoot from '../utils/project-root.js'
 
-import {extendBaseConfig} from './base.js'
+import {extendBaseConfig, isProduction} from './base.js'
 import {showCompilationStatus} from './helpers/logger.js'
 import {reportNewAsset} from '../server/dynamic-code-synchronisation/report.js'
 import {imageLoader} from '../imports/images.js'
@@ -25,6 +25,7 @@ esbuild.build(extendBaseConfig({
     entryPoints: [modulesJsPath],
     inject: [moduleRoot.resolve('src', 'runtime', 'index.js')],
     outfile: path.join(outputPath, 'main.js'),
+    sourcemap: !isProduction && 'linked',
     plugins: [
         imageLoader({path: outputPath}),
         showCompilationStatus(typeof Bun !== 'undefined' ? label
