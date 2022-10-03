@@ -5,7 +5,6 @@ export function findElement(path) {
     path.forEach(index => {
         element = element[index]
     })
-    console.log(element)
     return element
 }
 

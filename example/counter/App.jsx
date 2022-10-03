@@ -4,16 +4,16 @@ import styles from './App.module.scss'
 
 export default function App() {
     const count = createState(0)
-    // console.log(count)
     const addButton = createRef()
     const subtractButton = createRef()
 
-    doSomething((/*[count, setCount], */addButton, subtractButton) => {
-        // console.log('count: ', count)
-        // console.log('setCount: ', setCount)
-        console.log('addButton', addButton)
-        console.log('subtractButton', subtractButton)
-    }, [/*count, */addButton, subtractButton])
+    doSomething(([count, setCount], addButton, subtractButton) => {
+        addButton.addEventListener('click', () => {
+            console.log(count)
+            setCount(count + 1)
+            console.log(count)
+        })
+    }, [count, addButton, subtractButton])
 
     return (
         <Fragment>
