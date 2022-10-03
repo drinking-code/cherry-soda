@@ -5,10 +5,10 @@ import babelParser from '@babel/parser'
 
 import console from '../../utils/console.js'
 import exportsFunctionComponent from '../helpers/exports-function-component.js'
-import getImports from '../helpers/get-imports.ts'
-import FileTree, {Import} from '../helpers/FileTree.js'
+import getImports from '../helpers/get-imports'
+import FileTree, {Import} from '../helpers/FileTree'
 import resolveFile from '../helpers/resolve-file.js'
-import {addImports} from '../module-compiler/index'
+import {addImports} from '../module-compiler'
 import {default as iposPromise} from '../../ipos.js'
 
 const ipos = await iposPromise
@@ -24,7 +24,7 @@ export default function buildFileTreeOfComponentsOnly() {
     return {
         name: 'extract-client-code-plugin',
         async setup(build) {
-            const trees = []
+            const trees: Array<FileTree> = []
 
             build.onStart(() => {
                 trees.splice(0, trees.length)
@@ -44,14 +44,14 @@ export default function buildFileTreeOfComponentsOnly() {
                     const fileDir = path.dirname(args.path)
                     const imports = getImports(ast)
                         // resolve paths
-                        .map(v => {
-                            if (v.source.startsWith('.'))
-                                v.source = resolveFile(fileDir, v.source)
-                            return v
+                        .map(importData => {
+                            if (importData.source.startsWith('.'))
+                                importData.source = resolveFile(fileDir, importData.source)
+                            return importData
                         })
-                        .map(v => new Import(v.source, v.specifiers))
+                        .map(importData => new Import(importData.source, importData.specifiers))
 
-                    if (trees.length === 0 || !trees.map(tree => tree.has(filename)).includes(true)) {
+                    if (trees.length === 0 || !trees.some(tree => tree.has(filename))) {
                         trees.push(new FileTree(filename, imports))
                     } else {
                         trees.forEach(tree => tree.addImportsTo(filename, imports))

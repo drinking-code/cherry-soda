@@ -1,7 +1,8 @@
-import {ParseResult} from "@babel/parser";
-import {ImportDeclaration, ImportDefaultSpecifier, ModuleSpecifier, Statement} from "@babel/types";
+import {ParseResult} from '@babel/parser'
+import {ImportDeclaration, ImportDefaultSpecifier, ModuleSpecifier, Statement} from '@babel/types'
+import {SpecifiersType} from './FileTree'
 
-export default function getImports(ast: ParseResult<import("@babel/types").File>): Array<{source: string, specifiers: {[importedName: string]: string}}> {
+export default function getImports(ast: ParseResult<import("@babel/types").File>): Array<{ source: string, specifiers: SpecifiersType }> {
     return ast.program.body
         // filter imports
         // todo: get dynamic imports

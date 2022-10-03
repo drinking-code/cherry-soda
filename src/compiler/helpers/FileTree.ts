@@ -1,9 +1,16 @@
+export type SerializedImportType = {
+    fileTree: SerializedFileTreeType
+    specifiers: SpecifiersType
+}
+
+export type SpecifiersType = { [importedName: string]: string }
+
 export class Import {
     // file tree of file imported
-    fileTree;
-    specifiers = {};
+    fileTree: FileTree;
+    specifiers: SpecifiersType = {};
 
-    constructor(filename, specifiers) {
+    constructor(filename: string | FileTree, specifiers: SpecifiersType) {
         if (filename instanceof FileTree)
             this.fileTree = filename
         else
@@ -11,14 +18,14 @@ export class Import {
         this.specifiers = specifiers
     }
 
-    serialize() {
+    serialize(): SerializedImportType {
         return {
             fileTree: this.fileTree.serialize(),
             specifiers: this.specifiers,
         }
     }
 
-    static from(object) {
+    static from(object: SerializedImportType): Import {
         return new Import(
             FileTree.from(object.fileTree),
             object.specifiers,
@@ -26,22 +33,23 @@ export class Import {
     }
 }
 
+export type SerializedFileTreeType = {
+    filename: string
+    imports: Array<SerializedImportType>
+}
+
 export default class FileTree {
     // the absolute path to the file
-    filename;
+    filename: string;
     // array of FileTree
-    imports = [];
+    imports: Array<Import> = [];
 
-    /**
-     * @param {string} filename
-     * @param {Array<Import>} [imports]
-     * */
-    constructor(filename, imports) {
+    constructor(filename: string, imports?: Array<Import>) {
         this.filename = filename
         this.imports = imports ?? []
     }
 
-    has(filename) {
+    has(filename: string): boolean {
         if (this.filename === filename) {
             return true
         } else {
@@ -51,7 +59,7 @@ export default class FileTree {
         }
     }
 
-    find(filename, level = 0) {
+    find(filename: string, level: number = 0): FileTree | void {
         if (this.filename === filename) {
             return this
         } else {
@@ -61,11 +69,7 @@ export default class FileTree {
         }
     }
 
-    /**
-     * @param {string} source
-     * @param {Array<Import>} targets
-     * */
-    addImportsTo(source, targets) {
+    addImportsTo(source: string, targets: Array<Import>) {
         if (this.filename !== source)
             this.imports
                 .forEach(imp => imp.fileTree.addImportsTo(source, targets))
@@ -73,12 +77,12 @@ export default class FileTree {
             this.imports.push(...targets)
     }
 
-    get relativePath() {
+    get relativePath(): string {
         return this.filename?.replace(process.env.APP_ROOT_PATH, '')
     }
 
-    print(console = console, level = 0, isLast = false) {
-        console.log(
+    print(console1: any = console, level: number = 0, isLast: boolean = false): void {
+        console1.log(
             Array(Math.max(level - 1, 0)).fill('  ') +
             (level !== 0 ? (
                 isLast ? '└╴' : '├╴'
@@ -86,18 +90,18 @@ export default class FileTree {
             this.relativePath
         )
         this.imports.forEach((imp, i) => {
-            imp.fileTree.print(console, level + 1, this.imports.length - 1 === i)
+            imp.fileTree.print(console1, level + 1, this.imports.length - 1 === i)
         })
     }
 
-    serialize() {
+    serialize(): SerializedFileTreeType {
         return {
             filename: this.filename,
             imports: this.imports.map(imp => imp.serialize()),
         }
     }
 
-    static from(object) {
+    static from(object: SerializedFileTreeType): FileTree {
         return new FileTree(
             object.filename,
             object.imports.map(imp => Import.from(imp))

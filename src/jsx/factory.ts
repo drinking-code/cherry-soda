@@ -3,7 +3,7 @@ import {ElementChildren} from './ElementChildren'
 import {PropsType} from './dom/props-type'
 
 function createVirtualElement(
-    type: VirtualElement['type'],
+    type: VirtualElement['type'] | typeof Fragment,
     props: PropsType & { children: ElementChildren },
     key: any,
     _self: string,
