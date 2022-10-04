@@ -5,7 +5,7 @@ export default function Document({...props}) {
         <Html lang={'en'}>
             <Head/>
             {props.children.length === 1 && typeof props.children[0] === 'string'
-                ? <Body unsafeInnerHtml={props.children[0]}/>
+                ? <Body content={props.children[0]}/>
                 : <Body>
                     {props.children}
                 </Body>

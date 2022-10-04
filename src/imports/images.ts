@@ -33,8 +33,7 @@ export function imageLoader(options: ImageLoaderOptions): Plugin {
                     ? {
                         exports: {default: newFileName},
                         loader: 'object',
-                    }
-                    : */
+                    } : */
                 return {
                     contents: `const imageUrl = '${newFileName}'\n` +
                         'export default imageUrl',

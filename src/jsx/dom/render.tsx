@@ -7,7 +7,7 @@ import stringifyProps from "./stringify-props";
 import stringifyChildren from "./stringify-children";
 
 export default function render(element): string {
-    let html = element.render(0)
+    let html = element.render()
 
     // if "element" is a fragment, "element.render" returns an array
     if (Array.isArray(html))

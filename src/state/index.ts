@@ -1,4 +1,4 @@
-import {SerializedStateId, StateId} from './state-id'
+import {StateId} from './state-id'
 
 export default function createState(initialValue) {
     let stateValue
@@ -9,6 +9,8 @@ export default function createState(initialValue) {
     }
     return stateValue
 }
+
+export type StateType = StringState | NumberState
 
 export class StringState extends String {
     $$stateId: StateId

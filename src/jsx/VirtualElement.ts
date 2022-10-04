@@ -2,7 +2,6 @@ import {renderElement} from './dom/render'
 import {ElementChildren} from './ElementChildren'
 import {PropsType} from './dom/props-type'
 import {validTags, voidElements} from './dom/html-props'
-import {Fragment} from './factory'
 
 export class VirtualElement<P = PropsType> {
     type: 'function' | typeof validTags[number] | typeof voidElements[number];
@@ -56,10 +55,12 @@ export class ElementId {
         this.element = element
 
         this.fullPath = [...(this.parent?.fullPath ?? [])]
-        this.fullPath.push(this.index)
+        if (element.type !== 'function') {
+            this.fullPath.push(this.index)
+        }
         this.origin = parent?.origin
 
-        if (['html', 'head', 'body'].includes(element.type.toString())) {
+        if (['html', 'head', 'body'].includes(element.type)) {
             this.origin = element.type as typeof this.origin
             this.fullPath = []
         }

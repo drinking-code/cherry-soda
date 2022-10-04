@@ -24,10 +24,11 @@ export function iterateFunctionComponents(element: VirtualElement, isFirstCall: 
     }
 
     if (element.type === 'function') {
-        const currentFilesImports: Import[] = importTrees.map((tree: FileTree) =>
+        const currentFile = importTrees.map((tree: FileTree) =>
             tree.find(moduleCollector.currentFile)
-        ).filter(v => v)[0]?.imports
-        const functionComponentsFile: FileTree = currentFilesImports.find((imp: Import) =>
+        ).filter(v => !!v)[0] as FileTree | undefined
+        const currentFileImports = currentFile?.imports
+        const functionComponentsFile: FileTree = currentFileImports.find((imp: Import) =>
             Array.from(Object.values(imp.specifiers)).includes(element.function.name)
         )?.fileTree
 
