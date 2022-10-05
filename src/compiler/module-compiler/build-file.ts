@@ -18,7 +18,7 @@ export async function buildFile() {
         'export const modulesParametersMap = new Map()',
     ].join("\n")
 
-    const stateMappings = 'export const stateMappings = ' + stringifyStateMapping()
+    const stateMappings = `registerStateMappings(${stringifyStateMapping()})`
     const importsString = getImportsAsString()
     const parametersString = getModuleParametersAsString()
 

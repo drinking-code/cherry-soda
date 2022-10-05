@@ -4,7 +4,8 @@ import isState from '../../state/is-state'
 import {ElementId, isVirtualElement} from '../../jsx/VirtualElement'
 import {StateType} from "../../state";
 
-const textContents: Array<string | StateType> = []
+let textContents: Array<string | StateType> = []
+let currentElementId
 
 interface StateMappingType {
     element: ElementId['fullPath']
@@ -15,10 +16,11 @@ interface StateMappingType {
 export const stateTemplates: Map<string, Set<StateMappingType>> = new Map()
 
 export function collectStatesTemplates(child: any, elementIndex: number, elementId: ElementId) {
-    if (isVirtualElement(child)) {
-        textContents.splice(0, textContents.length)
+    if (isVirtualElement(child) || currentElementId !== elementId)
+        textContents = []
+    if (isVirtualElement(child))
         return
-    }
+    currentElementId = elementId
     const stringified = escapeHtml(child.toString())
     if (isState(child)) {
         textContents.push(child)
@@ -45,25 +47,34 @@ export function stringifyStateMapping(): string {
         })
     }
 
-    const stateMappingEntries = Array.from(stateTemplates.entries())
-        .map(([stateId, stateUses]) => [
-            stateId,
+    let string = '{'
+
+    string += Array.from(stateTemplates.entries())
+        .map(([stateId, stateUses]) =>
+            stateId +
+            ':[' +
             Array.from(stateUses.values())
-                .map(stateUse => {
-                    interface StateMappingTypeConvertedStates extends Omit<StateMappingType, 'content'> {
-                        content: Array<string | { state: string }>
-                    }
+                .map(stateUse =>
+                    '{element:' +
+                    `findElement([${stateUse.element.join(',')}])` +
+                    ',childrenBefore:' +
+                    stateUse.childrenBefore.toString() +
+                    ',content:[' +
+                    convertStates(stateUse.content).map(component => {
+                        if (typeof component === 'string')
+                            return `"${component}"`
+                        else
+                            return `getState("${component.state}")`
+                    }).join(',') +
+                    ']}'
+                ).join(',') +
+            ']'
+        ).join(',')
 
-                    const stateUseWithConvertedStates: StateMappingTypeConvertedStates = {
-                        ...stateUse,
-                        content: convertStates(stateUse.content)
-                    }
-                    return stateUseWithConvertedStates
-                })
-        ])
+    string += '}'
 
-    textContents.splice(0, textContents.length)
+    textContents = []
     stateTemplates.clear()
 
-    return JSON.stringify(Object.fromEntries(stateMappingEntries))
+    return string
 }

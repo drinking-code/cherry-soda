@@ -16,8 +16,8 @@ export async function runModuleBuilder() {
         moduleRoot.resolve('lib', 'module-compiler.js'),
         serverFilePath,
     ], {
-        // stdio: ['inherit', 'inherit', 'inherit', 'ipc']
-        stdio: ['ignore', 'ignore', 'ignore', 'ipc']
+        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
+        // stdio: ['ignore', 'ignore', 'ignore', 'ipc']
     })
     let resolveFinishPromise
     const finishPromise = new Promise<void>(resolve => resolveFinishPromise = resolve)
