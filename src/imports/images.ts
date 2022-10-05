@@ -2,9 +2,9 @@ import fs from 'fs'
 import crypto from 'crypto'
 import path from 'path'
 import {OnLoadArgs, OnLoadResult, Plugin} from 'esbuild'
-import {OnLoadResultObject} from "bun";
+// import {OnLoadResultObject} from 'bun'
 
-type ImageLoaderOptions = {
+interface ImageLoaderOptions {
     emit?: boolean
     path?: string
 }

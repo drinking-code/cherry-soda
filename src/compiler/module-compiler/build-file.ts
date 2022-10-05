@@ -5,6 +5,7 @@ import {SourceMapGenerator} from 'source-map'
 import appRoot from '../../utils/project-root'
 import {getImportsAsString} from './imports'
 import {getModuleParametersAsString, getModulesAsString} from './modules'
+import {stringifyStateMapping} from "./states";
 
 const outputDir = appRoot.resolve('node_modules', '.cache', 'cherry-cola')
 const outputPath = path.join(outputDir, 'modules.js')
@@ -17,20 +18,22 @@ export async function buildFile() {
         'export const modulesParametersMap = new Map()',
     ].join("\n")
 
+    const stateMappings = 'export const stateMappings = ' + stringifyStateMapping()
     const importsString = getImportsAsString()
     const parametersString = getModuleParametersAsString()
 
-    const modulesLinesOffset = [importsString, header, parametersString]
+    const modulesLinesOffset = [importsString, header, parametersString, stateMappings]
         .map(part => part.split("\n").length)
         .reduce((a, b) => a + b)
 
     const modulesString = await getModulesAsString(sourcemap, modulesLinesOffset)
     const modulesJsContents = [
-        importsString,
-        header,
-        parametersString,
-        modulesString
-    ].join("\n") +
+            importsString,
+            header,
+            parametersString,
+            stateMappings,
+            modulesString
+        ].join("\n") +
         "\nexecModules(modules, modulesParametersMap)"
 
     await fs.writeFile(outputPath, modulesJsContents + "\n" +

@@ -1,9 +1,11 @@
-export type SerializedImportType = {
+export interface SerializedImportType {
     fileTree: SerializedFileTreeType
     specifiers: SpecifiersType
 }
 
-export type SpecifiersType = { [importedName: string]: string }
+export interface SpecifiersType {
+    [importedName: string]: string
+}
 
 export class Import {
     // file tree of file imported
@@ -33,7 +35,7 @@ export class Import {
     }
 }
 
-export type SerializedFileTreeType = {
+export interface SerializedFileTreeType {
     filename: string
     imports: Array<SerializedImportType>
 }

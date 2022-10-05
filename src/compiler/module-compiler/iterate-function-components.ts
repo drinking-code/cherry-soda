@@ -2,9 +2,10 @@ import IPOS from 'ipos'
 
 import {default as iposPromise} from '../../ipos.js'
 import {isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
-import {ElementChild, ElementChildren} from '../../jsx/ElementChildren'
+import {ElementChildren} from '../../jsx/ElementChildren'
 import FileTree, {Import} from '../helpers/FileTree'
 import {isElementChildren} from '../../jsx/dom/render'
+import {collectStatesTemplates} from './states'
 
 const ipos: IPOS = await iposPromise
 
@@ -57,10 +58,11 @@ export function iterateFunctionComponents(element: VirtualElement, isFirstCall: 
     }
 
     const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
-    let i = 0
+    let elementIndex = 0
     filteredChildren.forEach(child => {
+        collectStatesTemplates(child, elementIndex, element.id)
         if (!isVirtualElement(child)) return
-        child.trace(i++, element.id)
+        child.trace(elementIndex++, element.id)
         if (child.type === 'function')
             iterateFunctionComponents(child)
     })
