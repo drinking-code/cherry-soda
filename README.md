@@ -90,6 +90,53 @@ app.listen(3000)
 
 ### Add client-side code
 
-In a function component typically all code is executed on the server.
+In a function component typically all code is executed on the server. To execute code on the client you can use
+the `doSomething()` function. The function you provide here will only be executed on the client. All dependencies (
+variables, functions, etc.) you use in this function that are not native to the browser mut be provided through an
+array, because the function context will be different on the client.  
+To refer to element that the component returns you can use refs (similar to React) with `createRef()`, which you will
+also need to pass in the array. Inside `doSomething()` a ref will be the actual node of the DOM.  
+States can also be passed in the dependency array. A state will be passed to the function as an array of the state and a
+function to change the state.  
+Here is [example](/example/counter/App.jsx) to illustrate all those features:
+
+```javascript
+import {createRef, createState, doSomething, Fragment} from 'cherry-cola'
+
+export default function Counter() {
+    // create a state with an initial value `0`
+    // the returned value is an extended "Number" object to track this id
+    const count = createState(0)
+    // to refs for the two buttons
+    const addButton = createRef()
+    const subtractButton = createRef()
+
+    // doSomething takes the function (client-side code) as the first and an array of dependencies as the second parameter 
+    // the dependencies provided will be fed into the function in the same order
+    // the "count" state gets converted into a state (on the client) and a function to change the state's value
+    doSomething(([count, setCount], addButton, subtractButton) => {
+        // "addButton" and "subtractButton" are now just DOM elements and not a refence objects anymore
+        addButton.addEventListener('click', () => {
+            setCount(count + 1)
+        })
+        subtractButton.addEventListener('click', () => {
+            setCount(Math.max(count - 1, 0))
+        })
+    }, [count, addButton, subtractButton])
+
+    return (
+        <Fragment>
+            {/* The ref object must be passed here with "ref" to assign this node */} 
+            <button ref={addButton}>+</button>
+            {/* The state object can be used here just like that. 
+            It'll be converted to a number (or rather a string) internally. */}
+            <span>Count: {count}</span>
+            <button ref={subtractButton}>-</button>
+        </Fragment>
+    )
+}
+```
+
+[//]: # (todo: also provide an example here on how to import a node module [or a different file] as a dependency)
 
 ## Reference

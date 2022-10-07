@@ -7,14 +7,16 @@ let trees: Array<FileTree> | undefined
 
 const ipos = await iposPromise
 
-export default function doSomething(callback: Function, parameters: Array<any>): void {
+export default function doSomething(callback: Function, dependencies: Array<any>): void {
     if (!ipos.moduleCollector) return
     trees = trees ?? ipos.importTrees
     const dataStore = ipos.moduleCollector
 
-    const currentFile: FileTree = trees
+    const currentFile: FileTree | void = trees
         .map(tree => tree.find(dataStore.currentFile))
         .filter(v => v)[0]
 
-    addModule(callback.toString(), parameters, currentFile.filename)
+    if (!currentFile)
+        throw new Error() // todo
+    addModule(callback.toString(), dependencies, currentFile.filename)
 }
