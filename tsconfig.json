@@ -13,6 +13,19 @@
     "allowJs": true,
 
     "types": ["bun-types"],
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+
+    "paths": {
+      "#cherry-cola": ["./src/index.ts"],
+      "#server/express": ["./src/server/express.js"],
+      "#server/bun": ["./src/server/bun.ts"],
+      "#compiler": ["./src/compiler/node.app.js"],
+      "#node:compiler": ["./lib/compiler.js"],
+      "#asset-compiler": ["./src/compiler/assets.js"],
+      "#node:asset-compiler": ["./lib/asset-compiler.js"],
+      "#render-function": ["./src/server/render.js"],
+      "#node:render-function": ["./lib/render-function.js"],
+      "#render-element": ["./src/jsx/dom/render.tsx"]
+    }
   }
 }

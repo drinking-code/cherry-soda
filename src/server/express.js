@@ -30,10 +30,8 @@ export default async function cherryCola(entry) {
     const router = new Router()
     router.use(express.static(assetsOutputPath))
     router.get('/', async (req, res) => {
-        // todo: Bun server
         // todo: routing; next if request should not be handled
         try {
-            // todo: render with app
             res.send(await render())
         } catch (err) {
             console.error('Error during rendering:')
