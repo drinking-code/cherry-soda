@@ -10,7 +10,19 @@ export default function createState(initialValue) {
     return stateValue
 }
 
-export type StateType = StringState | NumberState
+export type StateType = GenericState | StringState | NumberState
+
+export class GenericState {
+    $$stateId: StateId
+
+    constructor(id: StateId) {
+        this.$$stateId = id
+    }
+
+    get value(): null {
+        return null
+    }
+}
 
 export class StringState extends String {
     $$stateId: StateId

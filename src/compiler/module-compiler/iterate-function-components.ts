@@ -2,10 +2,13 @@ import IPOS from 'ipos'
 
 import {default as iposPromise} from '../../ipos.js'
 import {isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
-import {ElementChildren} from '../../jsx/ElementChildren'
+import {ElementChild, ElementChildren} from '../../jsx/ElementChildren'
 import FileTree, {Import} from '../helpers/FileTree'
 import {isElementChildren} from '#render-element'
 import {collectStatesTemplates} from './states'
+import {VirtualRenderedElement} from './VirtualRenderedElement'
+import isState from '../../state/is-state'
+import {StateType} from '../../state'
 
 const ipos: IPOS = await iposPromise
 
@@ -14,10 +17,12 @@ let moduleCollector: {
     parentFile?: string
 }
 const importTrees: Array<FileTree> = ipos.importTrees as Array<FileTree>
+if (!ipos.currentDomTree)
+    ipos.create('currentDomTree', [])
+const currentDomTree: VirtualRenderedElement[] = ipos.currentDomTree as Array<VirtualRenderedElement>
 
-
-
-export function iterateFunctionComponents(element: VirtualElement, isFirstCall: boolean = false) {
+export function iterateFunctionComponents(element: VirtualElement, isFirstCall: boolean = false): VirtualRenderedElement | VirtualRenderedElement[] {
+    let currentNewElement: VirtualRenderedElement
     if (isFirstCall) {
         if (!ipos.moduleCollector) {
             ipos.create('moduleCollector', {})
@@ -43,16 +48,24 @@ export function iterateFunctionComponents(element: VirtualElement, isFirstCall: 
             children: element.children
         })
         if (isElementChildren(returnedVirtualElement)) {
-            Array.from(returnedVirtualElement).forEach((el, i) => {
+            const rendered = Array.from(returnedVirtualElement).map((el, i) => {
                 el.trace(i, element.id)
-                iterateFunctionComponents(el)
-            })
-            return
+                return iterateFunctionComponents(el)
+            }).flat()
+            if (isFirstCall) {
+                firstCallCleanup(rendered)
+            }
+            return rendered
         } else {
             returnedVirtualElement.render(0, element.id)
-            iterateFunctionComponents(returnedVirtualElement)
-            return
+            const rendered = iterateFunctionComponents(returnedVirtualElement)
+            if (isFirstCall) {
+                firstCallCleanup(rendered)
+            }
+            return rendered
         }
+    } else {
+        currentNewElement = new VirtualRenderedElement(element.type)
     }
 
     if (element.props.ref) {
@@ -61,15 +74,43 @@ export function iterateFunctionComponents(element: VirtualElement, isFirstCall: 
 
     const filteredChildren: ElementChildren = element.children.flat().filter(v => v)
     let elementIndex = 0
-    filteredChildren.forEach(child => {
-        collectStatesTemplates(child, elementIndex, element.id)
-        if (!isVirtualElement(child)) return
-        child.trace(elementIndex++, element.id)
-        if (child.type === 'function')
-            iterateFunctionComponents(child)
+    filteredChildren.forEach((child: ElementChild) => {
+        // child as string, VirtualElement, or State
+        const stringChild = collectStatesTemplates(child, elementIndex, element.id)
+
+        // child as string, VirtualRenderedElement (or array of VirtualRenderedElement), or State
+        let renderedChild: string | VirtualRenderedElement | VirtualRenderedElement[] | StateType
+        if (isVirtualElement(stringChild)) {
+            stringChild.trace(elementIndex++, element.id)
+            if (stringChild.type === 'function') {
+                renderedChild = iterateFunctionComponents(stringChild)
+            }
+        } else {
+            renderedChild = stringChild
+        }
+        const renderedChildArray = Array.isArray(renderedChild) ? renderedChild : [renderedChild]
+        renderedChildArray.forEach(item => {
+            if (typeof item === 'string' || isState(item))
+                currentNewElement.appendText(item)
+            else
+                currentNewElement.append(item)
+        })
     })
 
-    if (isFirstCall) {
+    function firstCallCleanup(newDomTree: VirtualRenderedElement | VirtualRenderedElement[]) {
         ipos.delete('moduleCollector')
+
+        console.log(currentDomTree, newDomTree)
+        // console.log(isFirstCall)
+        // console.log('firstCallCleanup')
+        // console.log(currentNewElement)
+        // todo: compare, send signal
+        ipos.currentDomTree = newDomTree
     }
+
+    if (isFirstCall) {
+        firstCallCleanup(currentNewElement)
+    }
+
+    return currentNewElement
 }

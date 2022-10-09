@@ -1,7 +1,7 @@
 import escapeHtml from 'escape-html'
 
 import isState from '../../state/is-state'
-import {ElementId, isVirtualElement} from '../../jsx/VirtualElement'
+import {ElementId, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import {StateType} from '../../state'
 
 let textContents: Array<string | StateType> = []
@@ -15,11 +15,11 @@ interface StateMappingType {
 
 export const stateTemplates: Map<string, Set<StateMappingType>> = new Map()
 
-export function collectStatesTemplates(child: any, elementIndex: number, elementId: ElementId) {
+export function collectStatesTemplates(child: any, elementIndex: number, elementId: ElementId): VirtualElement | StateType | string {
     if (isVirtualElement(child) || currentElementId !== elementId)
         textContents = []
     if (isVirtualElement(child))
-        return
+        return child
     currentElementId = elementId
     const stringified = escapeHtml(child.toString())
     if (isState(child)) {
@@ -32,9 +32,11 @@ export function collectStatesTemplates(child: any, elementIndex: number, element
             childrenBefore: elementIndex,
             content: textContents
         })
+        return child
     } else {
         textContents.push(stringified)
     }
+    return stringified
 }
 
 export function stringifyStateMapping(): string {
@@ -51,7 +53,7 @@ export function stringifyStateMapping(): string {
 
     string += Array.from(stateTemplates.entries())
         .map(([stateId, stateUses]) =>
-            stateId +
+            `"${stateId}"` +
             ':[' +
             Array.from(stateUses.values())
                 .map(stateUse =>
