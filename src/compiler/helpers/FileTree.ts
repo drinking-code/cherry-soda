@@ -9,8 +9,8 @@ export interface SpecifiersType {
 
 export class Import {
     // file tree of file imported
-    fileTree: FileTree;
-    specifiers: SpecifiersType = {};
+    fileTree: FileTree
+    specifiers: SpecifiersType = {}
 
     constructor(filename: string | FileTree, specifiers: SpecifiersType) {
         if (filename instanceof FileTree)
@@ -42,9 +42,9 @@ export interface SerializedFileTreeType {
 
 export default class FileTree {
     // the absolute path to the file
-    filename: string;
+    filename: string
     // array of FileTree
-    imports: Array<Import> = [];
+    imports: Array<Import> = []
 
     constructor(filename: string, imports?: Array<Import>) {
         this.filename = filename

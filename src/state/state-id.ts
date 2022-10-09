@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import crypto from 'crypto'
 
 function generateId() {
     const bytesAmount = 4

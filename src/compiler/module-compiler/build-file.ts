@@ -5,7 +5,7 @@ import {SourceMapGenerator} from 'source-map'
 import appRoot from '../../utils/project-root'
 import {getImportsAsString} from './imports'
 import {getModuleParametersAsString, getModulesAsString} from './modules'
-import {stringifyStateMapping} from "./states";
+import {stringifyStateMapping} from './states'
 
 const outputDir = appRoot.resolve('node_modules', '.cache', 'cherry-cola')
 const outputPath = path.join(outputDir, 'modules.js')

@@ -1,6 +1,6 @@
-import logo from './logo.svg';
-import logoLettering from './logo-lettering.svg';
-import './App.css';
+import logo from './logo.svg'
+import logoLettering from './logo-lettering.svg'
+import './App.css'
 
 export default function App() {
     return (

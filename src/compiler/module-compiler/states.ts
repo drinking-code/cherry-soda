@@ -2,7 +2,7 @@ import escapeHtml from 'escape-html'
 
 import isState from '../../state/is-state'
 import {ElementId, isVirtualElement} from '../../jsx/VirtualElement'
-import {StateType} from "../../state";
+import {StateType} from '../../state'
 
 let textContents: Array<string | StateType> = []
 let currentElementId

@@ -1,10 +1,9 @@
-import {isVirtualElement, VirtualElement} from '../VirtualElement'
+import {VirtualElement} from '../VirtualElement'
 import {ElementChildren} from '../ElementChildren'
-import {Fragment} from '../factory'
 import Document from './default-document'
 import {validTags, voidElements} from './html-props'
-import stringifyProps from "./stringify-props";
-import stringifyChildren from "./stringify-children";
+import stringifyProps from './stringify-props'
+import stringifyChildren from './stringify-children'
 
 export default function render(element): string {
     let html = element.render()

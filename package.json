@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "exports": {
     ".": "./src/index.ts",
-    "./jsx-dev-runtime": "./src/jsx-dev-runtime.js"
+    "./jsx-dev-runtime": "./src/jsx-dev-runtime.js",
+    "./express": "./src/server/express.js",
+    "./bun": "./src/server/bun.ts"
   },
   "imports": {
     "#cherry-cola": "./src/index.ts",

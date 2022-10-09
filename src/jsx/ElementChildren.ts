@@ -1,4 +1,4 @@
-import {VirtualElement} from "./VirtualElement";
+import {VirtualElement} from './VirtualElement'
 
 export type VirtualElementMatcher = VirtualElement
 
@@ -10,7 +10,7 @@ export type ElementChild =
     | bigint
     | boolean
     | null
-    | undefined;
+    | undefined
 
 export class ElementChildren<T = ElementChild> extends Array {
     constructor(children: ElementChild | ElementChild[]) {
@@ -26,7 +26,7 @@ export class ElementChildren<T = ElementChild> extends Array {
     find(
         predicate: ((value: T, index: number, obj: T[]) => unknown) | VirtualElementMatcher,
         thisArg?: any
-    ): T | undefined;
+    ): T | undefined
     find<S extends T>(
         predicate: ((this: void, value: T, index: number, obj: T[]) => value is S) | VirtualElementMatcher,
         thisArg?: any

@@ -31,7 +31,7 @@ export default function buildFileTreeOfComponentsOnly() {
             })
 
             build.onLoad({filter: /\.[jt]sx?$/}, async (args) => {
-                const fileContents = await fs.readFile(args.path, 'utf8')
+                const fileContents = await fs.readFile(args.path, {encoding: 'utf8'})
                 const ast = babelParser.parse(fileContents, {
                     sourceType: 'module',
                     plugins: [

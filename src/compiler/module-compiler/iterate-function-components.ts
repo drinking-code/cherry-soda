@@ -4,7 +4,7 @@ import {default as iposPromise} from '../../ipos.js'
 import {isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import {ElementChildren} from '../../jsx/ElementChildren'
 import FileTree, {Import} from '../helpers/FileTree'
-import {isElementChildren} from '../../jsx/dom/render'
+import {isElementChildren} from '#render-element'
 import {collectStatesTemplates} from './states'
 
 const ipos: IPOS = await iposPromise
@@ -14,6 +14,8 @@ let moduleCollector: {
     parentFile?: string
 }
 const importTrees: Array<FileTree> = ipos.importTrees as Array<FileTree>
+
+
 
 export function iterateFunctionComponents(element: VirtualElement, isFirstCall: boolean = false) {
     if (isFirstCall) {

@@ -4,11 +4,11 @@ import {PropsType} from './dom/props-type'
 import {validTags, voidElements} from './dom/html-props'
 
 export class VirtualElement<P = PropsType> {
-    type: 'function' | typeof validTags[number] | typeof voidElements[number];
-    function?: (PropsType) => VirtualElement | ElementChildren;
-    props: PropsType;
-    children: ElementChildren;
-    private _id?: ElementId;
+    type: 'function' | typeof validTags[number] | typeof voidElements[number]
+    function?: (PropsType) => VirtualElement | ElementChildren
+    props: PropsType
+    children: ElementChildren
+    private _id?: ElementId
 
     constructor(type: VirtualElement['type'], props: PropsType, children?: ElementChildren) {
         this.type = type
@@ -40,10 +40,10 @@ export function isVirtualElement(item): item is VirtualElement {
 }
 
 export class ElementId {
-    parent: ElementId | null;
-    origin?: 'html' | 'head' | 'body';
-    index: number;
-    fullPath?: number[];
+    parent: ElementId | null
+    origin?: 'html' | 'head' | 'body'
+    index: number
+    fullPath?: number[]
     element: VirtualElement
 
     // <body> would be {origin: 'body', fullPath: []} OR {origin: 'html', fullPath: [0]}
