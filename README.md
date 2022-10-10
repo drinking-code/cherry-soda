@@ -105,17 +105,22 @@ import {createRef, createState, doSomething, Fragment} from 'cherry-cola'
 
 export default function Counter() {
     // create a state with an initial value `0`
-    // the returned value is an extended "Number" object to track this id
+    // the returned value is an extended "Number" object to track this state
     const count = createState(0)
-    // to refs for the two buttons
+    // two refs for the two buttons
     const addButton = createRef()
     const subtractButton = createRef()
 
-    // doSomething takes the function (client-side code) as the first and an array of dependencies as the second parameter 
-    // the dependencies provided will be fed into the function in the same order
-    // the "count" state gets converted into a state (on the client) and a function to change the state's value
+    /* "doSomething" takes the function (client-side code) as the first 
+     * and an array of dependencies as the second parameter.
+     * The dependencies will be fed into the function in the same order as provided.
+     * The "count" state gets converted into a (client-side) state
+     * and a function to change the state's value.
+     */
     doSomething(([count, setCount], addButton, subtractButton) => {
-        // "addButton" and "subtractButton" are now just DOM elements and not a refence objects anymore
+        /* "addButton" and "subtractButton" are now just DOM elements
+         * and not a refence objects anymore.
+         */
         addButton.addEventListener('click', () => {
             setCount(count + 1)
         })
@@ -126,7 +131,7 @@ export default function Counter() {
 
     return (
         <Fragment>
-            {/* The ref object must be passed here with "ref" to assign this node */}
+            {/* The ref object must be passed here as "ref" to assign this node */}
             <button ref={addButton}>+</button>
             {/* The state object can be used here just like that. 
             It'll be converted to a number (or rather a string) internally. */}
