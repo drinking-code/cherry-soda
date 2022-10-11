@@ -11,7 +11,7 @@ export default function App() {
         addButton.addEventListener('click', () => {
             setCount(count + 1)
         })
-        console.log('test')
+        // console.log('test')
         subtractButton.addEventListener('click', () => {
             setCount(Math.max(count - 1, 0))
         })
