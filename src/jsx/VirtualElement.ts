@@ -43,7 +43,7 @@ export class ElementId {
     parent: ElementId | null
     origin?: 'html' | 'head' | 'body'
     index: number
-    fullPath?: number[]
+    fullPath: number[]
     element: VirtualElement
 
     // <body> would be {origin: 'body', fullPath: []} OR {origin: 'html', fullPath: [0]}
@@ -64,5 +64,11 @@ export class ElementId {
             this.origin = element.type as typeof this.origin
             this.fullPath = []
         }
+    }
+
+    static fromPath(fullPath: ElementId['fullPath']): ElementId {
+        const id = new ElementId(0, null, new VirtualElement('div', {}))
+        id.fullPath = fullPath
+        return id
     }
 }

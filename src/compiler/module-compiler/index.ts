@@ -13,6 +13,7 @@ const serverFilePath = path.join(outputDir, 'server')
 
 export async function runModuleBuilder() {
     const collector_process = child_process.spawn('node', [
+        '--experimental-global-customevent',
         moduleRoot.resolve('lib', 'module-compiler.js'),
         serverFilePath,
     ], {

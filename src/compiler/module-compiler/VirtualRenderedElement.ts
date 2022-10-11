@@ -1,13 +1,15 @@
 import {validTags, voidElements} from '../../jsx/dom/html-props'
 import {GenericState, StateType} from '../../state'
 import {SerializedStateId, StateId} from '../../state/state-id'
-import {ElementId, VirtualElement} from '../../jsx/VirtualElement'
+import {ElementId} from '../../jsx/VirtualElement'
 
 const TextTag = Symbol.for('#text')
 export const RootTag = Symbol.for('#root')
+const EmptyTag = Symbol.for('#empty')
 
 interface SerialisedVirtualRenderedElement {
     tag: typeof validTags[number] | typeof voidElements[number] | '#text' | '#root'
+    backRef: Array<number>
     children?: SerialisedVirtualRenderedElement[]
     text?: string
     state?: SerializedStateId
@@ -15,20 +17,20 @@ interface SerialisedVirtualRenderedElement {
 
 interface DiffData {
     elementId: ElementId['fullPath']
-    property: 'tag' | 'text' | 'childrenLength'
+    property: 'tag' | 'text' | 'state' | 'childrenLength'
     newValue: string | StateType | number
 }
 
 export class VirtualRenderedElement {
-    tag: typeof validTags[number] | typeof voidElements[number] | typeof TextTag | typeof RootTag
+    tag: typeof validTags[number] | typeof voidElements[number] | typeof TextTag | typeof RootTag | typeof EmptyTag
     children?: VirtualRenderedElement[]
     text?: string
     state?: StateType
-    private readonly backRef: VirtualElement
+    private readonly backRef?: ElementId
 
-    constructor(tagName: VirtualRenderedElement['tag'], element?: VirtualElement) {
-        if (element)
-            this.backRef = element
+    constructor(tagName: VirtualRenderedElement['tag'], elementId: ElementId) {
+        if (elementId)
+            this.backRef = elementId
         this.tag = tagName
         if (tagName !== TextTag)
             this.children = []
@@ -36,7 +38,12 @@ export class VirtualRenderedElement {
 
     appendText(text: string | StateType) {
         if (text === '') return false
-        const node = new VirtualRenderedElement(TextTag)
+        const node = new VirtualRenderedElement(
+            TextTag,
+            this.backRef
+                ? ElementId.fromPath([...this.backRef.fullPath, this.children.length])
+                : undefined
+        )
         if (typeof text === 'string') {
             node.text = text
         } else {
@@ -58,7 +65,7 @@ export class VirtualRenderedElement {
 
     getDiff(element: VirtualRenderedElement, recursive: boolean = true, data: DiffData[] = []): DiffData[] {
         // don't compare states: there is really no reason to track states on the server (across renders)
-        const id = this.backRef?.id.fullPath ?? []
+        const id = this.backRef?.fullPath ?? []
         if (element.tag !== this.tag)
             data.push({
                 elementId: id,
@@ -71,18 +78,26 @@ export class VirtualRenderedElement {
                 property: 'text',
                 newValue: element.text
             })
+        if (!!element.state !== !!this.state)
+            data.push({
+                elementId: id,
+                property: 'state',
+                newValue: element.state
+            })
         // todo: support wrapping elements
         // todo: support unwrapping elements
         // todo: support appending / prepending elements
-        if (element.children?.length !== this.children?.length)
+        if (element.tag !== TextTag && element.children?.length !== this.children?.length)
             data.push({
                 elementId: id,
                 property: 'childrenLength',
                 newValue: element.children?.length ?? 0
             })
-        if (this.children && recursive)
-            for (let i = 0; i < this.children.length; i++) {
-                this.children[i].getDiff(element.children[i], true, data)
+        if (element.children && recursive)
+            for (let i = 0; i < Math.max(this.children.length, element.children.length); i++) {
+                if (!element.children[i]) continue
+                (this.children[i] ?? new VirtualRenderedElement(EmptyTag, element.children[i].backRef))
+                    .getDiff(element.children[i], true, data)
             }
         return data
     }
@@ -92,7 +107,7 @@ export class VirtualRenderedElement {
             return '#text'
         } else if (this.tag === RootTag) {
             return '#root'
-        } else {
+        } else if (typeof this.tag === 'string') {
             return this.tag
         }
     }
@@ -109,10 +124,12 @@ export class VirtualRenderedElement {
 
     serialize(): SerialisedVirtualRenderedElement {
         const serialised: SerialisedVirtualRenderedElement = {
-            tag: this.tagName
+            tag: this.tagName,
+            backRef: this.backRef?.fullPath ?? [],
         }
-        if (this.children)
+        if (this.children) {
             serialised.children = this.children.map(child => child.serialize())
+        }
         if (this.text) {
             serialised.text = this.text
         }
@@ -123,7 +140,10 @@ export class VirtualRenderedElement {
     }
 
     static from(elementData: SerialisedVirtualRenderedElement): VirtualRenderedElement {
-        const element = new VirtualRenderedElement(VirtualRenderedElement.toTag(elementData.tag))
+        const element = new VirtualRenderedElement(
+            VirtualRenderedElement.toTag(elementData.tag),
+            ElementId.fromPath(elementData.backRef)
+        )
         if (elementData.children)
             element.children = elementData.children.map(childData => VirtualRenderedElement.from(childData))
         if (elementData.text) {

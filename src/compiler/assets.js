@@ -9,7 +9,7 @@ import {showCompilationStatus} from './helpers/logger.js'
 import {reportNewAsset} from '../server/dynamic-code-synchronisation/report.js'
 import {imageLoader} from '../imports/images.ts'
 import {outputPath as modulesJsPath} from './module-compiler/index'
-import {default as iposPromise} from '../ipos.js'
+import {default as iposPromise} from '../ipos.ts'
 import moduleRoot from '../utils/module-root.js'
 
 export const outputPath = appRoot.resolve('node_modules', '.cache', 'cherry-cola', 'client')

@@ -1,6 +1,6 @@
 import child_process from 'child_process'
 import path from 'path'
-import ipos from '../ipos.js'
+import ipos from '../ipos.ts'
 
 let rendering_process
 
@@ -25,6 +25,7 @@ export async function restartRenderer(serverFilePath) {
     const dirname = path.dirname((new URL(import.meta.url)).pathname)
     rendering_process?.kill('SIGABRT')
     rendering_process = child_process.spawn('node', [
+        '--experimental-global-customevent',
         path.join(dirname, 'renderer.js'),
         serverFilePath,
     ], {

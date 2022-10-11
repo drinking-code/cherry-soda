@@ -1,12 +1,19 @@
 import {eventName} from './websocket.js'
+import {default as iposPromise} from '../../ipos.ts'
 
-if (!global['cherry-cola'])
-    global['cherry-cola'] = {}
-if (!global['cherry-cola'].eventTarget)
-    global['cherry-cola'].eventTarget = new EventTarget()
+const ipos = await iposPromise
 
-export function reportNewDom() {
+if (!ipos.eventTarget)
+    ipos.create('eventTarget', new EventTarget())
 
+export function reportNewDom(data) {
+    let event = new CustomEvent(eventName, {
+        detail: {
+            type: 'dom',
+            data
+        }
+    })
+    ipos.eventTarget.dispatchEvent(event)
 }
 
 export function reportNewScripts() {
@@ -22,5 +29,5 @@ export function reportNewAsset(data) {
         }
     })
     // todo: just send new rules from css instead of the whole file
-    global['cherry-cola'].eventTarget.dispatchEvent(event)
+    ipos.eventTarget.dispatchEvent(event)
 }
