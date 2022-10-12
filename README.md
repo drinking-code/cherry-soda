@@ -105,6 +105,25 @@ app.use(await cherryCola(process.env.CHERRY_COLA_ENTRY))
 app.listen(3000)
 ```
 
+### Dev server (HMR-like)
+
+Cherry-cola doesn't use webpack, so HMR isn't really an option. However, cherry-cola provides a feature (preliminarily
+called dynamic code synchronisation) to reflect changes made to your code in the browser immediately after saving. It is
+automatically activated with the `cherry-cola dev` command.  
+For usage with a custom server use the `dynamicCodeSynchronisation()` function.
+
+For Express in Node:
+
+```javascript
+// main.js
+import cherryCola, {dynamicCodeSynchronisation} from 'cherry-cola/express'
+
+// ... server stuff
+
+const server = app.listen(3000)
+dynamicCodeSynchronisation(server)
+```
+
 ## Guides
 
 ### Add client-side code

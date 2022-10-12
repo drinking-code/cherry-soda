@@ -3,8 +3,7 @@ import shrinkRay from 'shrink-ray-current'
 import chalk from 'chalk'
 
 import console from '../utils/console.js'
-import dynamicCodeSynchronisation from './dynamic-code-synchronisation/websocket.js'
-import cherryCola from '#server/express'
+import cherryCola, {dynamicCodeSynchronisation} from '#server/express'
 
 const app = express()
 

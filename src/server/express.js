@@ -5,6 +5,8 @@ import '../utils/project-root.js'
 import console from '../utils/console.js'
 import startNodeCompiler from '../compiler/node.lib.js'
 
+export {default as dynamicCodeSynchronisation} from './dynamic-code-synchronisation/websocket.js'
+
 const pe = new PrettyError()
 
 /**
