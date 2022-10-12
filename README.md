@@ -22,6 +22,25 @@ works with Bun (:
 > **Warning**&nbsp;&nbsp;
 > Cherry-cola is experimental. All APIs are subject to change.
 
+## Test the waters, dip a toe
+
+If you just to test out cherry-cola, you can run the examples. For that you need to have either [Bun](https://bun.sh)
+(recommended) or [Node](https://nodejs.org) (16 or higher) installed. Then, clone the repository, install the
+dependencies with either `bun i` (for Bun), or `npm i` (for Node). Use [cherry-cola's cli](#cli) to run an example:
+
+```shell
+cli/index dev example/cherry-cola-template/index.jsx
+```
+
+or, if you use Node:
+
+```shell
+cli/index dev --node example/cherry-cola-template/index.jsx`
+```
+
+Visit `localhost:3000` and / or edit files in `example/cherry-cola-template/`. To test out the other examples, use the
+respective `index.jsx` as an argument instead.
+
 ## Get started
 
 In a new Bun / Node project add an `src/index.js` and an `src/App.js`:
@@ -150,13 +169,15 @@ export default function Counter() {
 
 ## Reference
 
+### CLI
+
 ### Rendering and function components
 
 ### Refs
 
 ### States
 
-### Location and Routing 
+### Location and Routing
 
 ### Essential built-in components
 
