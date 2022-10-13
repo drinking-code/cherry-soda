@@ -60,7 +60,6 @@ export function iterateFunctionComponents(element: VirtualElement, isFirstCall: 
         } else {
             returnedVirtualElement.trace(0, element.id)
             const rendered = iterateFunctionComponents(returnedVirtualElement)
-            console.log(rendered)
             if (isFirstCall) {
                 firstCallCleanup(rendered)
             }

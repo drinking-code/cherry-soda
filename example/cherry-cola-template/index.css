@@ -21,5 +21,11 @@ code {
 }
 
 a {
-    color: #41dcff;
+    color: #2693ff;
+}
+
+@media (prefers-color-scheme: dark) {
+    a {
+        color: #41dcff;
+    }
 }

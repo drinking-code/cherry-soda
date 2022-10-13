@@ -10,14 +10,14 @@ export default function App() {
                 <img src={logoLettering} alt={'logo-lettering'}/>
             </div>
             <p>
-                Don't edit <code>App.jsx</code> and save to reload.
+                Edit <code>App.jsx</code> and save to reload.
             </p>
             <a className={'App-link'}
                href={'https://github.com/drinking-code/cherry-cola#readme'}
                target={'_blank'}
                rel={'noopener noreferrer'}
             >
-                Please, stop. Don't read the docs.
+                Read the docs.
             </a>
         </div>
     )
