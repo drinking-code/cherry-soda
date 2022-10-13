@@ -49,10 +49,12 @@ const program = yargs(pureArgs)
     .command('build [options] <entry>', 'Build assets for client (and node, if specified).',
         (yargs) => {
             addNodeOption(yargs, 'Also compile files for use with Node.js')
+                .version(false)
         }, build)
     .command('start [options] <entry>', 'Start the built-in webserver.',
         (yargs) => {
             addNodeOption(yargs, 'Start Node.js server instead of Bun.js')
+                .version(false)
         }, start)
     .command('dev [options] <entry>', 'Start the built-in webserver and build (and watches) assets for development.',
         (yargs) => {
