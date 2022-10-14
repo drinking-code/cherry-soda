@@ -130,13 +130,14 @@ dynamicCodeSynchronisation(server)
 ### Add client-side code
 
 In a function component typically all code is executed on the server. To execute code on the client you can use
-the [`doSomething()`](#dosomethingcallback-args-any--void-dependencies-any) function. The function you provide here will
-only be executed on the client. All dependencies (variables, functions, etc.) you use in this function that are not
-native to the browser mut be provided through an array, because the function context will be different on the client.  
+the [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. The function you provide
+here will only be executed on the client. All dependencies (variables, functions, etc.) you use in this function that
+are not native to the browser mut be provided through an array, because the function context will be different on the
+client.  
 To refer to an element that the component returns you can use refs (similar to React) with `createRef()`, which you will
-also need to pass in the array. Inside [`doSomething()`](#dosomethingcallback-args-any--void-dependencies-any) a ref
-will be the actual node of the DOM. States can also be passed in the dependency array. A state will be passed to the
-function as an array of the state and a function to change the state.  
+also need to pass in the array. Inside [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any)
+a ref will be the actual node of the DOM. States can also be passed in the dependency array. A state will be passed to
+the function as an array of the state and a function to change the state.  
 Here is [example](/example/counter/App.jsx) to illustrate all those features:
 
 ```javascript
@@ -275,20 +276,36 @@ when a function components writes to a database. To fix that, you can use the
 [`sideEffect()`](#sideeffectcallback-args-any--void) function to tell cherry-cola that you want to execute this code
 only for a request.  
 If you want to execute code on the component in the browser, you can use the
-[`doSomething()`](#dosomethingcallback-args-any--void-dependencies-any) function. Cherry-cola collects the code gives as
-a function to `doSomething()` at build time and compiles it together with the other `doSomething()`s into one file.
-Because of this, you must pass all dependencies (i.e. variables that are not globally defined in the browser's
-javascript context) to the function in the dependency array.
+[`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. Cherry-cola collects the
+code gives as a function to `doSomething()` at build time and compiles it together with the other `doSomething()`s into
+one file.
 
 ##### `sideEffect(callback: (...args: any[]) => void)`
 
-##### `doSomething(callback: (...args: any[]) => void, dependencies: any[])`
+##### `doSomething(callback: (...args: any[]) => void | Function, dependencies: any[])`
 
-This function lets you execute code in the browser
+This function lets you execute code in the browser. The function `callback` passed as the first parameter gets converted
+to a string and compiled into a javascript file to be served to the browser. Because of this, you must pass all
+dependencies (i.e. variables that are not globally defined in the browser's javascript context) to the function in the
+dependency array.  
+The values you passed in the array will be passed in the same order into the `callback` function on the client. If you
+pass a ref into the array, the passed value for the function will be the matching HTML element. And if you pass a state
+into the array, the passed value for the function will be an array with the value as a [`Mutable`](#mutable) as the
+first entry and a function for changing the value as the second entry.  
+The callback function may return another function which will be called before the component is removed from the dom, for
+example when the client navigates to a different page. You can use this function to clean up if you need to.
+
+**Parameters:**
+
+- `callback: (...args: any[]) => void | Function` A function with the code that you want to execute on the client.
+  Optionally returns another function, which will be called anytime the component's elements are removed from the DOM.
+- `dependencies: any[]` An array with all dependencies for the callback function
 
 ### Refs
 
 ### States
+
+#### `Mutable`
 
 ### Location and Routing
 
