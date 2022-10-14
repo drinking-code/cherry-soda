@@ -15,10 +15,12 @@ type DependencyType =
     any
 
 type MappedDependencyType<Dep> =
-     Dep extends Ref ? HTMLElement : (
-         Dep extends StateType ? [Mutable<any>, (newValue: any) => void]
-             : Dep
-     )
+    Dep extends Ref
+        // @ts-ignore
+        ? HTMLElement : (
+            Dep extends StateType ? [Mutable<any>, (newValue: any) => void]
+                : Dep
+            )
 
 type MappedDependenciesType<Deps> = {
     [K in keyof Deps]: MappedDependencyType<Deps[K]>
