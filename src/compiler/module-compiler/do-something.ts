@@ -2,12 +2,32 @@ import FileTree from '../helpers/FileTree'
 import {addModule} from './index'
 import console from '../../utils/console'
 import {default as iposPromise} from '../../ipos'
+import {StateType} from '../../state'
+import {Ref} from '../../jsx/create-ref'
 
 let trees: Array<FileTree> | undefined
 
 const ipos = await iposPromise
 
-export default function doSomething(callback: Function, dependencies: Array<any>): void {
+type DependencyType =
+    StateType |
+    Ref |
+    any
+
+type MappedDependencyType<Dep> =
+     Dep extends Ref ? HTMLElement : (
+         Dep extends StateType ? [Mutable<any>, (newValue: any) => void]
+             : Dep
+     )
+
+type MappedDependenciesType<Deps> = {
+    [K in keyof Deps]: MappedDependencyType<Deps[K]>
+} & {
+    // @ts-ignore
+    length: Deps['length']
+} & any[]
+
+export default function doSomething<Deps = DependencyType[]>(callback: (...args: MappedDependenciesType<Deps>) => void | Function, dependencies: Deps): void {
     if (!ipos.moduleCollector) return
     trees = trees ?? ipos.importTrees
     const dataStore = ipos.moduleCollector
@@ -18,5 +38,5 @@ export default function doSomething(callback: Function, dependencies: Array<any>
 
     if (!currentFile)
         throw new Error() // todo
-    addModule(callback.toString(), dependencies, currentFile.filename)
+    addModule(callback.toString(), dependencies as unknown as Array<any>, currentFile.filename)
 }

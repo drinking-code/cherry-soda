@@ -1,6 +1,6 @@
 import {StateId} from './state-id'
 
-export default function createState(initialValue) {
+export default function createState(initialValue): StateType {
     let stateValue
     if (typeof initialValue === 'string') {
         stateValue = new StringState(initialValue)
