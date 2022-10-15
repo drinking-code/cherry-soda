@@ -30,8 +30,15 @@ const file = await unified()
         .use(retextSpell, {
             dictionary,
             personal: [
-                ''
-            ].join("\n")
+                'CLI',
+                'dev/development',
+                'DOM',
+                'HMR',
+                'JSX',
+                'preliminarily/preliminary',
+                'webpack',
+            ].join("\n"),
+            ignore: ['DIwhy']
         })
     )
     .use(retextStringify)
@@ -56,16 +63,16 @@ const fullFileName = path.resolve(fileName)
 for (const source in groupedMessage) {
     /** @type VFileMessage[] */
     const messages = groupedMessage[source]
-    if (messages.length > 0)
-        console.log(chalk.bold(fillWithSeparator(source)))
+    if (messages.length === 0) continue
+    console.log(chalk.bold(fillWithSeparator(source)))
     for (const message of messages) {
         console.log(`file://${fullFileName}:${message.position.start.line}:${message.position.start.column}`)
         console.log(message.message)
     }
-    console.log(' ')
+    console.log('')
 }
 
-console.log("\n")
+console.log('')
 
 const okChar = chalk.green('✓')
 const notOkChar = chalk.yellow('!')
