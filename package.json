@@ -21,6 +21,7 @@
     "#render-element": "./src/jsx/dom/render.tsx"
   },
   "scripts": {
+    "test": "cd test && npm run test",
     "example": "node --enable-source-maps src/server/server.node.js"
   },
   "bin": {
