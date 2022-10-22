@@ -11,7 +11,7 @@
 
 ---
 
-Yet another DIwhy JavaScript framework that nobody needs. It reminds of React, but has fundamentally a different
+Yet another JavaScript framework that nobody needs. It reminds of React, but has fundamentally a different
 approach.  
 Instead of rendering HTML on the client (or on the server and then hydrate on the client), cherry-cola is intended to
 render on the server and only altered and not hydrated on the client. Similar to React, you specify components that
@@ -63,8 +63,8 @@ export default function App() {
 }
 ```
 
-`index.js` is the main entry point for cherry-cola. cherry-cola will look for an exported function `main()` and will take
-the returned value to render HTML. `App.js` is an example function component similar to a React component.
+`index.js` is the main entry point for cherry-cola. cherry-cola will look for an exported function `main()` and will
+take the returned value to render HTML. `App.js` is an example function component similar to a React component.
 
 Run `cherry-cola dev src/index.js` to start the dev server with Bun, or `cherry-cola dev --node src/index.js` to run
 with Node. Then, visit `localhost:3000`.

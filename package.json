@@ -45,7 +45,7 @@
     "ws": "^8.9.0"
   },
   "dependencies": {
-    "chalk": "^5.1.0",
+    "chalk": "^5.1.2",
     "escape-html": "^1.0.3",
     "express": "^4.18.1",
     "ipos": "0.2.3",
