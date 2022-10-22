@@ -303,6 +303,31 @@ example when the client navigates to a different page. You can use this function
 
 ### Refs
 
+Refs are a way to work with the DOM nodes that your function components return. To use, get a reference instance by
+calling the [`createRef()`](#createref-ref) function, and pass it to the desired element with the `ref` parameter. When
+you use it inside a [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) callback, it
+becomes the actual DOM node on the client. You can also pass one ref to multiple elements. If you do that, the ref
+becomes a `HTMLCollection` inside of a [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any)
+callback.
+
+##### `createRef(): Ref`
+
+Returns a new `Ref`. Pass this to an element like so:
+
+```javascript
+import {createRef} from 'cherry-cola'
+
+function Component() {
+    const myRef = createRef()
+
+    return <div ref={myRef}/>
+}
+```
+
+**Returns:**
+
+- `Ref` A new `Ref` instance.
+
 ### States
 
 #### `Mutable`
