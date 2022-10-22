@@ -41,6 +41,7 @@ const file = await unified()
                 'DOM',
                 'HMR',
                 'JSX',
+                'natively/native',
                 'preliminarily/preliminary',
                 'webpack',
             ].join("\n"),
@@ -93,8 +94,9 @@ function printUnfamiliarWords(sentence, familiarWords, type) {
         .split(' ')
     const unfamiliarWords = words.filter(word => {
         return !familiarWords.includes(word.toLowerCase()) &&
-            !familiarWords.includes(word.toLowerCase().replace(/s$/g, '')) &&
-            !familiarWords.includes(word.toLowerCase().replace(/ly$/g, ''))
+            !familiarWords.includes(word.toLowerCase().replace(/ed|s|ly$/g, '')) &&
+            !familiarWords.includes(word.toLowerCase().replace(/d$/g, '')) &&
+            !familiarWords.includes(word.toLowerCase().replace(/ily$/g, 'y'))
     })
     console.log(`[${type}] Unfamiliar words: ${unfamiliarWords.map(word => chalk.yellow(word)).join(', ')}`)
 }
