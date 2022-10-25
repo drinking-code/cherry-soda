@@ -41,6 +41,7 @@ const file = await unified()
                 'DOM',
                 'HMR',
                 'JSX',
+                'math',
                 'natively/native',
                 'preliminarily/preliminary',
                 'webpack',

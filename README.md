@@ -13,13 +13,12 @@
 
 Yet another JavaScript framework that nobody needs. It reminds of React, but does not render HTML on the client*.  
 Instead of rendering HTML on the client (or on the server and then hydrate on the client), cherry-cola is intended to
-render on the server and only altered and not hydrated on the client. Similar to React, you specify components that
-return JSX in order to generate HTML on the server, but you also specify code that will be run on the client. Oh, and it
-works with Bun (:
-
+render on the server and only alter the HTML (and not hydrate) on the client. Similar to React, you specify components
+that return JSX in order to generate HTML on the server, but you also specify code that will be run on the client. Oh,
+and it works with Bun (:
 
 > *It does, technically. But way less than other frameworks.
-&nbsp;  
+> &nbsp;
 
 > **Warning**&nbsp;&nbsp;
 > Cherry-cola is experimental. Everything is subject to change.
@@ -72,7 +71,7 @@ Run `cherry-cola dev src/index.js` to start the dev server with Bun, or `cherry-
 with Node. Then, visit `localhost:3000`.
 
 Alternatively, you can use the [`cherryCola()`](#cherrycolaentry-string) function in your own server to render the app.
-This also automatically serves the asset files (JavaScript, CSS, images, and so on).  
+This also automatically serves the asset files (JavaScript, CSS, images, etc.).  
 For Bun.serve:
 
 ```javascript
@@ -289,8 +288,8 @@ dependencies to the function in the dependency array. Dependencies are all varia
 globally or natively.  
 The values you passed in the array will be passed in the same order into the `callback` function on the client. If you
 pass a ref into the array, the passed value for the function will be the matching HTML element. And if you pass a state
-into the array, the passed value for the function will be an array with the value as a [`Mutable`](#mutable) as the
-first entry and a function for changing the value as the second entry.  
+into the array, the passed value for the function will be an array with the value as a [`Mutable`](#mutable-client-side)
+as the first entry and a function for changing the value as the second entry.  
 The callback function may return another function. This (returned) function will be called before the component's
 elements are removed from the DOM. That happens for example when the client navigates to a different page. You can use
 this function to clean up if you need to.
@@ -331,7 +330,28 @@ function Component() {
 
 ### States
 
-#### `Mutable`
+You can create states with [`createState()`](#createstateinitialvalue-any-state). In the function component this will
+only return the state, which is an extended version of the respective object (Number, String, Array, etc.). Passing this
+state into [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) or
+[`sideEffect()`](#sideeffectcallback-args-any--void) will convert this into an array in which the first entry in the
+state object and the second entry is a function for changing the value of the state.
+
+#### `createState(initialValue: any): State`
+
+Create a state with the given value. Depending on the type of the value, a different state type will be returned. For
+example, calling `createState()` with a number as the initial value will return a state object that is extended from
+the `Number` builtin. This makes it easier to work with the state as a number. For instance, you can use the state in
+math operations (`const incrementedValue = yourNumberState + 1`).
+
+**Parameters:**
+
+- `initialValue: any` The initial value for this state.
+
+**Returns:**
+
+- `State` A state object depending on the type of `initialValue`.
+
+#### `Mutable` (Client-Side)
 
 ### Location and Routing
 
