@@ -41,9 +41,11 @@ const file = await unified()
                 'DOM',
                 'HMR',
                 'JSX',
+                'lang/language',
                 'math',
                 'natively/native',
                 'preliminarily/preliminary',
+                'SEO',
                 'webpack',
             ].join("\n"),
             ignore: ['DIwhy']

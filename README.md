@@ -394,9 +394,9 @@ Renders a `<html>` element and manages the lang attribute (if you're building a 
 
 #### `<Head>`
 
-Renders a `<head>` element and manages the loading of scripts and assets. It can also generate metadata for SEO and
-icons automatically from your given configuration. You can pass your own elements which will just be rendered inside
-the `<head>` and potentially replace the cherry-cola generated tags.  
+Renders a `<head>` element and manages the loading of scripts and assets. It can also automatically generate metadata
+for SEO, and icons from your given configuration. You can pass your own elements into `<Head>`. These will just be
+rendered inside the `<head>` and potentially replace the generated tags.  
 For example:
 
 ```javascript
