@@ -63,10 +63,7 @@ export async function getModulesAsString(sourcemap: SourceMapGenerator, linesOff
 export function getModuleParametersAsString() {
     return modules
         .map(([func, parameters, key]) => {
-            parameters = parameters
-                .map(parameter => {
-                    return stringify(parameter)
-                })
+            parameters = parameters.map(stringify)
             return `modulesParametersMap.set('${key}', [${parameters.join(', ')}])`
         })
         .join("\n")

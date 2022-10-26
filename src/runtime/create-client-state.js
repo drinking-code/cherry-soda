@@ -47,7 +47,7 @@ export function registerStateMappings(sm) {
 }
 
 function updateStateInElementText(stateId) {
-    stateMappings[stateId].forEach(usage => {
+    stateMappings[stateId]?.forEach(usage => {
         // todo: take "childrenBefore" into account
         usage.element.innerText = usage.content
             .map(value => value.valueOf())
