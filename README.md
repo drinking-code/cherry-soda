@@ -353,6 +353,10 @@ math operations (`const incrementedValue = yourNumberState + 1`).
 
 #### `Mutable` (Client-Side)
 
+`Mutable` is used for client side state objects. It extends the wrappers for immutable values and overwrites
+the `.valueOf()` method to always return the most current state value. The actual value of the immutable is – immutable,
+and stays at an older version.
+
 ### Location and Routing
 
 ### Essential built-in components
