@@ -1,10 +1,8 @@
 export function findElement(path) {
     if (!path)
         throw Error('Couldn\'t determine path of ref. Did you forget to assign?')
-    let element = document.body.children
-    path.forEach(index => {
-        element = element[index]
-    })
+    let element = document.body
+    path.forEach(index => element = element.children[index])
     return element
 }
 

@@ -5,7 +5,6 @@ import {VirtualRenderedElement} from './compiler/module-compiler/VirtualRendered
 IPOS.registerClass(FileTree)
 IPOS.registerClass(Import)
 IPOS.registerClass(VirtualRenderedElement)
-IPOS.registerClass(EventTarget, () => 0, () => new EventTarget())
 IPOS.registerClass(
     // @ts-ignore typescript doesn't know that node has CustomEvent
     CustomEvent,
