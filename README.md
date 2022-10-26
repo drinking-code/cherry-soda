@@ -358,7 +358,29 @@ math operations (`const incrementedValue = yourNumberState + 1`).
 
 `Mutable` is used for client side state objects. It extends the wrappers for immutable values and overwrites
 the `.valueOf()` method to always return the most current state value. The actual value of the immutable is – immutable,
-and stays at an older version.
+and stays at an older version.  
+Example of updating immutable type state:
+
+```javascript
+import {createState, doSomething} from 'cherry-cola'
+
+function App() {
+    const state = createState('oldValue')
+    const button = createRef()
+
+    doSomething(([state, setState], button) => {
+        button.addEventListener('click', () => {
+            setState('newValue')
+            console.log(state) // Mutable {value: "newValue"}
+            console.log(`New state: "${state}"`) // New state: "newValue"
+        })
+    }, [state, button])
+
+    return (
+        <button ref={button}/>
+    )
+}
+```
 
 ### Location and Routing
 
