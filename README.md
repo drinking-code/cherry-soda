@@ -133,10 +133,11 @@ In a function component typically all code is executed on the server. To execute
 the [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. The function you provide
 here will only be executed on the client. All "dependencies" for this function that must be provided through an array.
 This is because the function context will be different on the client.  
-To refer to an element that the component returns you can use refs (similar to React) with `createRef()`, which you will
-also need to pass in the array. Inside [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any)
-a ref will be the actual node of the DOM. States can also be passed in the dependency array. A state will be passed to
-the function as an array of the state and a function to change the state.  
+To refer to an element that the component returns you can use refs (similar to React) with
+[`createRef()`](#createref-ref), which you will also need to pass in the array. Inside
+[`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) a ref will be the actual node of the
+DOM. States can also be passed in the dependency array. A state will be passed to the function as an array of the state
+and a function to change the state.  
 Here is [example](/example/counter/App.jsx) to illustrate all those features:
 
 ```javascript
@@ -258,6 +259,8 @@ Both handle all requests with the app given as `entry` and serves all related (b
 - `Express.Router`, if imported from `cherry-cola/express`
 - `(req: Request) => Response`, if imported from `cherry-cola/bun`
 
+[//]: # (todo: document the element children find method)
+
 #### Entry file
 
 Every cherry-cola app has a single entry file. This file exports a function `main()`, which returns the main function
@@ -360,5 +363,39 @@ and stays at an older version.
 ### Location and Routing
 
 ### Essential built-in components
+
+Cherry-cola provides some built-in components that are essential to a document.
+
+#### `<Html>`
+
+Renders a `<html>` element and manages the lang attribute (if you're building a multilingual app).
+
+#### `<Head>`
+
+Renders a `<head>` element and manages the loading of scripts and assets. It can also generate metadata for SEO and
+icons automatically from your given configuration. You can pass your own elements which will just be rendered inside
+the `<head>` and potentially replace the cherry-cola generated tags.  
+For example:
+
+```javascript
+import {Html, Head, Body} from 'cherry-cola'
+
+function App() {
+    return (
+        <Html>
+            <Head>
+                {/* title element overrides the default <title>Title</title> */}
+                <title>My App</title>
+            </Head>
+        </Html>
+    )
+}
+```
+
+[//]: # (todo: show config and all features that are not implemented yet)
+
+#### `<Body>`
+
+Renders a `<body>` element.
 
 ### Islands

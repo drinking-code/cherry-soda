@@ -1,9 +1,6 @@
 import {default as iposPromise} from '../../../ipos.ts'
 
-let ipos
-;(async () => {
-    ipos = await iposPromise
-})()
+const ipos = await iposPromise
 
 export default function Head({children, ...props}) {
     const charset = children.find(<meta charSet/>) ?? <meta charSet={'UTF-8'}/>
