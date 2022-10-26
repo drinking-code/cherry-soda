@@ -22,7 +22,11 @@ export function getState(id) {
 }
 
 export function createClientState(value, id) {
-    states.set(id, new (MakeMutable(Number))(value))
+    const immutableWrapper = {
+        'number': Number,
+        'string': String
+    }[typeof value]
+    states.set(id, new (MakeMutable(immutableWrapper))(value))
     const clone = states.get(id).clone()
 
     function changeValue(newValue) {
