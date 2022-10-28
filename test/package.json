@@ -8,7 +8,7 @@
     "test": "cd test && bun run test",
     "test:jest": "npm run build-jsx-runtime && node --no-warnings --experimental-vm-modules --experimental-global-customevent ./node_modules/.bin/jest --coverage",
     "build-jsx-runtime": "node bundle-jsx-runtime.js",
-    "readme": "bun run readme.js"
+    "readme": "bun run readme.check.js"
   },
   "jest": {
     "resolver": "<rootDir>/custom-resolver.cjs",
