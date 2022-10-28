@@ -5,7 +5,35 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
+    "test": "cd test && bun run test",
+    "test:jest": "npm run build-jsx-runtime && node --no-warnings --experimental-vm-modules --experimental-global-customevent ./node_modules/.bin/jest --coverage",
+    "build-jsx-runtime": "node bundle-jsx-runtime.js",
     "readme": "bun run readme.js"
+  },
+  "jest": {
+    "resolver": "<rootDir>/custom-resolver.cjs",
+    "extensionsToTreatAsEsm": [".jsx", ".ts", ".tsx"],
+    "preset": "ts-jest/presets/js-with-ts-esm",
+    "transform": {
+      "^.+\\.(j|t)sx?$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    },
+    "moduleNameMapper": {
+      "#cherry-cola": "<rootDir>/../src/index.ts",
+      "#server\/express": "<rootDir>/../src/server/express.js",
+      "#server\/bun": "<rootDir>/../src/server/bun.ts",
+      "#compiler": "<rootDir>/../src/compiler/node.app.js",
+      "#node:compiler": "<rootDir>/../lib/compiler.js",
+      "#asset-compiler": "<rootDir>/../src/compiler/assets.js",
+      "#node:asset-compiler": "<rootDir>/../lib/asset-compiler.js",
+      "#render-function": "<rootDir>/../src/server/render.js",
+      "#node:render-function": "<rootDir>/../lib/render-function.js",
+      "#render-element": "<rootDir>/../src/jsx/dom/render.tsx"
+    }
   },
   "author": "",
   "license": "MIT",
@@ -13,6 +41,7 @@
     "@julian_cataldo/retext-case-police": "^1.1.4",
     "dale-chall": "^2.0.0",
     "dictionary-en-gb": "^2.4.0",
+    "jest": "^29.2.2",
     "remark-gfm": "^3.0.1",
     "remark-parse": "^10.0.1",
     "remark-retext": "^5.0.1",
@@ -25,6 +54,8 @@
     "spache": "^2.0.0",
     "syllable": "^5.0.0",
     "to-vfile": "^7.2.3",
+    "ts-jest": "^29.0.3",
+    "typescript": "^4.8.4",
     "unified": "^10.1.2",
     "vfile-message": "^3.1.2",
     "vfile-reporter": "^7.0.4"

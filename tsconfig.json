@@ -12,7 +12,7 @@
 
     "allowJs": true,
 
-    "types": ["bun-types"],
+    "types": ["bun-types", "jest"],
     "allowSyntheticDefaultImports": true,
 
     "paths": {

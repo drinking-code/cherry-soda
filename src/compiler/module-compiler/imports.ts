@@ -1,4 +1,4 @@
-import {default as iposPromise} from '../../ipos.js'
+import {default as iposPromise} from '../../ipos'
 import {possibleExtensions} from '../helpers/resolve-file.js'
 import {SpecifiersType} from '../helpers/FileTree'
 
