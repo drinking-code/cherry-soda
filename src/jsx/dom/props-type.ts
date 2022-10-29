@@ -1,6 +1,6 @@
 import {Ref} from '../create-ref'
 
-export type PropsType = {
+export interface Props {
     unsafeInnerHtml?: string
     ref?: Ref
     [key: string]: any

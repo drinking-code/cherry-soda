@@ -1,16 +1,16 @@
 import {renderElement} from './dom/render'
 import {ElementChildren} from './ElementChildren'
-import {PropsType} from './dom/props-type'
+import {Props} from './dom/props-type'
 import {validTags, voidElements} from './dom/html-props'
 
-export class VirtualElement<P = PropsType> {
+export class VirtualElement<P = Props> {
     type: 'function' | typeof validTags[number] | typeof voidElements[number]
-    function?: (PropsType) => VirtualElement | ElementChildren
-    props: PropsType
+    function?: (props: Props) => VirtualElement | ElementChildren
+    props: Props
     children: ElementChildren
     private _id?: ElementId
 
-    constructor(type: VirtualElement['type'], props: PropsType, children?: ElementChildren) {
+    constructor(type: VirtualElement['type'], props: Props, children?: ElementChildren) {
         this.type = type
         if (typeof type === 'function') {
             this.type = 'function'

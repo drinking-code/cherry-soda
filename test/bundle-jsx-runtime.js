@@ -7,6 +7,8 @@ await build({
     outfile: filePath,
     platform: 'node',
     bundle: true,
+    sourcemap: 'inline',
+    external: ['../node_modules/*'],
     plugins: [{
         name: 'remove-top-level-await',
         setup(build) {
