@@ -174,3 +174,4 @@ package-lock.json
 # cherry-cola
 .cc
 lib
+__generated

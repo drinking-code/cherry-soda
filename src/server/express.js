@@ -18,12 +18,7 @@ export default async function cherryCola(entry) {
     const {default: render} = await import('#node:render-function')
 
     await new Promise(resolve => {
-        function endHandler() {
-            endEventListener.removeEventListener('end', endHandler)
-            resolve()
-        }
-
-        endEventListener.addEventListener('end', endHandler)
+        endEventListener.addEventListener('end', () => resolve(), {once: true})
     })
 
     const {outputPath: assetsOutputPath} = await import('#node:asset-compiler')

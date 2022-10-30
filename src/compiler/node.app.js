@@ -1,3 +1,5 @@
+import path from 'path'
+
 import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 

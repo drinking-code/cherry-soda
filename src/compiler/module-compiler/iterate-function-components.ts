@@ -1,6 +1,6 @@
 import IPOS from 'ipos'
 
-import {default as iposPromise} from '../../ipos.js'
+import {default as iposPromise} from '../../ipos'
 import {ElementId, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import {ElementChild, ElementChildren} from '../../jsx/ElementChildren'
 import FileTree, {Import} from '../helpers/FileTree'
@@ -33,16 +33,20 @@ export function iterateFunctionComponents(element: VirtualElement, isFirstCall: 
     }
 
     if (element.type === 'function') {
+        // todo: fix using components from same file
         const currentFile = importTrees.map((tree: FileTree) =>
             tree.find(moduleCollector.currentFile)
         ).filter(v => !!v)[0] as FileTree | undefined
         const currentFileImports = currentFile?.imports
-        const functionComponentsFile: FileTree = currentFileImports.find((imp: Import) =>
-            Array.from(Object.values(imp.specifiers)).includes(element.function.name)
-        )?.fileTree
+        let functionComponentsFile: FileTree
+        if (currentFileImports) {
+            functionComponentsFile = currentFileImports.find((imp: Import) =>
+                Array.from(Object.values(imp.specifiers)).includes(element.function.name)
+            )?.fileTree
 
-        moduleCollector.parentFile = moduleCollector.currentFile
-        moduleCollector.currentFile = functionComponentsFile?.filename
+            moduleCollector.parentFile = moduleCollector.currentFile
+            moduleCollector.currentFile = functionComponentsFile?.filename
+        }
 
         const returnedVirtualElement: VirtualElement | ElementChildren = element.function({
             ...element.props,

@@ -1,6 +1,9 @@
 import child_process from 'child_process'
 import path from 'path'
-import ipos from '../ipos.ts'
+// is only a promise in jest environment
+import {default as iposPromise} from '../ipos.ts'
+
+const ipos = await iposPromise
 
 let rendering_process
 

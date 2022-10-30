@@ -18,5 +18,7 @@ export default {
             "runtime": "automatic",
             "importSource": "src"
         }
-    ]],
+    ], [
+        "@babel/plugin-syntax-import-assertions"
+    ],],
 }
