@@ -39,7 +39,7 @@ export default function buildFileTreeOfComponentsOnly() {
                         'typescript',
                     ],
                 })
-                if (await exportsFunctionComponent(ast)) {
+                if (await exportsFunctionComponent(ast) || args.path === process.env.CHERRY_COLA_ENTRY) {
                     const filename = args.path
                     const fileDir = path.dirname(args.path)
                     const imports = getImports(ast)

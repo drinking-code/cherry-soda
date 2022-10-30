@@ -17,5 +17,5 @@ export class Ref<P = VirtualElement> {
 }
 
 export function isRef(value): value is Ref {
-    return value.constructor.name === 'Ref'
+    return value?.constructor?.name === 'Ref'
 }

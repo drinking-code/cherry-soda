@@ -44,8 +44,11 @@ export function iterateFunctionComponents(element: VirtualElement, isFirstCall: 
                 Array.from(Object.values(imp.specifiers)).includes(element.function.name)
             )?.fileTree
 
-            moduleCollector.parentFile = moduleCollector.currentFile
-            moduleCollector.currentFile = functionComponentsFile?.filename
+            // if the function component is not imported, assume that it is defined in the current file
+            if (functionComponentsFile) {
+                moduleCollector.parentFile = moduleCollector.currentFile
+                moduleCollector.currentFile = functionComponentsFile?.filename
+            }
         }
 
         const returnedVirtualElement: VirtualElement | ElementChildren = element.function({

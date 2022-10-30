@@ -12,7 +12,6 @@ const outputDir = appRoot.resolve('node_modules', '.cache', 'cherry-cola')
 const serverFilePath = path.join(outputDir, 'server')
 
 export async function runModuleBuilder() {
-    console.log(process.env.CHERRY_COLA_ENTRY)
     const collector_process = child_process.spawn('node', [
         '--experimental-global-customevent',
         moduleRoot.resolve('lib', 'module-compiler.js'), // todo: bun

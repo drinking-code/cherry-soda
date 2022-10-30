@@ -6,6 +6,7 @@ export function showCompilationStatus(label) {
     return {
         name: 'simple-status',
         async setup(build) {
+            if (process.env.NODE_ENV === 'test') return
             let start, isFirstCompilation = true, runningMessage
             const durationDecimalPlaces = 2
             const compilerName = 'Compiler'
