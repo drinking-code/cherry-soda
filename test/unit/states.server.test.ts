@@ -1,5 +1,5 @@
 import {describe, test, expect} from '../bun:test-or-jest'
-import {createState, Fragment} from '../../src/index'
+import {createState} from '#cherry-cola'
 
 export const examples = {
     'string': 'myString',
@@ -25,9 +25,9 @@ describe('Creating states on the server', () => {
         const exampleValue = examples[exampleKey]
 
         test(label, () => {
-            let state = createState(exampleValue)
-            // expect(() => state = createState(exampleValue)).not.toThrow()
-            // expect(state).toBeDefined()
+            let state
+            expect(() => state = createState(exampleValue)).not.toThrow()
+            expect(state).toBeDefined()
         })
     }
 })

@@ -5,8 +5,8 @@
   "main": "main.js",
   "type": "module",
   "scripts": {
-    "test": "cd test && bun run test",
-    "test:jest": "node --no-warnings --experimental-vm-modules --experimental-global-customevent ./node_modules/.bin/jest",
+    "test": "bun run test",
+    "test:jest": "cd .. && node --no-warnings --experimental-vm-modules --experimental-global-customevent ./test/node_modules/.bin/jest",
     "build-jsx-runtime": "node bundle-jsx-runtime.js",
     "readme": "bun run readme.check.js"
   },
