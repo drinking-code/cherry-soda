@@ -36,3 +36,7 @@ export async function restartRenderer(serverFilePath) {
     })
     await ipos.addProcess(rendering_process)
 }
+
+export function stopRenderer() {
+    rendering_process?.kill('SIGABRT')
+}

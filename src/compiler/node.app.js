@@ -1,5 +1,3 @@
-import path from 'path'
-
 import esbuild from 'esbuild'
 import PrettyError from 'pretty-error'
 
@@ -17,7 +15,7 @@ const pe = new PrettyError()
 export const endEventListener = new EventTarget()
 const endEvent = new CustomEvent('end')
 
-esbuild.build(extendBaseConfig({
+const resultPromise = esbuild.build(extendBaseConfig({
     target: 'node16', // todo: use current node version
     platform: 'node',
     format: 'esm',
@@ -50,3 +48,9 @@ esbuild.build(extendBaseConfig({
         },
     },
 }))
+
+export async function stopAppCompiler() {
+    const result = await resultPromise
+    if (!result || !result.stop) return
+    result.stop()
+}

@@ -7,7 +7,7 @@ import testDir from '../temp-dir'
 import {createState} from '#cherry-cola'
 import makeFile from './states-example-component'
 import statesInitialValues from './states-initial-values'
-import startNodeCompiler from '../../src/compiler/node.lib.js'
+import {startNodeCompiler, stopNodeCompiler} from '../../src/compiler/node.lib.js'
 import {default as iposPromise} from '../../src/ipos'
 import appRoot from '../../src/utils/project-root'
 
@@ -15,11 +15,19 @@ const ipos = await iposPromise
 ipos.create('clientAssets', ['main.js', 'main.css'])
 process.env.BUN_ENV = 'development'
 
-let browser, page
+// let browser, page
 // beforeAll(async () => browser = await chromium.launch())
 // afterAll(async () => await browser.close())
 // beforeEach(async () => page = await browser.newPage())
 // afterEach(async () => await page.close())
+
+let stopAppCompiler, stopRenderer
+afterAll(() => {
+    stopNodeCompiler()
+    stopAppCompiler()
+    stopRenderer()
+    // fs.rmdirSync(testDir, {recursive: true})
+})
 
 describe('Creating states on the server', () => {
     for (const initialValuesKey in statesInitialValues) {
@@ -48,8 +56,12 @@ describe('Converting states with module compiler', () => {
         test(label, async () => {
             // todo: expect not toThrow in module builder
             await startNodeCompiler()
-            const {endEventListener} = await import('#node:compiler')
-            const {default: render} = await import('#node:render-function')
+            const appCompilerModule = await import('#node:compiler')
+            stopAppCompiler = appCompilerModule.stopAppCompiler
+            const endEventListener = appCompilerModule.endEventListener
+            const renderFunctionModule = await import('#node:render-function')
+            const render = renderFunctionModule.default
+            stopRenderer = renderFunctionModule.stopRenderer
 
             const waitForCompileEnd = new Promise<void>(resolve => {
                 endEventListener.addEventListener('end', () => {

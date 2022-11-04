@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "bun run test",
-    "test:jest": "cd .. && node --no-warnings --experimental-vm-modules --experimental-global-customevent ./test/node_modules/.bin/jest",
+    "test:jest": "cd .. && BUN_ENV=development node --no-warnings --experimental-vm-modules --experimental-global-customevent ./test/node_modules/.bin/jest --detectOpenHandles",
     "readme": "bun run readme.check.js"
   },
   "author": "",

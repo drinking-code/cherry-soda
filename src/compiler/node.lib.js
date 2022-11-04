@@ -27,8 +27,13 @@ export const config = extendBaseConfig({
 delete config.plugins
 config.plugins = [ExternaliseNodeModulesPlugin]
 let result
-export default async function () {
-    if (result)
-        return
+
+export async function startNodeCompiler() {
+    if (result) return
     result = await esbuild.build(config)
+}
+
+export function stopNodeCompiler() {
+    if (!result || !result.stop) return
+    result.stop()
 }
