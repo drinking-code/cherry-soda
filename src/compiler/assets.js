@@ -20,6 +20,9 @@ ipos.create('clientAssets', ['main.js', 'main.css'])
 
 const label = 'client-side'
 
+export const endEventTarget = new EventTarget()
+const endEvent = new CustomEvent('end')
+
 // todo: clear modulesJsPath before initial build to remove previous errors
 esbuild.build(extendBaseConfig({
     entryPoints: [modulesJsPath],
@@ -30,12 +33,20 @@ esbuild.build(extendBaseConfig({
         imageLoader({path: outputPath}),
         showCompilationStatus(typeof Bun !== 'undefined' ? label
             : (await import('chalk')).default.bgBlue(` ${label} `)
-        ),
+        ), {
+            name: 'renderend-event',
+            setup(build) {
+                build.onEnd(async () => {
+                    endEventTarget.dispatchEvent(endEvent)
+                })
+            }
+        },
     ],
     watch: process.env.BUN_ENV === 'development' && {
         async onRebuild(error, result) {
             if (error)
-                console.log(pe.render(error))
+                return console.log(pe.render(error))
+
         },
     },
 }))

@@ -12,7 +12,7 @@ import ExternaliseNodeModulesPlugin from './plugins/ExternaliseNodeModulesPlugin
 export const outputPath = appRoot.resolve('node_modules', '.cache', 'cherry-cola', 'server')
 const pe = new PrettyError()
 
-export const endEventListener = new EventTarget()
+export const endEventTarget = new EventTarget()
 const endEvent = new CustomEvent('end')
 
 const resultPromise = esbuild.build(extendBaseConfig({
@@ -35,7 +35,7 @@ const resultPromise = esbuild.build(extendBaseConfig({
                         runModuleBuilder(),
                         restartRenderer(outputPath)
                     ])
-                    endEventListener.dispatchEvent(endEvent)
+                    endEventTarget.dispatchEvent(endEvent)
                 })
             }
         },
