@@ -1,16 +1,16 @@
 import {StateId} from './state-id'
 
-export default function createState(initialValue): StateType {
-    let stateValue
-    if (typeof initialValue === 'string') {
-        stateValue = new StringState(initialValue)
-    } else if (typeof initialValue === 'number') {
-        stateValue = new NumberState(initialValue)
-    }
-    return stateValue
+export default function createState<T>(initialValue): State<T> {
+    const extendedClass = extendConstructor(initialValue.constructor)
+    return new extendedClass(initialValue)
 }
 
-export type StateType = GenericState | StringState | NumberState
+export type StateType = GenericState | State<unknown>
+
+interface State<T> {
+    $$stateId: StateId,
+    value: T,
+}
 
 export class GenericState {
     $$stateId: StateId
@@ -24,28 +24,29 @@ export class GenericState {
     }
 }
 
-export class StringState extends String {
-    $$stateId: StateId
+const constructorsWithoutNew = [Boolean, String, Number]
 
-    constructor(value: string) {
-        super(value)
-        this.$$stateId = new StateId()
-    }
+function extendConstructor(constructor) {
+    const needsNew = !constructorsWithoutNew.includes(constructor)
+    return class State<T> extends constructor {
+        $$stateId: StateId
+        private _value: T
 
-    get value(): string {
-        return String(this)
-    }
-}
+        constructor(value: T) {
+            super(value)
+            this._value = value
+            this.$$stateId = new StateId()
+        }
 
-export class NumberState extends Number {
-    $$stateId: StateId
+        get value(): T {
+            return this.valueOf()
+        }
 
-    constructor(value: number) {
-        super(value)
-        this.$$stateId = new StateId()
-    }
-
-    get value(): number {
-        return Number(this)
+        valueOf(): T {
+            if (needsNew)
+                return new constructor(this._value)
+            else
+                return constructor(this._value)
+        }
     }
 }

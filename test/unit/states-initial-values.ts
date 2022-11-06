@@ -1,4 +1,5 @@
 export default {
+    'boolean': false,
     'string': 'myString',
     'number': 42,
     'object': {

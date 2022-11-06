@@ -37,6 +37,6 @@ export async function buildFile() {
         "\nexecModules(modules, modulesParametersMap)"
 
     await fs.writeFile(outputPath, modulesJsContents + "\n" +
-        `//# sourceMappingURL=data:application/json;base64,${(new Buffer(sourcemap.toString())).toString('base64')}`
+        `//# sourceMappingURL=data:application/json;base64,${(Buffer.from(sourcemap.toString())).toString('base64')}`
     )
 }

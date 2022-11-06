@@ -10,7 +10,6 @@ import statesInitialValues from './states-initial-values'
 import {startNodeCompiler, stopNodeCompiler} from '../../src/compiler/node.lib.js'
 import {default as iposPromise} from '../../src/ipos'
 import appRoot from '../../src/utils/project-root'
-import {a} from "retext-indefinite-article/lib/a";
 
 const ipos = await iposPromise
 ipos.create('clientAssets', ['main.js', 'main.css'])
@@ -55,22 +54,30 @@ function makePeekablePromise<T>(executor: (resolve: (value: T | PromiseLike<T>) 
     let isRejected: boolean = false
     let isFulfilled: boolean = false
 
-    const promise = new Promise(executor).then(
-        (value) => {
+
+    const promise = new Promise((resolve, reject) => {
+        executor(value => {
             isFulfilled = true
             isPending = false
-            return value
-        },
-        (error) => {
+            resolve(value)
+        }, error => {
             isRejected = true
             isPending = false
-            throw error
-        }
-    ) as PeekablePromiseType<T>
+            reject(error)
+        })
+    }) as PeekablePromiseType<T>
 
-    promise.isPending = isPending
-    promise.isRejected = isRejected
-    promise.isFulfilled = isFulfilled
+    Object.assign(promise, {
+        isPending() {
+            return isPending
+        },
+        isRejected() {
+            return isRejected
+        },
+        isFulfilled() {
+            return isFulfilled
+        },
+    })
 
     return promise
 }
@@ -87,7 +94,7 @@ for (let key in statesFrontendFiles) {
 describe('Converting states with module compiler', () => {
     let currentKey
     afterEach(() => {
-        if (statesFrontendFiles[currentKey].promise.isPending)
+        if (statesFrontendFiles[currentKey].promise.isPending())
             statesFrontendFiles[currentKey].reject()
     })
     for (const initialValuesKey in statesInitialValues) {
@@ -153,7 +160,7 @@ describe('Converting states with module compiler', () => {
 
 describe('Creating states on the client', () => {
     for (const initialValuesKey in statesInitialValues) {
-        const label = `Compiling state of type ${initialValuesKey}`
+        const label = `Creating state of type ${initialValuesKey}`
         // const stateInitialValue = statesInitialValues[initialValuesKey]
 
         test(label, async () => {
@@ -165,7 +172,10 @@ describe('Creating states on the client', () => {
                 for (const arg of msg.args())
                     values.push(await arg.jsonValue())
                 console.log(...values)
-            });
+            })
+            page.on('pageerror', exception => {
+                console.log(`Uncaught exception: "${exception}"`);
+            })
             await page.goto(`data:text/html,<html lang><body><script>${feScript}</script></body></html>`)
         })
     }
