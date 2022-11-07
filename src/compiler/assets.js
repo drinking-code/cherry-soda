@@ -24,7 +24,7 @@ export const endEventTarget = new EventTarget()
 const endEvent = new CustomEvent('end')
 
 // todo: clear modulesJsPath before initial build to remove previous errors
-esbuild.build(extendBaseConfig({
+const resultPromise = esbuild.build(extendBaseConfig({
     entryPoints: [modulesJsPath],
     inject: [moduleRoot.resolve('src', 'runtime', 'index.js')],
     outfile: path.join(outputPath, 'main.js'),
@@ -50,3 +50,9 @@ esbuild.build(extendBaseConfig({
         },
     },
 }))
+
+export async function stopAssetsCompiler() {
+    const result = await resultPromise
+    if (!result || !result.stop) return
+    result.stop()
+}

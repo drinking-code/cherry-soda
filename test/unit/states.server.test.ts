@@ -22,12 +22,12 @@ beforeAll(async () => {
     context = await browser.newContext()
 })
 
-let stopAppCompiler, stopRenderer
+let stopAppCompiler, stopAssetsCompiler
 afterAll(async () => {
     await browser?.close()
     stopNodeCompiler()
     stopAppCompiler()
-    // stopRenderer()
+    stopAssetsCompiler()
     // fs.rmdirSync(testDir, {recursive: true})
 })
 
@@ -106,10 +106,12 @@ describe('Converting states with module compiler', () => {
                 expect(extractedValue).toEqual(stateInitialValue)
 
             // compile modules.js into the final fe-js (for the next test)
+            const assetCompilerModule = await import('#node:asset-compiler')
             const {
                 endEventTarget: assetCompilerEndEventTarget,
-                outputPath: assetCompilerOutputPath
-            } = await import('#node:asset-compiler')
+                outputPath: assetCompilerOutputPath,
+            } = assetCompilerModule
+            stopAssetsCompiler = assetCompilerModule.stopAssetsCompiler
 
             await new Promise<void>(resolve => {
                 assetCompilerEndEventTarget.addEventListener('end', () => resolve(), {once: true})
@@ -144,6 +146,7 @@ describe('Creating states on the client', () => {
             page.on('pageerror', exception => {
                 console.log(`Uncaught exception: "${exception}"`);
             })
+            console.log('test', initialValuesKey)
             await page.goto(`data:text/html,<html lang><body><script>${feScript}</script></body></html>`)
         })
     }
