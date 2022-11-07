@@ -1,13 +1,13 @@
 import {StateId} from './state-id'
 
-export default function createState<T>(initialValue): State<T> {
+export default function createState<T>(initialValue: T): State<T> {
     const extendedClass = extendConstructor(initialValue.constructor)
     return new extendedClass(initialValue)
 }
 
 export type StateType = GenericState | State<unknown>
 
-interface State<T> {
+export interface State<T> {
     $$stateId: StateId,
     value: T,
 }
@@ -25,9 +25,11 @@ export class GenericState {
 }
 
 const constructorsWithoutNew = [Boolean, String, Number]
+const ignoreConstructors = [Array, Map, Set]
 
 function extendConstructor(constructor) {
     const needsNew = !constructorsWithoutNew.includes(constructor)
+    const ignoreConstructor = ignoreConstructors.includes(constructor)
     return class State<T> extends constructor {
         $$stateId: StateId
         private _value: T
@@ -43,10 +45,11 @@ function extendConstructor(constructor) {
         }
 
         valueOf(): T {
+            if (ignoreConstructor)
+                return this._value
             if (needsNew)
                 return new constructor(this._value)
-            else
-                return constructor(this._value)
+            return constructor(this._value)
         }
     }
 }

@@ -2,7 +2,7 @@ import FileTree from '../helpers/FileTree'
 import {addModule} from './index'
 import console from '../../utils/console'
 import {default as iposPromise} from '../../ipos'
-import {StateType} from '../../state'
+import {State, StateType} from '../../state'
 import {Ref} from '../../jsx/create-ref'
 
 let trees: Array<FileTree> | undefined
@@ -14,11 +14,15 @@ type DependencyType =
     Ref |
     any
 
+type UnwrapState<T extends State<any>> = T extends State<infer U> ? U : never;
+
 type MappedDependencyType<Dep> =
     Dep extends Ref
-        // @ts-ignore
+        // todo: return specific element type (e.g. ButtonElement)
+        // @ts-ignore Cannot find name 'HTMLElement'.
         ? HTMLElement : (
-            Dep extends StateType ? [Mutable<any>, (newValue: any) => void]
+            Dep extends StateType
+                ? [Mutable<UnwrapState<Dep>>, (newValue: any) => void]
                 : Dep
             )
 

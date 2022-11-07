@@ -64,6 +64,7 @@ export function getModuleParametersAsString() {
     return modules
         .map(([func, parameters, key]) => {
             parameters = parameters.map(stringify)
+            // console.log(parameters)
             return `modulesParametersMap.set('${key}', [${parameters.join(', ')}])`
         })
         .join("\n")
