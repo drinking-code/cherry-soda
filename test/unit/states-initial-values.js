@@ -12,6 +12,6 @@ export default {
         mySecondValue: 42
     })),
     'set': new Set(['myItem', 42]),
-    'function': (a: number, b: number) => a + b,
+    'function': (a, b) => a + b,
     // 'class': new TestClass('myClass'),
 }

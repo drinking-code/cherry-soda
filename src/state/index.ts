@@ -25,7 +25,7 @@ export class GenericState {
 }
 
 const constructorsWithoutNew = [Boolean, String, Number]
-const ignoreConstructors = [Array, Map, Set]
+const ignoreConstructors = [Array, Map, Set, Function]
 
 function extendConstructor(constructor) {
     const needsNew = !constructorsWithoutNew.includes(constructor)

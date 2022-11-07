@@ -5,11 +5,12 @@ import {chromium} from 'playwright'
 import {describe, test, expect} from '../bun:test-or-jest'
 import testDir from '../temp-dir'
 import {createState} from '#cherry-cola'
-import makeFile from './states-example-component'
+import makeFile, {pureStateInitialValues} from './states-example-component'
 import statesInitialValues from './states-initial-values'
-import {startNodeCompiler, stopNodeCompiler} from '../../src/compiler/node.lib.js'
+import {startNodeCompiler, stopNodeCompiler} from '../../src/compiler/node.lib'
 import {default as iposPromise} from '../../src/ipos'
 import appRoot from '../../src/utils/project-root'
+import makePeekablePromise from "../utils/peekable-promise";
 
 const ipos = await iposPromise
 ipos.create('clientAssets', ['main.js', 'main.css'])
@@ -43,45 +44,6 @@ describe('Creating states on the server', () => {
     }
 })
 
-type PeekablePromiseType<T> = Promise<T> & {
-    isPending: boolean,
-    isRejected: boolean,
-    isFulfilled: boolean,
-}
-
-function makePeekablePromise<T>(executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void): PeekablePromiseType<T> {
-    let isPending: boolean = true
-    let isRejected: boolean = false
-    let isFulfilled: boolean = false
-
-
-    const promise = new Promise((resolve, reject) => {
-        executor(value => {
-            isFulfilled = true
-            isPending = false
-            resolve(value)
-        }, error => {
-            isRejected = true
-            isPending = false
-            reject(error)
-        })
-    }) as PeekablePromiseType<T>
-
-    Object.assign(promise, {
-        isPending() {
-            return isPending
-        },
-        isRejected() {
-            return isRejected
-        },
-        isFulfilled() {
-            return isFulfilled
-        },
-    })
-
-    return promise
-}
-
 const statesFrontendFiles = {...statesInitialValues}
 for (let key in statesFrontendFiles) {
     if (!statesFrontendFiles.hasOwnProperty(key)) continue
@@ -99,7 +61,9 @@ describe('Converting states with module compiler', () => {
     })
     for (const initialValuesKey in statesInitialValues) {
         const label = `Compiling state of type ${initialValuesKey}`
-        const stateInitialValue = statesInitialValues[initialValuesKey]
+        // must use "pureStateInitialValues" because otherwise the istanbul injected code into the function value interferes
+        // uses parenthesis around the value because of parse error (https://stackoverflow.com/questions/7985450/eval-unexpected-token-error)
+        const stateInitialValue = eval(`(${pureStateInitialValues[initialValuesKey].replace(/\n */g, '')})`)
 
         const tempFileName = path.join(testDir, 'states.js')
         process.env.CHERRY_COLA_ENTRY = tempFileName
@@ -135,7 +99,11 @@ describe('Converting states with module compiler', () => {
             const createClientState = value => extractedValue = value
             // execute the generated modules.js file (remove exports)
             eval(modulesJsContents.replace(/export/g, ''))
-            expect(extractedValue).toEqual(stateInitialValue)
+            if (typeof stateInitialValue === 'function')
+                expect(extractedValue.toString().replace(/\s/g, ''))
+                    .toEqual(stateInitialValue.toString().replace(/\s/g, ''))
+            else
+                expect(extractedValue).toEqual(stateInitialValue)
 
             // compile modules.js into the final fe-js (for the next test)
             const {

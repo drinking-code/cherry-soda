@@ -24,7 +24,7 @@ const component = stateInitialValue => combineArray([
 ])
 
 const stateInitialValuesEntries = fs.readFileSync(
-    path.resolve('test', 'unit', 'states-initial-values.ts'),
+    path.resolve('test', 'unit', 'states-initial-values.js'),
     'utf8'
 )
     .split(newLine)
@@ -51,9 +51,9 @@ const stateInitialValuesEntries = fs.readFileSync(
         value.replace(/[,\s\n]$/, '')
     ])
 
-const stateInitialValues = Object.fromEntries(stateInitialValuesEntries)
+export const pureStateInitialValues = Object.fromEntries(stateInitialValuesEntries)
 export default function makeFile(stateInitialKey) {
-    const stateInitialValue = stateInitialValues[stateInitialKey]
+    const stateInitialValue = pureStateInitialValues[stateInitialKey]
     return combineArray([
         imports,
         newLine,

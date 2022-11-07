@@ -6,8 +6,6 @@ export function stringify(value: any): string {
         return 'undefined'
     if (value === null)
         return 'null'
-    if (typeof value === 'boolean')
-        return value.toString()
 
     // todo: serialize complex parameters (such as imports) -> imports with "currentFile"
     if (isState(value)) {
@@ -25,16 +23,16 @@ export function stringify(value: any): string {
         }
         return `new ${value.constructor.name}()`
     }
-    if (Array.isArray(value) || value.constructor === {}.constructor ||
-        (value.hasOwnProperty('length') && typeof value.length === 'number')) {
+    if (Array.isArray(value) || value.constructor === {}.constructor) {
         // todo recursively serialise values
         return JSON.stringify(value)
     }
     if (typeof value === 'string')
         return `"${value.toString()}"`
 
-    if (['number', 'function'].includes(typeof value) || value.toString)
+    if (['number', 'function', 'boolean'].includes(typeof value) || value.toString) {
         return value.toString()
+    }
     // todo
 }
 
