@@ -6,7 +6,7 @@ import {entryPoint, extendBaseConfig} from './base.js'
 import {imageLoader} from '../imports/images.ts'
 import buildFileTreeOfComponentsOnly from './plugins/BuildFileTreeOfComponentsOnly.ts'
 import {runModuleBuilder} from './module-compiler/index.ts'
-import {restartRenderer} from '#render-function'
+import {restartRenderer, stopRenderer} from '#render-function'
 import ExternaliseNodeModulesPlugin from './plugins/ExternaliseNodeModulesPlugin.js'
 
 export const outputPath = appRoot.resolve('node_modules', '.cache', 'cherry-cola', 'server')
@@ -50,6 +50,7 @@ const resultPromise = esbuild.build(extendBaseConfig({
 }))
 
 export async function stopAppCompiler() {
+    stopRenderer()
     const result = await resultPromise
     if (!result || !result.stop) return
     result.stop()

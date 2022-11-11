@@ -18,7 +18,7 @@ process.env.BUN_ENV = 'development'
 
 let browser, context
 beforeAll(async () => {
-    const browser = await chromium.launch()
+    browser = await chromium.launch()
     context = await browser.newContext()
 })
 
@@ -26,8 +26,10 @@ let stopAppCompiler, stopAssetsCompiler
 afterAll(async () => {
     await browser?.close()
     stopNodeCompiler()
-    stopAppCompiler()
-    stopAssetsCompiler()
+    if (stopAppCompiler)
+        stopAppCompiler()
+    if (stopAssetsCompiler)
+        stopAssetsCompiler()
     // fs.rmdirSync(testDir, {recursive: true})
 })
 
