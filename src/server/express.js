@@ -14,11 +14,11 @@ const pe = new PrettyError()
  * */
 export default async function cherryCola(entry) {
     await startNodeCompiler()
-    const {endEventListener} = await import('#node:compiler')
+    const {endEventTarget} = await import('#node:compiler')
     const {default: render} = await import('#node:render-function')
 
     await new Promise(resolve => {
-        endEventListener.addEventListener('end', () => resolve(), {once: true})
+        endEventTarget.addEventListener('end', () => resolve(), {once: true})
     })
 
     const {outputPath: assetsOutputPath} = await import('#node:asset-compiler')

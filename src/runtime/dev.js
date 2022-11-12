@@ -1,8 +1,11 @@
 import {findElement} from './find-element.js'
 
-const ws = new WebSocket(location.origin.replace(/^http/, 'ws') + '/__cherry-cola_dcs')
+// checks for origin which might not exist in a test environment
+const ws = location.origin && location.origin !== 'null'
+    ? new WebSocket(location.origin.replace(/^http/, 'ws') + '/__cherry-cola_dcs')
+    : undefined
 
-ws.addEventListener('message', event => {
+ws?.addEventListener('message', event => {
     applyChange(JSON.parse(event.data))
 })
 

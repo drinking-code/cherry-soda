@@ -18,13 +18,16 @@ process.env.BUN_ENV = 'development'
 
 let browser, context
 beforeAll(async () => {
-    browser = await chromium.launch()
+    browser = await chromium.launch({
+        // devtools: true,
+        // headless: false,
+    })
     context = await browser.newContext()
 })
 
 let stopAppCompiler, stopAssetsCompiler
 afterAll(async () => {
-    await browser?.close()
+    // await browser?.close()
     stopNodeCompiler()
     if (stopAppCompiler)
         stopAppCompiler()
@@ -140,16 +143,21 @@ describe('Creating states on the client', () => {
             const page = await context.newPage()
             const feScript = await fs.promises.readFile(statesFrontendFiles[initialValuesKey].path, 'utf8')
             page.on('console', async msg => {
-                const values = []
+                console.log('log', msg)
+                /*const values = []
                 for (const arg of msg.args())
                     values.push(await arg.jsonValue())
-                console.log(...values)
+                console.log(...values)*/
             })
             page.on('pageerror', exception => {
                 console.log(`Uncaught exception: "${exception}"`);
             })
-            console.log('test', initialValuesKey)
-            await page.goto(`data:text/html,<html lang><body><script>${feScript}</script></body></html>`)
+
+            const scriptWithoutSingleLineComments = feScript.toString().replace(/\/{2}[^\n]+/g, '')
+            await page.goto(`data:text/html,<!DOCTYPE html><html lang><body><script>${
+                scriptWithoutSingleLineComments
+            }</script></body></html>`)
+            await page.waitForLoadState()
         })
     }
 })
