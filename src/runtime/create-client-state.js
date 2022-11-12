@@ -17,17 +17,27 @@ function MakeMutable(PrimitiveWrapper) {
     }
 }
 
+function cloneStateValue(value) {
+    if (value.constructor.name === 'Mutable')
+        return value.clone()
+    else if (value.constructor === {}.constructor)
+        return {...value}
+    else if (Array.isArray(value))
+        return [...value]
+}
+
 export function getState(id) {
     return states.get(id)
 }
 
 export function createClientState(value, id) {
     const immutableWrapper = {
+        'boolean': Boolean,
         'number': Number,
         'string': String
     }[typeof value]
-    states.set(id, new (MakeMutable(immutableWrapper))(value))
-    const clone = states.get(id).clone()
+    states.set(id, immutableWrapper ? new (MakeMutable(immutableWrapper))(value) : value)
+    const clone = cloneStateValue(states.get(id))
 
     function changeValue(newValue) {
         if (states.get(id).valueOf() === newValue) {

@@ -129,7 +129,7 @@ describe('Creating states on the client', () => {
                 if (msg.text() !== 'value set') return
                 extractedValue = page.evaluate('window.ccTestStateValue')
             })
-            const handlePageError = jest.fn()
+            const handlePageError = jest.fn(console.error)
             page.on('pageerror', handlePageError)
 
             const scriptWithoutSingleLineComments = feScript.toString().replace(/\/{2}[^\n]+\n/g, '')
