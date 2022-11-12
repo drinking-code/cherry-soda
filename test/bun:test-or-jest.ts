@@ -1,8 +1,10 @@
-let bunTest
+let testModule
 if (typeof Bun !== 'undefined')
-    bunTest = await import('bun:test')
-const describeExport: typeof describe = bunTest?.describe ?? describe
-const testExport: typeof test = bunTest?.test ?? test
-const expectExport: typeof expect = bunTest?.expect ?? expect
+    testModule = await import('bun:test')
+else
+    testModule = await import('@jest/globals')
+const describe: typeof import('@jest/globals').describe = testModule.describe
+const test: typeof import('@jest/globals').test = testModule.test
+const expect: typeof import('@jest/globals').expect = testModule.expect
 
-export {describeExport as describe, testExport as test, expectExport as expect}
+export {describe, test, expect}
