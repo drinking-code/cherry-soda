@@ -10,7 +10,6 @@ import statesInitialValues from './states-initial-values'
 import {startNodeCompiler, stopNodeCompiler} from '../../src/compiler/node.lib'
 import appRoot from '../../src/utils/project-root'
 import makePeekablePromise from '../utils/peekable-promise'
-import {match} from "assert";
 
 let browser, context
 beforeAll(async () => {
@@ -154,11 +153,9 @@ describe('Creating states on the client', () => {
             const handlePageError = jest.fn(console.error)
             page.on('pageerror', handlePageError)
 
-            const scriptWithoutSingleLineComments = feScript.toString().replace(/\/{2}[^\n]+\n/g, '')
-            await page.goto(`data:text/html,<!DOCTYPE html><html lang><body><script>${
-                scriptWithoutSingleLineComments
-            }</script></body></html>`)
+            await page.goto(`data:text/html,<!DOCTYPE html><html lang></html>`)
             await page.waitForLoadState()
+            await page.setContent(`<!DOCTYPE html><html lang><body><script>${feScript}</script></body></html>`)
 
             expect(handlePageError).not.toHaveBeenCalled()
             const resolvedIsSameValue = await isSameValue

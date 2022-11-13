@@ -22,10 +22,10 @@ const constructorsThatCanBeCalledToCreateAClone = [Map, Set]
 function cloneStateValue(value) {
     if (value.constructor.name === 'Mutable')
         return value.clone()
-    // else if (value.constructor === {}.constructor)
-    //     return {...value}
-    // else if (Array.isArray(value))
-    //     return [...value]
+    else if (value.constructor === {}.constructor)
+        return {...value}
+    else if (Array.isArray(value))
+        return [...value]
     else if (constructorsThatCanBeCalledToCreateAClone.includes(value.constructor))
         return new value.constructor(value)
 }
