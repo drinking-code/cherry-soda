@@ -10,6 +10,7 @@ import statesInitialValues from './states-initial-values'
 import {startNodeCompiler, stopNodeCompiler} from '../../src/compiler/node.lib'
 import appRoot from '../../src/utils/project-root'
 import makePeekablePromise from '../utils/peekable-promise'
+import {match} from "assert";
 
 let browser, context
 beforeAll(async () => {
@@ -85,7 +86,24 @@ describe('Converting states with module compiler', () => {
             let extractedValue
             const createClientState = value => extractedValue = value
             // execute the generated modules.js file (remove exports)
-            eval(modulesJsContents.replace(/export/g, ''))
+            eval(
+                modulesJsContents
+                    .replace(/export ?/g, '')
+                    .replace(/import (([^\n]+?) from )?[^\n]+\n/g, (match, maybeFrom, importKey) => {
+                        if (!importKey)
+                            return ''
+                        if (importKey.startsWith('{')) {
+                            const keys = importKey
+                                .substring(1, importKey.length - 1)
+                                .split(', ')
+                                .map(key => {
+                                    const [match, imp, c2, as] = key.match(/([^ ]+)( as ([^ ]+))?/)
+                                    return [imp, as ?? imp]
+                                })
+                            return keys.map(([imp, as]) => `const ${as} = null\n`)
+                        }
+                    })
+            )
             if (typeof stateInitialValue === 'function')
                 expect(extractedValue.toString().replace(/\s/g, ''))
                     .toEqual(stateInitialValue.toString().replace(/\s/g, ''))
@@ -124,10 +142,14 @@ describe('Creating states on the client', () => {
             await expect(statesFrontendFiles[initialValuesKey].promise).resolves.toBe(undefined)
             const page = await context.newPage()
             const feScript = await fs.promises.readFile(statesFrontendFiles[initialValuesKey].path, 'utf8')
-            let extractedValue
+            let isSameValue: false | Promise<boolean> = undefined
             page.on('console', async msg => {
-                if (msg.text() !== 'value set') return
-                extractedValue = page.evaluate('window.ccTestStateValue')
+                if (msg.text() !== 'value set') return console.log(msg)
+                isSameValue = page.evaluate(stateInitialValue => {
+                    console.log(stateInitialValue, window['ccTestStateValue'])
+                    // @ts-ignore
+                    return isEqual(stateInitialValue, window['ccTestStateValue'])
+                }, stateInitialValue)
             })
             const handlePageError = jest.fn(console.error)
             page.on('pageerror', handlePageError)
@@ -139,7 +161,9 @@ describe('Creating states on the client', () => {
             await page.waitForLoadState()
 
             expect(handlePageError).not.toHaveBeenCalled()
-            await expect(extractedValue).resolves.toEqual(stateInitialValue)
+            const resolvedIsSameValue = await isSameValue
+            // console.log(resolvedIsSameValue)
+            expect(await isSameValue).toBeTruthy()
         })
     }
 })

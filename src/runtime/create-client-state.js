@@ -17,17 +17,25 @@ function MakeMutable(PrimitiveWrapper) {
     }
 }
 
+const constructorsThatCanBeCalledToCreateAClone = [Map, Set]
+
 function cloneStateValue(value) {
     if (value.constructor.name === 'Mutable')
         return value.clone()
-    else if (value.constructor === {}.constructor)
-        return {...value}
-    else if (Array.isArray(value))
-        return [...value]
+    // else if (value.constructor === {}.constructor)
+    //     return {...value}
+    // else if (Array.isArray(value))
+    //     return [...value]
+    else if (constructorsThatCanBeCalledToCreateAClone.includes(value.constructor))
+        return new value.constructor(value)
 }
 
 export function getState(id) {
     return states.get(id)
+}
+
+function getValueOf(value) {
+    return value.hasOwnProperty('valueOf') ? value.valueOf() : value
 }
 
 export function createClientState(value, id) {
@@ -40,7 +48,9 @@ export function createClientState(value, id) {
     const clone = cloneStateValue(states.get(id))
 
     function changeValue(newValue) {
-        if (states.get(id).valueOf() === newValue) {
+        const state = states.get(id)
+        const stateValue = getValueOf(state)
+        if (stateValue === newValue) {
             return false
         }
         states.get(id).value = newValue
@@ -64,7 +74,7 @@ function updateStateInElementText(stateId) {
     stateMappings[stateId]?.forEach(usage => {
         // todo: take "childrenBefore" into account
         usage.element.innerText = usage.content
-            .map(value => value.valueOf())
+            .map(getValueOf)
             .join('')
     })
 }

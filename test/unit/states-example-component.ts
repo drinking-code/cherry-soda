@@ -2,7 +2,9 @@ import fs from 'fs'
 import path from 'path'
 
 const newLine = "\n"
-const imports = `import {createState, doSomething} from '#cherry-cola'`
+const imports = [
+    `import {createState, doSomething, importOnClient} from '#cherry-cola'`,
+].join("\n")
 
 const mainFunction = `export const main = () => <App/>`
 const indent = (string, indentAmount) => Array(4 * indentAmount).fill(' ').join('') + string
@@ -15,10 +17,11 @@ const component = stateInitialValue => combineArray([
     'function App() {',
     indent(`const state = createState(${stateInitialValue})`, 1),
     newLine,
-    indent('doSomething(([state, setState]) => {', 1),
+    indent('doSomething(([state, setState], lodash) => {', 1),
+    indent('window.isEqual = lodash.isEqual', 2),
     indent('window.ccTestStateValue = state.valueOf()', 2),
     indent('console.log("value set")', 2),
-    indent('}, [state])', 1),
+    indent('}, [state, importOnClient("lodash")])', 1),
     newLine,
     indent('return <div/>', 1),
     '}'

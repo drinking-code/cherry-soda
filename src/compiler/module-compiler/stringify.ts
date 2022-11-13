@@ -1,5 +1,6 @@
 import isState from '../../state/is-state'
 import {isRef} from '../../jsx/create-ref'
+import {isClientSideModule} from "./import-on-client";
 
 export function stringify(value: any): string {
     if (value === undefined)
@@ -13,6 +14,9 @@ export function stringify(value: any): string {
     }
     if (isRef(value)) {
         return `findElement(${value.stringify()})`
+    }
+    if (isClientSideModule(value)) {
+        return value.stringify()
     }
     if (typesHoldingData.includes(value.constructor)) {
         if (Map === value.constructor) {

@@ -1,7 +1,6 @@
 import crypto from 'crypto'
 
-function generateId() {
-    const bytesAmount = 4
+export function generateId(bytesAmount = 4) {
     const int = crypto.randomBytes(bytesAmount).readUIntBE(0, bytesAmount)
     return numberToAlphanumeric(int)
 }
