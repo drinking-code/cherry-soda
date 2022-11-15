@@ -20,6 +20,19 @@ describe('Creating states on the server', () => {
     }
 })
 
+describe.skip('Changing value of a state after creation (same type)', () => {
+    for (const initialValuesKey in statesInitialValues) {
+        const label = `Creating state of type ${initialValuesKey}`
+        const stateInitialValue = statesInitialValues[initialValuesKey]
+
+        test(label, () => {
+            const state = createState(stateInitialValue)
+            // expect(() => state = createState(stateInitialValue)).not.toThrow()
+            expect(state).toBeDefined()
+        })
+    }
+})
+
 describe.skip('Changing type of a state after creation', () => {
 
 })
