@@ -185,8 +185,8 @@ export default function Counter() {
 #### Importing modules for client-side use
 
 Cherry-cola only includes imported CSS (including SASS/SCSS) files in the frontend assets automatically. If you want to
-import modules into the frontend code, use the [`importOnClient()`](#importing-modules-for-client-side-use) function in
-the dependency array like so:
+import modules into the frontend code, use the [`importOnClient()`](#importonclientmodule-string-clientsidemodule)
+function in the dependency array like so:
 
 ```javascript
 import {doSomething, importOnClient} from 'cherry-cola'
