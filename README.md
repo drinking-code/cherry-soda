@@ -182,7 +182,23 @@ export default function Counter() {
 }
 ```
 
-[//]: # (todo: also provide an example here on how to import a node module [or a different file] as a dependency)
+#### Importing modules for client-side use
+
+Cherry-cola only includes imported CSS (including SASS/SCSS) files in the frontend assets automatically. If you want to
+import modules into the frontend code, use the [`importOnClient()`](#importing-modules-for-client-side-use) function in
+the dependency array like so:
+
+```javascript
+import {doSomething, importOnClient} from 'cherry-cola'
+
+function Component() {
+    doSomething((_) => {
+        console.log(_.flattenDeep([1, [2, [3, [4]], 5]])) // [1, 2, 3, 4, 5]
+    }, [importOnClient('lodash')])
+}
+```
+
+Just like the other dependencies, it gets passed at the respective position to the given callback.
 
 ### Route on the server, and the client will route, too
 
@@ -303,6 +319,21 @@ this function to clean up if you need to.
   function may return another function. The returned function will be called anytime the component's elements are
   removed from the DOM.
 - `dependencies: any[]` An array with all dependencies for the callback function
+
+##### `importOnClient(module: string): ClientSideModule`
+
+A function for importing modules on the client. Use this inside the dependency array of
+[`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any).
+(See [Importing modules for client-side use](#importing-modules-for-client-side-use) for an example)
+
+**Parameters:**
+
+- `module: string` The name of a node module or path to a file that you want to import.
+
+**Returns:**
+
+- `ClientSideModule` An object representing the module. This gets converted into the actual module exports in
+  the `doSomething()` callback.
 
 ### Refs
 

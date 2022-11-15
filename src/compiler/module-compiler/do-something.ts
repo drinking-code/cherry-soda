@@ -16,6 +16,7 @@ type DependencyType =
 
 type UnwrapState<T extends State<any>> = T extends State<infer U> ? U : never;
 
+// todo: return types of module for ClientSideModule
 type MappedDependencyType<Dep> =
     Dep extends Ref
         // todo: return specific element type (e.g. ButtonElement)
