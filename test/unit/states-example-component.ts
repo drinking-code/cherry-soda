@@ -19,7 +19,7 @@ const component = stateInitialValue => combineArray([
     newLine,
     indent('doSomething(([state, setState], lodash) => {', 1),
     indent('window.isEqual = lodash.isEqual', 2),
-    indent('window.ccTestStateValue = state.valueOf()', 2),
+    indent('window.ccTestStateValue = state?.valueOf ? state.valueOf() : state', 2),
     indent('console.log("value set")', 2),
     indent('}, [state, importOnClient("lodash")])', 1),
     newLine,
@@ -31,6 +31,7 @@ const stateInitialValuesEntries = fs.readFileSync(
     path.resolve('test', 'unit', 'states-initial-values.js'),
     'utf8'
 )
+    // split into lines
     .split(newLine)
     .filter(line => !/^\s*\/\//.test(line))
     .map(line => line.trim())

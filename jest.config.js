@@ -15,5 +15,6 @@ export default {
         '#render-element': '<rootDir>/src/jsx/dom/render.tsx',
         '#ansi-styles': '<rootDir>/node_modules/chalk/source/vendor/ansi-styles/index.js',
         '#supports-color': '<rootDir>/node_modules/chalk/source/vendor/supports-color/index.js'
-    }
+    },
+    globalTeardown: '<rootDir>/test/global-teardown.js',
 }

@@ -24,6 +24,7 @@ describe.skip('Changing value of a state after creation (same type)', () => {
     for (const initialValuesKey in statesInitialValues) {
         const label = `Creating state of type ${initialValuesKey}`
         const stateInitialValue = statesInitialValues[initialValuesKey]
+        // const stateDifferentValue = changingValueSameType[initialValuesKey]
 
         test(label, () => {
             const state = createState(stateInitialValue)
@@ -33,6 +34,6 @@ describe.skip('Changing value of a state after creation (same type)', () => {
     }
 })
 
-describe.skip('Changing type of a state after creation', () => {
+describe.skip('Changing type of a state after creation (change type)', () => {
 
 })

@@ -9,11 +9,6 @@ import {startNodeCompiler, stopNodeCompiler} from '../../src/compiler/node.lib'
 import appRoot from '../../src/utils/project-root'
 import compileAssets from './states.client.compile-assets'
 
-beforeAll(async () => {
-    await fs.promises.rmdir(testDir, {recursive: true})
-    await fs.promises.mkdir(testDir)
-})
-
 let stopAppCompiler, stopAssetsCompiler
 afterAll(async () => {
     stopNodeCompiler()

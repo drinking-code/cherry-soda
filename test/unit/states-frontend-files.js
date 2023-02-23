@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 
-import testDir from '../temp-dir'
+import testDir from '../temp-dir.js'
 
 export function getStatesFrontendFileName(key) {
     return path.join(testDir, `state.${key}.fe.js`)

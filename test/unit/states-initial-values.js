@@ -13,5 +13,4 @@ export default {
     })),
     'set': new Set(['myItem', 42]),
     'function': (a, b) => a + b,
-    // 'class': new TestClass('myClass'),
 }

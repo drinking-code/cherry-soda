@@ -25,7 +25,6 @@ describe('Creating states on the client', () => {
         const stateInitialValue = statesInitialValues[initialValuesKey]
 
         test(label, async () => {
-            console.log('waiting for file')
             await expect(waitForStatesFrontendFile(initialValuesKey)).resolves.toBe(undefined)
             const page = await context.newPage()
             const feScript = await fs.promises.readFile(getStatesFrontendFileName(initialValuesKey), 'utf8')
@@ -33,8 +32,7 @@ describe('Creating states on the client', () => {
             page.on('console', async msg => {
                 if (msg.text() !== 'value set') return console.log(msg)
                 isSameValue = page.evaluate(stateInitialValue => {
-                    console.log(stateInitialValue, window['ccTestStateValue'])
-                    // @ts-ignore
+                    // @ts-ignore Cannot find name 'isEqual'.
                     return isEqual(stateInitialValue, window['ccTestStateValue'])
                 }, stateInitialValue)
             })
