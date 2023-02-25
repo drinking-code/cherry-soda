@@ -10,10 +10,6 @@ export class Ref<P = VirtualElement> {
     populate(element: VirtualElement) {
         this.element = element
     }
-
-    stringify() {
-        return JSON.stringify(this.element?.id?.fullPath)
-    }
 }
 
 export function isRef(value): value is Ref {

@@ -1,10 +1,9 @@
 import serveStatic from 'serve-static-bun'
 import PrettyError from 'pretty-error'
 
-import {outputPath as assetsOutputPath} from '#compiler'
-// import {outputPath as assetsOutputPath} from '#asset-compiler'
-// import render, {startWatching} from '#render-function'
+// import {outputPath as assetsOutputPath} from '#compiler'
 import console from '../utils/console'
+import compile from '../compiler'
 
 const pe = new PrettyError()
 
@@ -13,12 +12,13 @@ const pe = new PrettyError()
  * */
 export default function cherryCola(entry): (req: Request) => Promise<Response> {
     process.env.CHERRY_COLA_ENTRY = entry
-    const serveStaticListener: (req: Request) => Promise<Response> = serveStatic(assetsOutputPath)
+    compile(entry)
+    // const serveStaticListener: (req: Request) => Promise<Response> = serveStatic(/*assetsOutputPath*/)
 
     return async (req) => {
         // todo: routing; next if request should not be handled
-        const res: Response = await serveStaticListener(req)
-        if (res.status < 400) return res
+        // const res: Response = await serveStaticListener(req)
+        // if (res.status < 400) return res
         try {
             return new Response('render(App())', {
                 headers: {
@@ -31,6 +31,7 @@ export default function cherryCola(entry): (req: Request) => Promise<Response> {
             return new Response('Internal Error', {
                 status: 500
             })
+            // todo: show error in frontend in dev mode
         }
     }
 }

@@ -1,8 +1,20 @@
 import logo from './logo.svg'
 import logoLettering from './logo-lettering.svg'
 import './App.css'
+import {doSomething} from '#cherry-cola'
+
+// const c = [doSomething]
+/*const c = []
+c.push(doSomething)*/
+/*const c = {}
+c.d = doSomething*/
+const c = {d: doSomething}
+// const c = doSomething
 
 export default function App() {
+    c/*[0]*/.d(() => {
+
+    })
     return (
         <div className={'App'}>
             <div className={'App-logo'}>

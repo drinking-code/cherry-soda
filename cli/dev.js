@@ -11,6 +11,6 @@ export default async function (argv) {
             stdio: 'inherit'
         })
     } else {
-        import('../src/server/server')
+        import('../src/server/index')
     }
 }
