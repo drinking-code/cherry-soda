@@ -40,6 +40,8 @@
     "@babel/preset-env": "^7.19.4",
     "@babel/preset-typescript": "^7.18.6",
     "@babel/types": "^7.19.3",
+    "@types/babel__core": "^7.20.0",
+    "@types/babel__generator": "^7.6.4",
     "autoprefixer": "^10.4.12",
     "browserslist": "^4.21.4",
     "bun-types": "^0.1.11",
@@ -50,11 +52,14 @@
     "ws": "^8.9.0"
   },
   "dependencies": {
+    "@babel/core": "^7.21.0",
     "@babel/generator": "^7.21.1",
     "@babel/parser": "^7.19.3",
     "@babel/traverse": "^7.21.2",
     "@types/babel__traverse": "^7.18.3",
     "@types/jest": "^29.2.0",
+    "babel-plugin-minify-dead-code-elimination": "^0.5.2",
+    "babel-plugin-remove-unused-import": "^2.1.1",
     "chalk": "^5.1.2",
     "escape-html": "^1.0.3",
     "express": "^4.18.1",

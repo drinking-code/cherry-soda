@@ -7,5 +7,5 @@ export {Fragment} from './jsx/factory'
 // export {default as Head} from './jsx/dom/builtins/head'
 // export {default as Body} from './jsx/dom/builtins/body'
 
-export function doSomething() {
+export function doSomething(callback: () => void | Function, dependencies: [] = []) {
 }

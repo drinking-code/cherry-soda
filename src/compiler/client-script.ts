@@ -1,93 +1,92 @@
 // extract "doSomething" functions from components and compile them into a file
 
-import {NodePath, Scope} from '@babel/traverse'
-import {
-    VariableDeclarator,
-    Identifier,
-    MemberExpression,
-    ArrayExpression,
-    ObjectExpression,
-    NumericLiteral,
-    ObjectProperty
-} from '@babel/types'
+import {File, Identifier, Node} from '@babel/types'
+import {Scope} from '@babel/traverse'
+import generate from '@babel/generator'
+import babel, {transformFromAstSync} from '@babel/core'
+import babelPluginMinifyDeadCodeElimination from 'babel-plugin-minify-dead-code-elimination'
+import babelPluginRemoveUnusedImport from 'babel-plugin-remove-unused-import'
 
 import Parser from './parser'
-import getAllScopeBindings from './helpers/all-scope-bindings'
-import {messages as warnings, printWarning} from '../messages/warnings'
-import resolveImportFileSpecifier from './helpers/resolve-import-file-specifier'
+import {iterateObject} from '../utils/map-object'
+import findDoSomethings, {DoSomethingsScopesType} from './helpers/find-do-somethings'
 
 export default function extractDoSomethings(parser: Parser) {
-    findDoSomethings(parser)
+    const doSomethingsScopes = findDoSomethings(parser)
+    const scopedModulesAst = getScopedModules(parser, doSomethingsScopes)
 }
 
-const cherryColaIndex = resolveImportFileSpecifier('', '#cherry-cola')
+type ClientModulesType = { [filename: string]: File }
 
-function findDoSomethings(parser: Parser) {
-    parser.fileNames.forEach(fileName =>
-        parser.traverseFunctionComponents(fileName, {
-            CallExpression(nodePath) {
-                // must be a named function
-                if (!['Identifier', 'MemberExpression'].includes(nodePath.node.callee.type)) return
-                const fullScope = getAllScopeBindings(nodePath.scope)
-                // if variable -> resolve to source
-                const importedIdentifier = backtrackCalleeToImport(nodePath.node.callee as Identifier | MemberExpression, fullScope)
-                if (!importedIdentifier) return
-                const importedLocalName = importedIdentifier.name
-                // this is an identifier on an import -> must be unique in module scope
-                const fileImports = parser.getImports(fileName)
-                // must be imported from cherry-cola
-                let importedName, importedFile
-                for (const importFilePath in fileImports) {
-                    const importSpecifiers = fileImports[importFilePath]
-                    if (importSpecifiers[importedLocalName]) {
-                        importedName = importSpecifiers[importedLocalName]
-                        importedFile = importFilePath
-                        break
-                    }
-                }
-                if (importedName === 'doSomething' && importedFile === cherryColaIndex) {
-                    // called function is cherry-cola's "doSomething"
-                }
+function getScopedModules(parser: Parser, doSomethings: DoSomethingsScopesType): ClientModulesType {
+    const clientModules: ClientModulesType = {}
+    iterateObject(doSomethings, ([fileName, doSomethingScopeMap]) => {
+        const requisiteScopes = new Set( // deduplicate scopes
+            Array.from(doSomethingScopeMap.values()).flat() // all scopes in 1D array
+        )
+
+        function nodeMatches(nodeA: Node, nodeB: Node) {
+            if ('id' in nodeA && 'id' in nodeB) {
+                const nodeAId = nodeA.id as Identifier
+                const nodeBId = nodeB.id as Identifier
+                return nodeAId.name === nodeBId.name
             }
+            return null
+        }
+
+        function isRequisiteScope(scope: Scope) {
+            return Array.from(requisiteScopes.values()).some(block => {
+                if ([block.type, scope.block.type].every(type => type === 'Program')) { // only one Program in each tree
+                    return true
+                }
+                if (nodeMatches(scope.block as Node, block)) {
+                    return true
+                }
+            })
+        }
+
+        function scopeOrAnyParentIsRequisite(scope: Scope) {
+            do {
+                if (isRequisiteScope(scope)) return true
+                scope = scope.parent
+            } while (scope)
+            return false
+        }
+
+        if (requisiteScopes.size === 0) // no doSomethings
+            return
+        const doSomethingCalls = Array.from(doSomethingScopeMap.keys())
+        const functionComponents = Array.from(doSomethingScopeMap.values()).map(nodes => nodes[0])
+        const ast = parser.traverseClonedFile(fileName, {
+            enter(nodePath) {
+                if ((doSomethingCalls as Node[]).includes(nodePath.node as Node)) {
+                    console.log(nodePath.node)
+                }
+                if (!scopeOrAnyParentIsRequisite(nodePath.scope)) {
+                    console.log(nodePath.scope.block)
+                    nodePath.scope.path.remove()
+                }
+            },
+            ReturnStatement(nodePath) {
+                if (!functionComponents.some(functionComponent =>
+                    nodeMatches(functionComponent, nodePath.scope.block as Node)
+                )) return
+                nodePath.remove()
+            },
+            ImportDeclaration(nodePath) {
+                if (nodePath.node.source.value.match(/\.s?[ac]ss$/))
+                    nodePath.remove()
+            },
         })
-    )
-}
+        const result = transformFromAstSync(ast, generate(ast).code, {
+            ast: true,
+            plugins: [
+                babel.createConfigItem(babelPluginMinifyDeadCodeElimination),
+                babel.createConfigItem(babelPluginRemoveUnusedImport),
+            ],
+        })
+        clientModules[fileName] = result.ast
+    })
 
-function backtrackCalleeToImport(expression: Identifier | MemberExpression, fullScope: Scope['bindings']) {
-    const expressionBinding = fullScope[
-        expression.type === 'Identifier'
-            ? expression.name
-            : (expression.object as Identifier).name
-        ]
-    if (expressionBinding.kind === 'module') return expression
-    else if (!['var', 'let', 'const'].includes(expressionBinding.kind)) return false
-
-    const expressionProperty: NumericLiteral | Identifier = expression.type === 'MemberExpression' && expression.property as NumericLiteral | Identifier
-    const key = expressionProperty.type === 'NumericLiteral' ? expressionProperty.value : expressionProperty.name // todo: nested properties
-    const path: NodePath<VariableDeclarator> = expressionBinding.path as NodePath<VariableDeclarator>
-    const init: Identifier | ArrayExpression | ObjectExpression = path.node.init as Identifier | ArrayExpression | ObjectExpression
-    // todo: find key / property assignments and push them onto bindings
-    let originalIdentifier
-    if (init.type == 'Identifier') {
-        originalIdentifier = init
-    } else if (init.type === 'ObjectExpression') {
-        const property: ObjectProperty = init.properties.find(property =>
-            property.type === 'ObjectProperty' &&
-            (property.key as Identifier).name === key
-        ) as ObjectProperty
-        if (!property) {
-            printWarning(warnings.compiler.backtrackCalleeToImport.couldNotFindKey, [key, (path.node.id as Identifier).name])
-            return false
-        }
-        originalIdentifier = (property.value as Identifier)
-    } else if (init.type === 'ArrayExpression') {
-        const item: Identifier = init.elements[key]
-        if (!item) {
-            printWarning(warnings.compiler.backtrackCalleeToImport.couldNotFindKey, [key, (path.node.id as Identifier).name])
-            return false
-        }
-        originalIdentifier = item
-    }
-    const originalIdentifierScope = getAllScopeBindings(expressionBinding.scope)
-    return backtrackCalleeToImport(originalIdentifier, originalIdentifierScope)
+    return clientModules
 }

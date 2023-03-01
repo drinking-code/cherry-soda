@@ -4,7 +4,7 @@ import path from 'path'
 import chalk from 'chalk'
 import babelParser from '@babel/parser'
 import traverse, {Node, NodePath, TraverseOptions} from '@babel/traverse'
-import {File, FunctionDeclaration} from '@babel/types'
+import {cloneNode, File, FunctionDeclaration} from '@babel/types'
 
 import '../utils/project-root'
 import resolveImportFileSpecifier from './helpers/resolve-import-file-specifier'
@@ -55,6 +55,13 @@ export default class Parser {
         traverse(ast, options)
     }
 
+    traverseClonedFile(filePath: string, options: TraverseOptions<Node>): File {
+        const ast = this.trees.get(filePath)
+        const cloned = cloneNode(ast, true)
+        traverse(cloned, options)
+        return cloned
+    }
+
     traverseFunctionComponents(filePath: string, options: TraverseOptions<FunctionDeclaration>) {
         const ast = this.trees.get(filePath)
         let seenFunctions: NodePath<FunctionDeclaration>[] = [], isInsideReturnStatement = 0 // increases with nested return statements
@@ -81,8 +88,8 @@ export default class Parser {
         )
     }
 
-    printFileTree(filePath: string) {
-        const ast = this.trees.get(filePath)
+    printFileTree(filePath: string | File) {
+        const ast = typeof filePath !== 'string' ? filePath : this.trees.get(filePath)
 
         let level = 0, currentNodePath, treeString = ''
         const tab = '│   '
