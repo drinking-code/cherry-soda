@@ -12,7 +12,7 @@ import {
 import {messages as warnings, printWarning} from '../../messages/warnings'
 import getAllScopeBindings from './all-scope-bindings'
 
-export default function resolveIdentifierInScope(expression: Identifier | MemberExpression, fullScope: Scope['bindings']) {
+export default function resolveIdentifierIfImported(expression: Identifier | MemberExpression, fullScope: Scope['bindings']) {
     const expressionBinding = fullScope[
         expression.type === 'Identifier'
             ? expression.name
@@ -20,13 +20,14 @@ export default function resolveIdentifierInScope(expression: Identifier | Member
         ]
     if (!expressionBinding) return false
     if (expressionBinding.kind === 'module') return expression
-    else if (!['var', 'let', 'const'].includes(expressionBinding.kind)) return expressionBinding.identifier
+    else if (!['var', 'let', 'const'].includes(expressionBinding.kind)) return false
 
     const expressionProperty: NumericLiteral | Identifier = expression.type === 'MemberExpression' && expression.property as NumericLiteral | Identifier
     const key = expressionProperty.type === 'NumericLiteral' ? expressionProperty.value : expressionProperty.name // todo: nested properties
     const path: NodePath<VariableDeclarator> = expressionBinding.path as NodePath<VariableDeclarator>
     const init: Identifier | ArrayExpression | ObjectExpression = path.node.init as Identifier | ArrayExpression | ObjectExpression
     // todo: find key / property assignments and push them onto bindings
+
     let originalIdentifier
     if (init.type == 'Identifier') {
         originalIdentifier = init
@@ -47,7 +48,8 @@ export default function resolveIdentifierInScope(expression: Identifier | Member
             return false
         }
         originalIdentifier = item
-    }
+    } else return false
+
     const originalIdentifierScope = getAllScopeBindings(expressionBinding.scope)
-    return resolveIdentifierInScope(originalIdentifier, originalIdentifierScope)
+    return resolveIdentifierIfImported(originalIdentifier, originalIdentifierScope)
 }
