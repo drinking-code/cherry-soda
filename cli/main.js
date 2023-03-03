@@ -8,7 +8,7 @@ import build from './build.js'
 import start from './start.js'
 import dev from './dev.js'
 
-import appRoot from '../src/utils/project-root.js'
+import projectRoot, {resolve as resolveProjectRoot} from '../src/utils/project-root.js'
 
 process.env.NODE_NO_WARNINGS = '1'
 
@@ -34,7 +34,7 @@ const pureArgs = hideBin(
 
 if (JSON.parse(
     fs.readFileSync(
-        appRoot.resolve('package.json'),
+        resolveProjectRoot('package.json'),
         {encoding: 'utf8'})
 ).name === packageJson.name)
     process.env.CHERRY_COLA_ENV = 'development'

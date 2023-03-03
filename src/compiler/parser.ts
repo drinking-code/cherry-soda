@@ -1,26 +1,31 @@
-import fs from 'fs/promises'
+import fs from 'fs'
 import path from 'path'
 
 import chalk from 'chalk'
 import babelParser from '@babel/parser'
-import traverse, {Node, NodePath, TraverseOptions} from '@babel/traverse'
+import traverse, {NodePath, TraverseOptions} from '@babel/traverse'
 import {cloneNode, File, FunctionDeclaration} from '@babel/types'
 
-import '../utils/project-root'
 import resolveImportFileSpecifier from './helpers/resolve-import-file-specifier'
 
 export type LocalToImportedMapType = { [localName: string]: string }
 export type FileToImportsMapType = { [fromFile: string]: LocalToImportedMapType }
 
 export default class Parser {
-    private trees: Map<string, babelParser.ParseResult<File>> = new Map
+    private trees: Map<string, babelParser.ParseResult<File>> = new Map()
+    private originalFileContents: Map<string, string> = new Map()
 
     get fileNames() {
         return Array.from(this.trees.keys())
     }
 
-    async parseFile(filePath: string) {
-        const fileContents = await fs.readFile(filePath, {encoding: 'utf8'})
+    get files() {
+        return Object.fromEntries(this.originalFileContents.entries())
+    }
+
+    parseFile(filePath: string) {
+        const fileContents = fs.readFileSync(filePath, {encoding: 'utf8'})
+        this.originalFileContents.set(filePath, fileContents)
         const ast = babelParser.parse(fileContents, {
             sourceType: 'module',
             plugins: ['jsx', 'typescript'],
@@ -50,12 +55,12 @@ export default class Parser {
         return imports
     }
 
-    traverseFile(filePath: string, options: TraverseOptions<Node>) {
+    traverseFile(filePath: string, options: TraverseOptions) {
         const ast = this.trees.get(filePath)
         traverse(ast, options)
     }
 
-    traverseClonedFile(filePath: string, options: TraverseOptions<Node>): File {
+    traverseClonedFile(filePath: string, options: TraverseOptions): File {
         const ast = this.trees.get(filePath)
         const cloned = cloneNode(ast, true)
         traverse(cloned, options)

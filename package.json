@@ -63,11 +63,12 @@
     "chalk": "^5.1.2",
     "escape-html": "^1.0.3",
     "express": "^4.18.1",
+    "hybridfs": "drinking-code/hybridfs",
     "ipos": "^0.2.6",
     "lodash": "^4.17.21",
+    "mime": "^3.0.0",
     "ora": "^6.1.2",
     "pretty-error": "^4.0.0",
-    "serve-static-bun": "^0.2.0",
     "shrink-ray-current": "^4.1.3",
     "uuid": "^9.0.0",
     "yargs": "^17.6.0"

@@ -2,9 +2,11 @@
 
 import Parser from './parser'
 import findDoSomethings from './helpers/find-do-somethings'
-import getScopedModules from './helpers/get-scoped-modules'
+import getScopedModules, {ClientModulesType} from './helpers/get-scoped-modules'
 
-export default function extractDoSomethings(parser: Parser) {
+export default function generateClientScriptTrees(parser: Parser): ClientModulesType {
+    // todo: make this whole wonky babel setup more robust to edge cases
+    // todo: faster
     const doSomethingsScopes = findDoSomethings(parser)
-    const scopedModulesAst = getScopedModules(parser, doSomethingsScopes)
+    return getScopedModules(parser, doSomethingsScopes) // todo: generate sourcemaps
 }

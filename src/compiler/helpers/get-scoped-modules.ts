@@ -53,10 +53,23 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
             return
         const doSomethingCalls = Array.from(doSomethingScopeMap.keys())
         const functionComponents = Array.from(doSomethingScopeMap.values()).map(nodes => nodes[0])
+        // console.log(functionComponents)
         let programScopeBeforeImportDeletion
         const probableStates = {}
         // parser.printFileTree(fileName)
         const ast = parser.traverseClonedFile(fileName, {
+            ImportDeclaration(nodePath) {
+                programScopeBeforeImportDeletion ??= getAllScopeBindings(nodePath.scope)
+                if (resolveImportFileSpecifier(path.dirname(fileName), nodePath.node.source.value) === cherryColaIndex)
+                    nodePath.remove()
+            },
+            FunctionDeclaration(nodePath) {
+                if (functionComponents.some(functionComponent => nodeMatches(functionComponent, nodePath.node))) {
+                    if (nodePath.parentPath.isExportDeclaration())
+                        nodePath.parentPath.replaceWith(nodePath)
+                    nodePath.replaceWith(nodePath.get('body') /* always blockStatement */)
+                }
+            },
             CallExpression(nodePath) {
                 const fileImports = parser.getImports(fileName)
                 const allBindings = getAllScopeBindings(nodePath.scope)
@@ -68,7 +81,9 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                     getNodeId(nodePath.node).name = 'registerStateChangeHandler' // todo: use function name from runtime
                     const secondArgument = nodePath.node.arguments[1]
                     if (secondArgument && secondArgument.type === 'ArrayExpression') {
-                        const arrayName = 'statesToListenTo_' + crypto.randomBytes(4).toString('base64url')
+                        const arrayName = 'statesToListenTo_' + crypto.randomBytes(4)
+                            .toString('base64url')
+                            .replace(/-/g, '_')
                         nodePath.insertBefore(variableDeclaration('const', [variableDeclarator(
                                 identifier(arrayName),
                                 callExpression(identifier('Array'), [numericLiteral(secondArgument.elements.length)])
@@ -96,9 +111,6 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
             // @ts-ignore
             'AssignmentExpression|VariableDeclarator'(nodePath) {
                 const node = nodePath.node
-                /*if (!functionComponents.some(functionComponent =>
-                    nodeMatches(functionComponent, nodePath.scope.block as Node)
-                )) return*/
                 const name = node.type === 'AssignmentExpression' ? node.left : node.id
                 const value = node.type === 'AssignmentExpression' ? node.right : node.init
                 if (value?.type !== 'CallExpression') return
@@ -122,23 +134,24 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                 )) return
                 nodePath.remove()
             },
-            ImportDeclaration(nodePath) {
-                programScopeBeforeImportDeletion ??= getAllScopeBindings(nodePath.scope)
-                if (nodePath.node.source.value.match(/\.s?[ac]ss$/) ||
-                    resolveImportFileSpecifier(path.dirname(fileName), nodePath.node.source.value) === cherryColaIndex)
-                    nodePath.remove()
-            },
         })
 
-        const result = transformFromAstSync(ast, generate(ast).code, {
+        let result = transformFromAstSync(ast, generate(ast).code, {
             ast: true,
             plugins: [
                 babel.createConfigItem(babelPluginMinifyDeadCodeElimination),
+            ],
+        })
+        // because imports are placed at the top of the file, imported things that are later overwritten and
+        // subsequently not used are left out if both plugins were run in parallel
+        result = transformFromAstSync(result.ast, generate(result.ast).code, {
+            ast: true,
+            plugins: [
                 babel.createConfigItem(babelPluginRemoveUnusedImport),
             ],
         })
         clientModules[fileName] = result.ast
-        console.log(generate(result.ast).code)
+        // console.log(generate(result.ast).code)
     })
 
     return clientModules
