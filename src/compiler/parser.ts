@@ -28,6 +28,7 @@ export default class Parser {
         this.originalFileContents.set(filePath, fileContents)
         const ast = babelParser.parse(fileContents, {
             sourceType: 'module',
+            sourceFilename: filePath,
             plugins: ['jsx', 'typescript'],
         })
         this.trees.set(filePath, ast)

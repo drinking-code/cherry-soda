@@ -5,7 +5,6 @@ import {
     assignmentExpression,
     callExpression,
     CallExpression, expressionStatement,
-    File,
     identifier,
     Identifier, memberExpression,
     Node,
@@ -13,8 +12,7 @@ import {
     variableDeclarator
 } from '@babel/types'
 import {NodePath} from '@babel/traverse'
-import generate from '@babel/generator'
-import babel, {transformFromAstSync} from '@babel/core'
+import babel, {BabelFileResult, transformFromAstSync} from '@babel/core'
 import babelPluginMinifyDeadCodeElimination from 'babel-plugin-minify-dead-code-elimination'
 import babelPluginRemoveUnusedImport from 'babel-plugin-remove-unused-import'
 
@@ -25,7 +23,7 @@ import resolveImportFileSpecifier from './resolve-import-file-specifier'
 import getAllScopeBindings from './all-scope-bindings'
 import {createRef, createState} from '#cherry-cola'
 
-export type ClientModulesType = { [filename: string]: File }
+export type ClientModulesType = { [filename: string]: BabelFileResult }
 
 export default function getScopedModules(parser: Parser, doSomethings: DoSomethingsScopesType): ClientModulesType {
     const clientModules: ClientModulesType = {}
@@ -136,22 +134,27 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
             },
         })
 
-        let result = transformFromAstSync(ast, generate(ast).code, {
+        const sourceCode = parser.files[fileName]
+        let result = transformFromAstSync(ast, sourceCode, {
             ast: true,
+            sourceMaps: true,
+            sourceFileName: fileName,
             plugins: [
                 babel.createConfigItem(babelPluginMinifyDeadCodeElimination),
             ],
         })
         // because imports are placed at the top of the file, imported things that are later overwritten and
         // subsequently not used are left out if both plugins were run in parallel
-        result = transformFromAstSync(result.ast, generate(result.ast).code, {
+        result = transformFromAstSync(result.ast, sourceCode, {
             ast: true,
+            sourceMaps: true,
+            sourceFileName: fileName,
             plugins: [
                 babel.createConfigItem(babelPluginRemoveUnusedImport),
             ],
         })
-        clientModules[fileName] = result.ast
-        // console.log(generate(result.ast).code)
+        console.log(result.map)
+        clientModules[fileName] = result
     })
 
     return clientModules

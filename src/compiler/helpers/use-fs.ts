@@ -1,5 +1,5 @@
 import path from 'path'
-import {OnLoadArgs, Plugin} from 'esbuild'
+import {Plugin} from 'esbuild'
 
 export interface UseFsOptions {
     fs?: any
@@ -9,7 +9,7 @@ export function useFs(options: UseFsOptions): Plugin {
     return {
         name: 'image-loader',
         setup(builder) {
-            builder.onResolve({filter: /^\/input\.js/}, args => {
+            builder.onResolve({filter: /^\/(_virtual-files\/|input\.js)/}, args => {
                 if (args.kind === 'entry-point')
                     return {path: args.path}
                 else

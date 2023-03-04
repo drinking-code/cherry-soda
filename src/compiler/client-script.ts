@@ -8,5 +8,5 @@ export default function generateClientScriptTrees(parser: Parser): ClientModules
     // todo: make this whole wonky babel setup more robust to edge cases
     // todo: faster
     const doSomethingsScopes = findDoSomethings(parser)
-    return getScopedModules(parser, doSomethingsScopes) // todo: generate sourcemaps
+    return getScopedModules(parser, doSomethingsScopes)
 }

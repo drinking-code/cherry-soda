@@ -8,7 +8,7 @@ import build from './build.js'
 import start from './start.js'
 import dev from './dev.js'
 
-import projectRoot, {resolve as resolveProjectRoot} from '../src/utils/project-root.js'
+import {resolve as resolveProjectRoot} from '../src/utils/project-root.js'
 
 process.env.NODE_NO_WARNINGS = '1'
 

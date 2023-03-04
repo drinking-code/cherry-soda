@@ -2,13 +2,14 @@ import {Volume} from 'memfs/lib/volume'
 
 import Parser from './parser'
 import {possibleExtensions} from './helpers/resolve-file'
-import projectRoot, {resolve as resolveProjectRoot} from '../utils/project-root'
+import {resolve as resolveProjectRoot} from '../utils/project-root'
 import generateClientScriptTrees from './client-script'
-import moduleRoot, {resolve as resolveModuleRoot} from '../utils/module-root'
+import {resolve as resolveModuleRoot} from '../utils/module-root'
 import collectStyleFilePaths from './styles'
 import bundleVirtualFiles from './bundler'
+import extractTemplates from './template'
 
-export default function compile(entry: string):{ outputPath: string, fs: Volume } {
+export default function compile(entry: string): { outputPath: string, fs: Volume } {
     const perf0 = performance.now()
     const parser = new Parser()
     const parseFileAndAllImportedFiles = filePath => {
@@ -32,5 +33,6 @@ export default function compile(entry: string):{ outputPath: string, fs: Volume 
     const volumeAndPath = bundleVirtualFiles(clientScriptTrees, styleFilePaths)
     const perfC = performance.now()
     console.log(`Bundling client scripts took ${Math.round((perfC - perfB) * 1e1) / 1e1}ms`)
+    // extractTemplates()
     return volumeAndPath
 }

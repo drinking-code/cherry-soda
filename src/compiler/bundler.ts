@@ -1,8 +1,8 @@
 import path from 'path'
+import {randomBytes} from 'crypto'
 
 import esbuild, {BuildResult} from 'esbuild'
 import browserslist from 'browserslist'
-import generate from '@babel/generator'
 import stylePlugin from 'esbuild-style-plugin'
 import autoprefixer from 'autoprefixer'
 import PrettyError from 'pretty-error'
@@ -10,7 +10,7 @@ import createHybridFs from 'hybridfs'
 import {Volume} from 'memfs/lib/volume'
 
 import {ClientModulesType} from './helpers/get-scoped-modules'
-import {iterateObject, mapObject} from '../utils/iterate-object'
+import {mapObjectToArray} from '../utils/iterate-object'
 import projectRoot, {resolve as resolveProjectRoot} from '../utils/project-root'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './helpers/use-fs'
@@ -18,9 +18,11 @@ import {imageLoader} from '../imports/images'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const outputPath = '/dist'
+export const virtualFilesPath = '/_virtual-files'
 const inputFilePath = '/input.js'
 const pe = new PrettyError()
 let hfs: Volume
+let moduleToFileNameMap
 
 export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType, styleFilePaths: string[]): { outputPath: string, fs: Volume } {
     const entryPoint = process.env.CHERRY_COLA_ENTRY
@@ -31,25 +33,30 @@ export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType,
         [resolveModuleRoot('src', 'runtime'), '/runtime'],
     ])
     hfs.mkdirSync(outputPath)
+    hfs.mkdirSync(virtualFilesPath)
 
-    const makePathRelative = path => path.replace(projectRoot, '').replace(/^\/?(.)/, './$1')
-    const clientScripts = mapObject(clientScriptTrees, ([filePath, ast]) => {
-        const relativePath = makePathRelative(filePath)
-        return [relativePath, generate(ast).code]
+    const newLine = "\n"
+    moduleToFileNameMap = new Map()
+    const clientScripts = mapObjectToArray(clientScriptTrees, ([filePath, fileResult]) => {
+        const virtualFileName = randomBytes(16).toString('base64url') + '.js'
+        const virtualFilePath = path.join(virtualFilesPath, virtualFileName)
+        // transform sources to show up correctly and relative to project root after esbuild
+        fileResult.map.sources = fileResult.map.sources.map(filePath => filePath.replace(projectRoot, '..'))
+        const sourceMap = JSON.stringify(fileResult.map)
+        moduleToFileNameMap.set(
+            virtualFilePath,
+            // @ts-ignore
+            fileResult.options.sourceFileName.replace(projectRoot, '.')
+        )
+        const fileContents = fileResult.code + newLine +
+            `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${new Buffer(sourceMap).toString('base64')}`
+        hfs.writeFileSync(virtualFilePath, fileContents)
+        return virtualFilePath
     })
     let inputFile = ''
-    const newLine = "\n"
-    inputFile += styleFilePaths
-        // .map(makePathRelative)
-        .map(path => `import '${path}'`)
-        .join(newLine)
+    inputFile += styleFilePaths.map(path => `import '${path}'`).join(newLine)
     inputFile += newLine
-    iterateObject(clientScripts, ([filePath, code]) => {
-        inputFile += '// ' + filePath
-        inputFile += newLine
-        inputFile += code
-        inputFile += newLine
-    })
+    inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
     hfs.writeFileSync(inputFilePath, inputFile)
     startEsbuild()
     return {outputPath, fs: hfs}
@@ -83,36 +90,26 @@ async function startEsbuild() {
         bundle: true,
         write: false,
         plugins: [
-            stylePlugin({
-                postcss: {
-                    plugins: [autoprefixer],
-                }
-            }),
+            stylePlugin({postcss: {plugins: [autoprefixer]}}),
             imageLoader({path: outputPath}),
             useFs({fs: hfs}),
-            /*showCompilationStatus(typeof Bun !== 'undefined' ? label
-                : (await import('chalk')).default.bgBlue(` ${label} `)
-            ), {
-                name: 'renderend-event',
-                setup(build) {
-                    build.onEnd(async () => {
-                        endEventTarget.dispatchEvent(endEvent)
-                    })
-                }
-            },*/
         ],
         watch: process.env.BUN_ENV === 'development' && {
             async onRebuild(error, result) {
-                if (error)
-                    return console.log(pe.render(error))
+                if (error) return console.log(pe.render(error))
                 handleResult(result)
             },
         },
     }).then(handleResult)
 
     function handleResult(result: BuildResult) {
+        const virtualFilesDirName= virtualFilesPath.replace(/\//g, '')
+        const matchFileComment = new RegExp(`^( *// ).+?(/${virtualFilesDirName}/.+)$`, 'gm')
         result.outputFiles?.forEach(({path, contents}) => {
-            hfs.writeFileSync(path, contents)
+            hfs.writeFileSync(path, new TextDecoder().decode(contents)
+                .replace(matchFileComment, (match, insetComment, module) => {
+                    return insetComment + moduleToFileNameMap.get(module)
+                }))
         })
     }
 }

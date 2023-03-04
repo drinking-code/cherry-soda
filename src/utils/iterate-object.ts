@@ -13,6 +13,12 @@ export function mapObject<U, T>(
     )
 }
 
+export function mapObjectToArray<U, T>(
+    object: { [key: string]: T },
+    mapFunction: (entry: [string, T], index: number, entries: [string, T][]) => U): U[] {
+    return Array.from(Object.entries(object)).map(mapFunction)
+}
+
 export function mapObjectValue<U, T>(
     object: { [key: string]: T },
     mapFunction: (value: T, index: number, entries: [string, T][]) => U): { [key: string]: U } {
@@ -25,7 +31,7 @@ export function findInObject<T>(
     object: { [key: string]: T },
     predicate: (value: [string, T], index: number, entries: [string, T][]) => boolean): [string, T] {
     return Array.from(Object.entries(object))
-            .find(predicate)
+        .find(predicate)
 }
 
 export function iterateMap<K, V>(
