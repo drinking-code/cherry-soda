@@ -153,7 +153,6 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                 babel.createConfigItem(babelPluginRemoveUnusedImport),
             ],
         })
-        console.log(result.map)
         clientModules[fileName] = result
     })
 

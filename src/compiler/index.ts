@@ -33,6 +33,6 @@ export default function compile(entry: string): { outputPath: string, fs: Volume
     const volumeAndPath = bundleVirtualFiles(clientScriptTrees, styleFilePaths)
     const perfC = performance.now()
     console.log(`Bundling client scripts took ${Math.round((perfC - perfB) * 1e1) / 1e1}ms`)
-    // extractTemplates()
+    extractTemplates(entry)
     return volumeAndPath
 }
