@@ -1,25 +1,36 @@
+export function entriesArray<T>(object: { [key: string]: T }): [string, T][] {
+    return Array.from(Object.entries(object))
+}
+
 export function iterateObject<T>(
     object: { [key: string]: T },
     mapFunction: (entry: [string, T], index: number, entries: [string, T][]) => void): void {
-    Array.from(Object.entries(object)).forEach(mapFunction)
+    entriesArray(object).forEach(mapFunction)
 }
 
-export function mapObject<U, T>(
+export function mapObject<T, U>(
     object: { [key: string]: T },
     mapFunction: (entry: [string, T], index: number, entries: [string, T][]) => [string, U]): { [key: string]: U } {
     return Object.fromEntries(
-        Array.from(Object.entries(object))
-            .map(mapFunction)
+        entriesArray(object).map(mapFunction)
     )
 }
 
-export function mapObjectToArray<U, T>(
+export function filterObject<T>(
     object: { [key: string]: T },
-    mapFunction: (entry: [string, T], index: number, entries: [string, T][]) => U): U[] {
-    return Array.from(Object.entries(object)).map(mapFunction)
+    predicate: (entry: [string, T], index: number, entries: [string, T][]) => boolean): { [key: string]: T } {
+    return Object.fromEntries(
+        entriesArray(object).filter(predicate)
+    )
 }
 
-export function mapObjectValue<U, T>(
+export function mapObjectToArray<T, U>(
+    object: { [key: string]: T },
+    mapFunction: (entry: [string, T], index: number, entries: [string, T][]) => U): U[] {
+    return entriesArray(object).map(mapFunction)
+}
+
+export function mapObjectValue<T, U>(
     object: { [key: string]: T },
     mapFunction: (value: T, index: number, entries: [string, T][]) => U): { [key: string]: U } {
     return mapObject(object, ([key, value], index, entries) =>
@@ -30,8 +41,7 @@ export function mapObjectValue<U, T>(
 export function findInObject<T>(
     object: { [key: string]: T },
     predicate: (value: [string, T], index: number, entries: [string, T][]) => boolean): [string, T] {
-    return Array.from(Object.entries(object))
-        .find(predicate)
+    return entriesArray(object).find(predicate)
 }
 
 export function iterateMap<K, V>(

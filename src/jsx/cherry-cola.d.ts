@@ -7,7 +7,7 @@ export = CherryCola;
 export as namespace CherryCola;
 
 declare namespace CherryCola {
-    type JSXElementConstructor<P> = (props: P) => VirtualElement | ElementChildren | null
+    type JSXElementConstructor<P> = (props: P) => VirtualElementInterface | ElementChildren | null
 
     interface InherentProps<T> {
         unsafeInnerHtml?: T extends typeof validTags[number] ? string : never
@@ -22,9 +22,10 @@ declare namespace CherryCola {
 
     type HTMLAttributes<E, T> = E & InherentProps<T>
 
-    type Props<T> = T & InherentProps<T>
+    type Props<T> = T extends HTMLElement ? T & InherentProps<T> : InherentProps<T>
 
-    interface VirtualElement<T = 'component' | typeof validTags[number] | typeof voidElements[number], P = Props<T>> {
+    type VirtualElementTypeType = 'component' | typeof validTags[number] | typeof voidElements[number]
+    interface VirtualElementInterface<T extends VirtualElementTypeType = VirtualElementTypeType, P = Props<T>> {
         type: T;
         props: P;
         function: T extends 'component' ? JSXElementConstructor<any> : never
@@ -32,7 +33,7 @@ declare namespace CherryCola {
     }
 
     interface FakeVirtualFragmentElement {
-        (): (VirtualElement | null);
+        (): (VirtualElementInterface | null);
 
         type: typeof Fragment
         children: ElementChildren | null

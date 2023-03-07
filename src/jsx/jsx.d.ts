@@ -2,11 +2,11 @@ import 'typescript/lib/lib.dom'
 import CherryCola from './cherry-cola'
 import JSX_DOM from './jsx-dom'
 
-export {}
+export = JSX;
 
 declare global {
     namespace JSX {
-        interface Element extends CherryCola.VirtualElement<any, any> {
+        interface Element extends CherryCola.VirtualElementInterface<any, any> {
         }
 
         const Fragment: CherryCola.FakeVirtualFragmentElement;

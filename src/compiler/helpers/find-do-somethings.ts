@@ -6,6 +6,7 @@ import Parser, {FileToImportsMapType} from '../parser'
 import getAllScopeBindings from './all-scope-bindings'
 import resolveIdentifierIfImported from './resolve-identifier-if-imported'
 import resolveImportFileSpecifier from './resolve-import-file-specifier'
+import {ensureArray} from '../../utils/array'
 
 export const cherryColaIndex = resolveImportFileSpecifier('', '#cherry-cola')
 
@@ -37,8 +38,7 @@ export function isCherryColaFunction(callExpression: NodePath<CallExpression>,
                                      fileImports: FileToImportsMapType,
                                      supposedFunctions: Function | string | (Function | string)[],
                                      fullScope?: ReturnType<typeof getAllScopeBindings>) {
-    if (!Array.isArray(supposedFunctions))
-        supposedFunctions = [supposedFunctions]
+    supposedFunctions = ensureArray(supposedFunctions)
     supposedFunctions = supposedFunctions
         .map(supposedFunction => typeof supposedFunction === 'function' ? supposedFunction.name : supposedFunction)
 

@@ -1,18 +1,15 @@
-import {ElementChildren} from './ElementChildren'
-import {Props} from './dom/props-type'
-import {validTags, voidElements} from './dom/html-props'
+import {VirtualElementInterface} from './cherry-cola'
 
-export class VirtualElement<P = Props> {
-    type: 'function' | typeof validTags[number] | typeof voidElements[number]
-    function?: (props: Props) => VirtualElement | ElementChildren
-    props: Props
-    children: ElementChildren
-    // private _id?: ElementId
+export class VirtualElement implements VirtualElementInterface {
+    type: VirtualElementInterface['type']
+    function: VirtualElementInterface['function']
+    props: VirtualElementInterface['props']
+    children: VirtualElementInterface['children']
 
-    constructor(type: VirtualElement['type'], props: Props, children?: ElementChildren) {
+    constructor(type: VirtualElement['type'], props: VirtualElement['props'], children?: VirtualElement['children']) {
         this.type = type
         if (typeof type === 'function') {
-            this.type = 'function'
+            this.type = 'component'
             this.function = type
         }
         this.props = props
