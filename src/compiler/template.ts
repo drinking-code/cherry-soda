@@ -4,121 +4,109 @@
 
 import '../imports/'
 import {VirtualElement} from '../jsx/VirtualElement'
-import {VirtualElementInterface} from '../jsx/cherry-cola'
+import {VirtualElementInterface, VirtualElementTypeType} from '../jsx/cherry-cola'
 import {ElementChild} from '../jsx/ElementChildren'
-import {entriesArray, filterObject, mapObject, mapObjectToArray} from '../utils/iterate-object'
-import {AllHTMLAttributes} from '../jsx/jsx-dom'
-import {ensureArray} from '../utils/array'
+import {filterObject, mapObject, mapObjectToArray} from '../utils/iterate-object'
+import {ensureArray, isArray} from '../utils/array'
+import {isObject} from '../utils/object'
 
-export type PropsType = [string, string][]
-export type TemplateComponentType = [number, { [key: string]: /*todo: State*/any }]
-export type TemplateHTMLType = [string, PropsType, TemplateElementType | TemplateElementType[]]
-export type TemplateTextType = [0, string]
-export type TemplateElementType = TemplateHTMLType | TemplateTextType | TemplateComponentType
-export type TemplateType = TemplateElementType[]
+interface HasToStringInterface {
+    toString: () => string
+}
+
+type StringifiableType = StringifiableVariety | string | number | boolean | null | HasToStringInterface
+type StringifiableVariety = { [p: string]: StringifiableType } | StringifiableType[]
+
+type TemplatesMapType = Map<number, string>
 
 export default async function extractTemplates(entry: string) {
-    const templates: Map<number, TemplateType> = new Map()
+    const templates: TemplatesMapType = new Map()
     const componentFunction = (await import(entry)).main
-
-    function extractTemplateFromComponent(component: VirtualElementInterface<'component'>): number {
-        const constructor = component.function
-        const hash = Bun.hash(constructor.toString()) as number
-        const returnValue = constructor(component.props)
-        templates.set(hash, makeTemplate(returnValue as VirtualElement))
-        return hash
-    }
-
-    function makeTemplate(elements: ElementChild | ElementChild[]): TemplateType {
-        const elementsArray = ensureArray(elements)
-
-        function getTemplateElement(element: ElementChild): TemplateElementType | false {
-            let elementTemplate: TemplateElementType | false
-            if (element instanceof VirtualElement) {
-                const props = acceptableProps(element.props)
-                if (element.type === 'component') {
-                    const hash = extractTemplateFromComponent(element as VirtualElementInterface<'component'>)
-                    elementTemplate = [hash, props]
-                } else {
-                    const children = makeTemplate(element.children)
-                    elementTemplate = [
-                        element.type,
-                        entriesArray(props),
-                        children
-                    ]
-                }
-            } else if ([undefined, null].includes(element)) {
-                elementTemplate = false
-            } else {
-                elementTemplate = [0, element.toString()]
-            }
-            return elementTemplate
-        }
-
-        return elementsArray.map(getTemplateElement).filter(v => v) as TemplateElementType[]
-    }
 
     const mockedComponent: VirtualElementInterface<'component'> = {
         type: 'component',
         function: componentFunction,
         props: {},
     }
-    const entryHash = extractTemplateFromComponent(mockedComponent)
-    const stringifyIdValueArray = (array: [number, string][]) => array.map(([n, s]) => `${n}"${s}"`).join('')
+    const entryHash = extractTemplateFromComponent(mockedComponent, templates)
 
-    function stringifyTemplateElement(element) {
-        if (Array.isArray(element[1])) { // TemplateHTMLType
-            const [type, aliasedProps, children] = element
-            const stringifiedChildrenArray = children.map(stringifyTemplateElement)
-            const stringifiedChildren = stringifiedChildrenArray.length === 1
-                ? stringifiedChildrenArray[0]
-                : `[${stringifiedChildrenArray.join('')}]`
-            return `[${type}[${stringifyIdValueArray(aliasedProps)}]${stringifiedChildren}]`
-        } else if (typeof element[1] === 'string') { // TemplateTextType
-            const [zero, text] = element
-            return `[0"${text}"]`
-        }
-        return element
-    }
-
-    templates.forEach((elements, key) => {
-        console.log(JSON.stringify(elements))
-        console.log(elements.map(stringifyTemplateElement).join(''))
-    })
-    console.log(htmlFromTemplate(templates, entryHash))
+    templates.forEach(value => console.log(value))
+    return {templates, entry: entryHash}
 }
 
-function acceptableProps(props: { [propName: string]: any }) {
-    return filterObject(props, ([propName]) => {
-        return !['ref'].includes(propName)
-    })
-}
+function extractTemplateFromComponent(component: VirtualElementInterface<'component'>, templates: TemplatesMapType): number {
+    const constructor = component.function
+    const hash = Bun.hash(constructor.toString()) as number
+    const returnValue = constructor(component.props)
+    templates.set(hash, stringifyNodes(returnValue).join(''))
+    return hash
 
-function htmlFromTemplate(templates: Map<number, TemplateType>, entry: number): string {
-    function elementToHtml(elements: TemplateType): string {
-        return elements.map(element => {
-            const isText = ((el): el is TemplateTextType => el[0] === 0)(element)
-            const isComponent = ((el): el is TemplateComponentType =>
-                    !isText && typeof el[0] === 'number'
-            )(element)
-            const isHtmlElement = ((el): el is TemplateHTMLType => typeof el[0] === 'string')(element)
-            if (isText) {
-                return element[1]
-            } else if (isHtmlElement) {
-                const [tag, props, childrenOrChild] = element
-                const stringifiedProps = props.map(([key, value]) => `${key}="${value}"`).join(' ')
-                const stringifiedPropsWithSpace = stringifiedProps.length > 0 ? ' ' + stringifiedProps : ''
-                const children = (<E = TemplateElementType>(value: E | E[]): E[] => {
-                    const isTemplateElement = (value: E | E[]): value is E => !Array.isArray(value[0])
-                    return isTemplateElement(value) ? [value] : value
-                })(childrenOrChild)
-                const stringifiedChildren = children.length > 0 && elementToHtml(children)
-                return `<${tag}${stringifiedPropsWithSpace}>${stringifiedChildren}</${tag}>`
-            } else if (isComponent) {
-                return elementToHtml(templates.get(element[0]))
-            }
-        }).join('')
+    function stringifyNodes(nodes: ElementChild | ElementChild[]): string[] {
+        const nodesArray = ensureArray(nodes)
+        return nodesArray.map((node): string | false => {
+            if (node instanceof VirtualElement) {
+                const isComponent = (node: VirtualElementInterface):
+                    node is VirtualElementInterface<'component'> => node.type === 'component'
+                const isNotComponent = (node: VirtualElementInterface):
+                    node is VirtualElementInterface<Exclude<VirtualElementTypeType, 'component'>> => node.type !== 'component'
+
+                if (isComponent(node)) {
+                    return stringifyComponent(node)
+                } else if (isNotComponent(node)) {
+                    return stringifyHtmlElement(node)
+                } else return false
+            } else if (!Array<any>(undefined, null, false).includes(node)) {
+                // todo: state
+                return stringifyTextNode(node)
+            } else return false
+        }).filter((v): v is string => !!v) // todo: concat string nodes
     }
 
-    return elementToHtml(templates.get(entry))
+    /* *** STRINGIFY TEMPLATE PART SPECIES *** */
+
+    function stringifyComponent(component: VirtualElementInterface<'component'>): string {
+        const hash = extractTemplateFromComponent(component, templates)
+        const isState = value => true // todo
+        const statesOnlyProps = filterObject(component.props as { [p: string]: any }, ([key, value]) => isState(value))
+        const stringifiedProps = mapObjectToArray(statesOnlyProps, ([key, value]) =>
+            `[${key}${stringifyStateNode(value)}]`
+        )
+        const wrappedProps = stringifiedProps.length === 1 ? stringifiedProps : `[${stringifiedProps}]`
+        return `[${hash}${wrappedProps}]`
+    }
+
+    function stringifyHtmlElement(element: VirtualElementInterface<Exclude<VirtualElementTypeType, 'component'>>): string {
+        const props = acceptableProps(element.props)
+        const stringifiedProps = mapObjectToArray(props, ([key, value]) =>
+            key + JSON.stringify(stringifyValue(value))
+        )
+        const stringifiedChildren = stringifyNodes(element.children)
+        const wrappedChildren = stringifiedChildren.length === 1 ? stringifiedChildren : `[${stringifiedChildren.join('')}]`
+        return `[${element.type}[${stringifiedProps.join('')}]${wrappedChildren}]`
+    }
+
+    function stringifyTextNode(value: StringifiableType): string {
+        return `[0${JSON.stringify(stringifyValue(value))}]` // stringify again to escape »"«
+    }
+
+    function stringifyStateNode(data): string {
+        return '#'
+    }
+
+    /* *** UTILS *** */
+
+    function stringifyValue(value: StringifiableType) {
+        if (isArray(value))
+            return JSON.stringify(value.map(stringifyValue))
+        else if (isObject(value))
+            return JSON.stringify(mapObject(value, ([key, value]) => [key, stringifyValue(value)]))
+        else
+            return value.toString()
+    }
+
+    function acceptableProps(props: { [propName: string]: any }) { // todo
+        return filterObject(props, ([propName]) => {
+            return !['ref'].includes(propName)
+        })
+    }
 }

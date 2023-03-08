@@ -8,7 +8,11 @@
   },
   "imports": {
     "#cherry-cola": "./src/index.ts",
-    "#server/bun": "./src/server/bun.ts"
+    "#server/bun": "./src/server/bun.ts",
+    "#messages/colors": {
+      "bun": "./src/messages/colors.bun.ts",
+      "default": "./src/messages/colors.browser.ts"
+    }
   },
   "scripts": {
     "test": "cd test && bun run test",

@@ -1,41 +1,41 @@
 import path from 'path'
-import fs from 'fs'
+import * as nfs from 'fs'
 
 const possibleNames = ['index']
 export const possibleExtensions = ['.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx']
 
-export default function resolveFile(basePath, file) {
+export default function resolveFile(basePath, file, fs = nfs) {
     const resolvedFilePath = path.join(basePath, file)
         .replace(/\.$/, '')
 
     // todo: resolve symlinks
 
-    if (isExistingFile(resolvedFilePath))
+    if (isExistingFile(resolvedFilePath, fs))
         return resolvedFilePath
 
-    const resolvedPathWithExtension = checkPossibleExtensionsForPath(resolvedFilePath)
+    const resolvedPathWithExtension = checkPossibleExtensionsForPath(resolvedFilePath, fs)
     if (resolvedPathWithExtension)
         return resolvedPathWithExtension
 
     for (const possibleName of possibleNames) {
         const resolvedPathWithNameAndExtension = checkPossibleExtensionsForPath(
-            path.join(resolvedFilePath, possibleName)
+            path.join(resolvedFilePath, possibleName), fs
         )
         if (resolvedPathWithNameAndExtension)
             return resolvedPathWithNameAndExtension
     }
 }
 
-function checkPossibleExtensionsForPath(path) {
+function checkPossibleExtensionsForPath(path, fs) {
     for (const possibleExtension of possibleExtensions) {
         const pathWithExtension = path + possibleExtension
-        if (isExistingFile(pathWithExtension)) {
+        if (isExistingFile(pathWithExtension, fs)) {
             return pathWithExtension
         }
     }
     return false
 }
 
-function isExistingFile(path) {
+function isExistingFile(path, fs) {
     return fs.existsSync(path) && fs.statSync(path).isFile()
 }

@@ -18,6 +18,7 @@
     "paths": {
       "#cherry-cola": ["./src/index.ts"],
       "#server/bun": ["./src/server/bun.ts"],
+      "#messages/colors": ["./src/messages/colors.bun.ts"],
     }
   }
 }

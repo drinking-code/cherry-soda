@@ -1,4 +1,10 @@
+export function isArray<V = any>(value: V | V[]): value is V[] {
+    return Array.isArray(value)
+}
+
 export function ensureArray<V = any>(mightBeArray: V | V[]): V[] {
-    const isArray = (value: any): value is V[] => Array.isArray(value)
-    return isArray(mightBeArray) ? mightBeArray : [mightBeArray]
+    if (isArray(mightBeArray))
+        return mightBeArray
+    else
+        return [mightBeArray]
 }

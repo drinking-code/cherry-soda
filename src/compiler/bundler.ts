@@ -27,10 +27,11 @@ let moduleToFileNameMap
 export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType, styleFilePaths: string[]): { outputPath: string, fs: Volume } {
     const entryPoint = process.env.CHERRY_COLA_ENTRY
     const entryDir = path.dirname(entryPoint)
+    const mountFromSrc = ['runtime', 'messages', 'utils']
     hfs = createHybridFs([
         [resolveProjectRoot('node_modules'), '/node_modules'],
         [entryDir, entryDir.replace(projectRoot, '')],
-        [resolveModuleRoot('src', 'runtime'), '/runtime'],
+        ...mountFromSrc.map(dir => [resolveModuleRoot('src', dir), '/' + dir]),
     ])
     hfs.mkdirSync(outputPath)
     hfs.mkdirSync(virtualFilesPath)
@@ -73,6 +74,8 @@ const browserslistEsbuildMap = {
 }
 
 async function startEsbuild() {
+    // @ts-ignore TS2339: Property 'json' does not exist on type 'FileBlob'.
+    const packageJson = await Bun.file(resolveModuleRoot('package.json')).json()
     await esbuild.build({
         entryPoints: [inputFilePath],
         inject: [path.join('/', 'runtime', 'index.ts')],
@@ -92,7 +95,7 @@ async function startEsbuild() {
         plugins: [
             stylePlugin({postcss: {plugins: [autoprefixer]}}),
             imageLoader({path: outputPath}),
-            useFs({fs: hfs}),
+            useFs({fs: hfs, defaultImports: packageJson.imports}),
         ],
         watch: process.env.BUN_ENV === 'development' && {
             async onRebuild(error, result) {
@@ -103,7 +106,7 @@ async function startEsbuild() {
     }).then(handleResult)
 
     function handleResult(result: BuildResult) {
-        const virtualFilesDirName= virtualFilesPath.replace(/\//g, '')
+        const virtualFilesDirName = virtualFilesPath.replace(/\//g, '')
         const matchFileComment = new RegExp(`^( *// ).+?(/${virtualFilesDirName}/.+)$`, 'gm')
         result.outputFiles?.forEach(({path, contents}) => {
             hfs.writeFileSync(path, new TextDecoder().decode(contents)

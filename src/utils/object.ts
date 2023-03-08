@@ -1,4 +1,4 @@
-export function isObject(item) {
+export function isObject<V = any>(item: V | { [key: string]: V }): item is { [key: string]: V } {
     return (item && typeof item === 'object' && item.constructor === {}.constructor)
 }
 
