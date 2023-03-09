@@ -1,9 +1,9 @@
-import {formatCcDef, formatNote, formatUserDef} from '#messages/colors'
+import format from '#messages/colors'
 
-export const noUserError = formatNote('(This is an error with cherry-cola. Report under https://github.com/drinking-code/cherry-cola/issues/new)')
+export const noUserError = format.note('(This is an error with cherry-cola. Report under https://github.com/drinking-code/cherry-cola/issues/new)')
 export const wrapWithBackticks = v => `\`${v}\``
-export const userDef = v => wrapWithBackticks(formatUserDef(v))
-export const ccDef = v => wrapWithBackticks(formatCcDef(v))
+export const userDef = v => wrapWithBackticks(format.userDef(v))
+export const ccDef = v => wrapWithBackticks(format.ccDef(v))
 
 export type MessageType<A> = {
     type: { value: string, noUserError?: boolean },

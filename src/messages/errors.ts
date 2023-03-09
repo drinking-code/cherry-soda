@@ -1,5 +1,5 @@
 import {formatMessage, FormatMessageParametersType, MessageType, userDef} from './utils'
-import {formatErrorLabel} from '#messages/colors'
+import format from '#messages/colors'
 
 const types = {
     TemplateParserError: {value: 'TemplateParserError', noUserError: true}
@@ -15,7 +15,7 @@ export const messages = {
 }
 
 export function makeError(...args: FormatMessageParametersType) {
-    const message = formatMessage(formatErrorLabel, ...args)
+    const message = formatMessage(format.errorLabel, ...args)
     const [messageData]: [MessageType<any>, unknown] = args
     const error =  class extends Error {
         name = messageData.type.value

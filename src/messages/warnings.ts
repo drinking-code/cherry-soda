@@ -1,5 +1,5 @@
 import {formatMessage, FormatMessageParametersType, userDef} from './utils'
-import {formatWarnLabel} from '#messages/colors'
+import format from '#messages/colors'
 
 const types = {
     UnhandledExpression: {value: 'UnhandledExpression', noUserError: true}
@@ -19,5 +19,5 @@ export const messages = {
 
 
 export function printWarning(...args: FormatMessageParametersType) {
-    console.warn(formatMessage(formatWarnLabel, ...args))
+    console.warn(formatMessage(format.warnLabel, ...args))
 }
