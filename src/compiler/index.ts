@@ -1,16 +1,18 @@
 import {Volume} from 'memfs/lib/volume'
 
-/*import Parser from './parser'
+import Parser from './parser'
 import {possibleExtensions} from './helpers/resolve-file'
 import {resolve as resolveProjectRoot} from '../utils/project-root'
 import generateClientScriptTrees from './client-script'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import collectStyleFilePaths from './styles'
-import bundleVirtualFiles from './bundler'*/
+import bundleVirtualFiles from './bundler'
 import extractTemplates from './template'
+import {getRenderer} from '../renderer/renderer'
 
-export default function compile(entry: string): { outputPath: string, fs: Volume } {
-    /*const perf0 = performance.now()
+export default function compile(entry: string): { outputPath: string, fs: Volume, render: () => string } {
+    const templatePromise = extractTemplates(entry)
+    const render = getRenderer(templatePromise)
     const parser = new Parser()
     const parseFileAndAllImportedFiles = filePath => {
         parser.parseFile(filePath)
@@ -24,16 +26,8 @@ export default function compile(entry: string): { outputPath: string, fs: Volume
         return filePaths.map(parseFileAndAllImportedFiles)
     }
     parseFileAndAllImportedFiles(entry)
-    const perfA = performance.now()
-    // console.log(`Parsing files took ${Math.round((perfA - perf0) * 1e1) / 1e1}ms`)
     const clientScriptTrees = generateClientScriptTrees(parser)
-    const perfB = performance.now()
-    // console.log(`Generating scoped client modules took ${Math.round((perfB - perfA) * 1e1) / 1e1}ms`)
     const styleFilePaths = collectStyleFilePaths(parser)
     const volumeAndPath = bundleVirtualFiles(clientScriptTrees, styleFilePaths)
-    const perfC = performance.now()
-    // console.log(`Bundling client scripts took ${Math.round((perfC - perfB) * 1e1) / 1e1}ms`)*/
-    extractTemplates(entry)
-    // return volumeAndPath
-    return { outputPath: 'string', fs: null! }
+    return {...volumeAndPath, render}
 }

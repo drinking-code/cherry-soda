@@ -10,7 +10,7 @@ const pe = new PrettyError()
  * */
 export default function cherryCola(entry): (req: Request) => Promise<Response> {
     process.env.CHERRY_COLA_ENTRY = entry
-    const {fs, outputPath} = compile(entry)
+    const {fs, outputPath, render} = compile(entry)
     const serveStaticListener: (req: Request) => Response = serveStatic(outputPath, fs)
 
     return async (req) => {
@@ -18,7 +18,7 @@ export default function cherryCola(entry): (req: Request) => Promise<Response> {
         const res: Response = serveStaticListener(req)
         if (res.status < 400) return res
         try {
-            return new Response('<style>*{background:#222}</style><script src="/main.js"></script>', {
+            return new Response('<style>*{background:#222}</style>' + render(), {
                 headers: {
                     "Content-Type": "text/html; charset=utf-8"
                 }
