@@ -105,7 +105,12 @@ function extractTemplateFromComponent(component: VirtualElementInterface<'compon
     }
 
     function acceptableProps(props: { [propName: string]: any }) { // todo
-        return filterObject(props, ([propName]) => {
+        const mapped = mapObject(props, ([propName, propValue]) => {
+            if (propName === 'className')
+                propName = 'class'
+            return [propName, propValue]
+        })
+        return filterObject(mapped, ([propName]) => {
             return !['ref'].includes(propName)
         })
     }

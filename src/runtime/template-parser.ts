@@ -1,40 +1,117 @@
-import {messages as errors, makeError} from '../messages/errors'
+import {makeError, messages as errors} from '../messages/errors'
 
-export function parseTemplate(template: string) {
-    // console.log(makeError(errors.templateParser.invalidTemplate, [template]))
-    console.log(makeError)
-    // if (!template.startsWith('[')) throw makeError(errors.templateParser.invalidTemplate, [template])
+type ParserMetadataType<T extends boolean = boolean> = {
+    phase: 0 | 1 | 2
+    isText: T
+    text: T extends true ? string : never | null
+    tagName: T extends false ? string : never | null
+    parent: HTMLElement
 }
 
-parseTemplate('#')
+export class TemplateParser {
+    template: string[]
+    #charEscaped: string | false = false
+    #meta: ParserMetadataType = {
+        phase: null,
+        isText: false,
+        text: null,
+        tagName: null,
+        parent: null,
+    }
+    #currentElement: null | HTMLElement | Text = null
+    #currentProp: null | (null | string)[] = null
+    elements: (HTMLElement | Text)[] = []
 
-/*
-function htmlFromTemplate(templates: Map<number, TemplateType>, entry: number): string {
-    function elementToHtml(elements: TemplateType): string {
-        return elements.map(element => {
-            const isText = ((el): el is TemplateTextType => el[0] === 0)(element)
-            const isComponent = ((el): el is TemplateComponentType =>
-                    !isText && typeof el[0] === 'number'
-            )(element)
-            const isHtmlElement = ((el): el is TemplateHTMLType => typeof el[0] === 'string')(element)
-            if (isText) {
-                return element[1]
-            } else if (isHtmlElement) {
-                const [tag, props, childrenOrChild] = element
-                const stringifiedProps = props.map(([key, value]) => `${key}="${value}"`).join(' ')
-                const stringifiedPropsWithSpace = stringifiedProps.length > 0 ? ' ' + stringifiedProps : ''
-                const children = (<E = TemplateElementType>(value: E | E[]): E[] => {
-                    const isTemplateElement = (value: E | E[]): value is E => !Array.isArray(value[0])
-                    return isTemplateElement(value) ? [value] : value
-                })(childrenOrChild)
-                const stringifiedChildren = children.length > 0 && elementToHtml(children)
-                return `<${tag}${stringifiedPropsWithSpace}>${stringifiedChildren}</${tag}>`
-            } else if (isComponent) {
-                return elementToHtml(templates.get(element[0]))
-            }
-        }).join('')
+    constructor(template: string) {
+        if (!template.startsWith('[')) throw makeError(errors.templateParser.invalidTemplate, [template])
+        this.template = template.split('')
     }
 
-    return elementToHtml(templates.get(entry))
+    parseTemplate() {
+        this.template.forEach(char => {
+            const _t = this
+            switch (char) {
+                case '[':
+                    if (_t.#charEscaped === '[') break // #charEscaped cancellation after switch
+                    if (_t.#meta.phase === null) {
+                        _t.#meta.phase = 0 // begin collecting element tag name
+                        _t.#meta.tagName = ''
+                    } else if (_t.#meta.phase === 0) {
+                        // flush tag name
+                        _t.#currentElement = document.createElement(_t.#meta.tagName)
+                        _t.#meta.tagName = null
+                        _t.#meta.phase = 1 // begin collecting props
+                        _t.#currentProp = ['', null]
+                    } else if (_t.#meta.phase === 1) {
+                        _t.#meta.phase = 2 // begin building children
+                        _t.#flushCurrentElement()
+                        _t.#charEscaped = '['
+                        _t.#meta.phase = 0 // begin collecting element tag n.ame
+                        _t.#meta.tagName = ''
+                        return // to circumvent the #charEscaped cancellation
+                    }
+                    break
+                case '"':
+                    if (_t.#meta.phase === 0) {
+                        if (_t.#meta.isText) {
+                            _t.#meta.phase = 2 // begin collecting text
+                        }
+                    } else if (_t.#meta.phase === 1) {
+                        if (!_t.#currentProp[1]) {
+                            _t.#currentProp[1] = ''
+                        } else if (_t.#currentElement instanceof HTMLElement) {
+                            _t.#currentElement.setAttribute(...(_t.#currentProp as [string, string]))
+                            _t.#currentProp = ['', null]
+                        }
+                    } else if (_t.#meta.phase === 2) {
+                        if (_t.#meta.isText) {
+                            _t.#currentElement = document.createTextNode(_t.#meta.text)
+                            _t.#meta.text = null
+                            _t.#meta.isText = false
+                        }
+                    }
+                    break
+                case ']':
+                    if (_t.#meta.phase === 1) {
+                        _t.#currentProp = null
+                    } else if (_t.#meta.phase === 2) {
+                        _t.#flushCurrentElement()
+                        _t.#meta.phase = null
+                    } else if (_t.#meta.phase == null) {
+                        _t.#meta.parent = null
+                    }
+                    break
+                default:
+                    if (_t.#meta.phase === 0) { // collecting element tag name phase
+                        if (char == '0') {
+                            _t.#meta.tagName = null
+                            _t.#meta.text = ''
+                            _t.#meta.isText = true
+                        } else {
+                            _t.#meta.tagName += char
+                        }
+                    } else if (_t.#meta.phase === 1) {
+                        const index = Number(_t.#currentProp[1] != null) // this.#currentProp[1] != null ? 1 : 0
+                        _t.#currentProp[index] += char
+                    } else if (_t.#meta.phase === 2) {
+                        if (_t.#meta.isText) {
+                            _t.#meta.text += char
+                        }
+                    }
+            }
+            _t.#charEscaped = false
+        })
+    }
+
+    #flushCurrentElement() {
+        if (this.#meta.parent) {
+            this.#meta.parent.append(this.#currentElement)
+        } else {
+            this.elements.push(this.#currentElement)
+        }
+        if (this.#currentElement instanceof HTMLElement) {
+            this.#meta.parent = this.#currentElement
+        }
+        this.#currentElement = null
+    }
 }
-*/

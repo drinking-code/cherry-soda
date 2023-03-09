@@ -1,1 +1,1 @@
-export {parseTemplate} from './template-parser'
+export {TemplateParser} from './template-parser'
