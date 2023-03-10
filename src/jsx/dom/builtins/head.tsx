@@ -1,13 +1,9 @@
-import {default as iposPromise} from '../../../ipos.ts'
-
-const ipos = await iposPromise
-
-export default function Head({children, ...props}) {
-    const charset = children.find(<meta charSet/>) ?? <meta charSet={'UTF-8'}/>
+export default function Head({children, ...props}: JSX.IntrinsicElements['head']) {
+    const charset = children.find(<meta charSet/>) ?? <meta charSet={'utf-8'}/>
     delete children[children.indexOf(charset)]
     const title = children.find(<title/>) ?? <title>Title</title>
     delete children[children.indexOf(title)]
-    const assets = ipos.clientAssets
+    /*const assets = ipos.clientAssets
         .filter(asset =>
             ['.css', '.js']
                 .map(suffix => asset.endsWith(suffix))
@@ -20,14 +16,14 @@ export default function Head({children, ...props}) {
                 return <link rel={'stylesheet'} href={asset}/>
             else if (asset.endsWith('.js'))
                 return <script src={asset} defer/>
-        })
+        })*/
 
     return (
         <head {...props}>
             {charset}
             {title}
             {children}
-            {assets}
+            {/*{assets}*/}
             {/* todo: preload important non-code assets */}
         </head>
     )

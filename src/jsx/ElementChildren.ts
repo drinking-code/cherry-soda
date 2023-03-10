@@ -1,6 +1,6 @@
 import {VirtualElement} from './VirtualElement'
 
-export type VirtualElementMatcher = VirtualElement
+export type VirtualElementMatcher = VirtualElement | JSX.Element
 
 export type ElementChild =
     | VirtualElement
@@ -19,7 +19,7 @@ export class ElementChildren<T = ElementChild> extends Array {
             for (let i = 0; i < children.length; i++) {
                 this[i] = children[i]
             }
-        } else
+        } else if (![null, undefined].includes(children))
             this[0] = children
     }
 
@@ -35,6 +35,7 @@ export class ElementChildren<T = ElementChild> extends Array {
             return super.find(predicate, thisArg)
         else
             return super.find(value => {
+                if (!(predicate instanceof VirtualElement)) return false
                 return value?.type === predicate?.type &&
                     !Array.from(Object.keys(value.props))
                         .map(key =>

@@ -1,10 +1,10 @@
 import {VirtualElement} from './VirtualElement'
 import {ElementChildren} from './ElementChildren'
-import {Props} from './dom/props-type'
+import {Props} from './cherry-cola'
 
 function createVirtualElement(
     type: VirtualElement['type'] | typeof Fragment,
-    props: Props & { children: ElementChildren }
+    props: Props<VirtualElement> & { children: ElementChildren }
 ): VirtualElement | ElementChildren {
     const children = new ElementChildren(props.children)
     delete props.children

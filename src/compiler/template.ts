@@ -5,12 +5,11 @@
 import '../imports/'
 import {VirtualElement} from '../jsx/VirtualElement'
 import {VirtualElementInterface, VirtualElementTypeType} from '../jsx/cherry-cola'
-import {ElementChild} from '../jsx/ElementChildren'
+import {ElementChild, ElementChildren} from '../jsx/ElementChildren'
 import {filterObject, mapObject, mapObjectToArray} from '../utils/iterate-object'
 import {ensureArray, isArray} from '../utils/array'
 import {isObject} from '../utils/object'
 import {AllHTMLAttributes} from '../jsx/jsx-dom'
-import {validTags, voidElements} from '../jsx/dom/html-props'
 
 interface HasToStringInterface {
     toString: () => string
@@ -33,7 +32,10 @@ type ServerTemplateHTMLElementType = {
     children: ServerTemplateNodeType | ServerTemplateNodeType[]
 }
 type ServerTemplateTextNodeType = { type: 'text', content: string }
-export type ServerTemplateNodeType = ServerTemplateComponentType | ServerTemplateHTMLElementType | ServerTemplateTextNodeType
+export type ServerTemplateNodeType =
+    ServerTemplateComponentType
+    | ServerTemplateHTMLElementType
+    | ServerTemplateTextNodeType
 
 type ClientTemplatesMapType = Map<number, string>
 export type ServerTemplatesMapType = Map<number, ServerTemplateNodeType[]>
@@ -48,20 +50,56 @@ export default async function extractTemplates(entry: string) {
         function: componentFunction,
         props: {},
     }
-    const entryHash = extractTemplateFromComponent(mockedComponent, clientTemplates, serverTemplates)
+    let entryHash = extractTemplateFromComponent(mockedComponent, clientTemplates, serverTemplates)
+    // check if first element is <html>
+    let keyIndex = entryHash, firstElementHtml = false
+    while (firstElementHtml === false) {
+        const template = serverTemplates.get(keyIndex)
+        const firstNode = template[0]
+        if (!firstNode) break
+        const isHTMLElement = ((el): el is ServerTemplateHTMLElementType =>
+                el.type === 'dom-element'
+        )(firstNode)
+        if (isHTMLElement && firstNode.tagName === 'html') {
+            firstElementHtml = true
+        } else if (firstNode.type === 'component') {
+            keyIndex = firstNode.key
+            continue
+        }
+        break
+    }
+    if (!firstElementHtml) {
+        const Document = (await import('../jsx/dom/default-document')).default
+        const mockedDocumentComponent: VirtualElementInterface<'component'> = {
+            type: 'component',
+            function: Document,
+            props: {},
+            children: new ElementChildren(mockedComponent)
+        }
+        entryHash = extractTemplateFromComponent(mockedDocumentComponent, clientTemplates, serverTemplates)
+    }
 
     // clientTemplates.forEach(value => console.log(value))
     // serverTemplates.forEach(value => console.log(value))
     return {clientTemplates, serverTemplates, entry: entryHash}
 }
 
-function extractTemplateFromComponent(component: VirtualElementInterface<'component'>, clientTemplates: ClientTemplatesMapType, serverTemplates: ServerTemplatesMapType): number {
+export function extractTemplateFromComponent(
+    component: VirtualElementInterface<'component'>,
+    clientTemplates: ClientTemplatesMapType,
+    serverTemplates: ServerTemplatesMapType,
+): number {
     const constructor = component.function
     const hash = Bun.hash(constructor.toString()) as number
-    const returnValue = constructor(component.props)
-    let [clientTemplatePart, serverTemplatePart] = stringifyNodes(returnValue)
-    clientTemplates.set(hash, clientTemplatePart.join(''))
-    serverTemplates.set(hash, serverTemplatePart)
+    if (!clientTemplates.has(hash)) {
+        const returnValue = constructor({
+            children: component.children,
+            ...component.props,
+        })
+        let [clientTemplatePart, serverTemplatePart] = stringifyNodes(returnValue)
+        clientTemplates.set(hash, clientTemplatePart.join(''))
+        serverTemplates.set(hash, serverTemplatePart)
+    }
     return hash
 
     function stringifyNodes(nodes: ElementChild | ElementChild[]): [string[], ServerTemplateNodeType[]] {
@@ -70,7 +108,10 @@ function extractTemplateFromComponent(component: VirtualElementInterface<'compon
         const serverTemplate: (ServerTemplateNodeType | false)[] = []
         nodesArray.forEach((node) => {
             let clientTemplatePart: string | false, serverTemplatePart: ServerTemplateNodeType | false
-            if (node instanceof VirtualElement) {
+            const isVirtualElementInterface = ((node): node is VirtualElementInterface =>
+                    typeof node === 'object' && 'type' in node && 'props' in node
+            )(node)
+            if (isVirtualElementInterface) {
                 const isComponent = (node: VirtualElementInterface):
                     node is VirtualElementInterface<'component'> => node.type === 'component'
                 const isNotComponent = (node: VirtualElementInterface):
@@ -99,7 +140,7 @@ function extractTemplateFromComponent(component: VirtualElementInterface<'compon
 
     function stringifyComponent(component: VirtualElementInterface<'component'>): [string, ServerTemplateComponentType] {
         const hash = extractTemplateFromComponent(component, clientTemplates, serverTemplates)
-        const isState = value => true // todo
+        const isState = value => false // todo
         const statesOnlyProps = filterObject(component.props as { [p: string]: any }, ([key, value]) => isState(value))
         const stringifiedProps = mapObjectToArray(statesOnlyProps, ([key, value]) =>
             `[${key}${stringifyStateNode(value)}]`
@@ -116,7 +157,7 @@ function extractTemplateFromComponent(component: VirtualElementInterface<'compon
         const stringifiedProps = mapObjectToArray(props, ([key, value]) =>
             key + JSON.stringify(stringifyValue(value))
         )
-        const [stringifiedChildren, serverChildren] = stringifyNodes(element.children)
+        const [stringifiedChildren, serverChildren] = stringifyNodes(element.children.flat())
         const wrappedChildren = stringifiedChildren.length === 1 ? stringifiedChildren : `[${stringifiedChildren.join('')}]`
         return [
             `[${element.type}[${stringifiedProps.join('')}]${wrappedChildren}]`,
@@ -151,7 +192,7 @@ function extractTemplateFromComponent(component: VirtualElementInterface<'compon
         const mapped = mapObject(props, ([propName, propValue]) => {
             if (propName === 'className')
                 propName = 'class'
-            return [propName, propValue]
+            return [propName.toLowerCase(), propValue]
         })
         return filterObject(mapped, ([propName]) => {
             return !['ref'].includes(propName)

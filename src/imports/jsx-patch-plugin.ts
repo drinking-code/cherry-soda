@@ -4,7 +4,8 @@ export default function jsxPatchPlugin(): Parameters<BunPlugin>[0] {
     return {
         name: 'jsx-patch-plugin',
         setup(builder) {
-            builder.onLoad({filter: /[tj]sx$/}, async args => {
+            // @ts-ignore Type 'Promise<{ contents: string; loader: "js"; }>' is not assignable to type 'OnLoadResult'.
+            builder.onLoad({filter: /\.[tj]sx$/}, async args => {
                 const tsconfig = Bun.file('./tsconfig.json')
                 const transpiler = new Bun.Transpiler({
                     loader: 'tsx',

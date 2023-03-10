@@ -2,6 +2,7 @@ import {validTags, voidElements} from './dom/html-props'
 import {ElementChildren} from './ElementChildren'
 import {Fragment} from '#cherry-cola'
 import {Ref} from './create-ref'
+import JSX_DOM from './jsx-dom'
 
 export = CherryCola;
 export as namespace CherryCola;
@@ -12,6 +13,7 @@ declare namespace CherryCola {
     interface InherentProps<T> {
         unsafeInnerHtml?: T extends typeof validTags[number] ? string : never
         ref?: Ref<T | unknown>
+        children?: ElementChildren
     }
 
     type DOMTokenListAttribute = string | string[]
@@ -20,11 +22,16 @@ declare namespace CherryCola {
         // todo
     }
 
-    type HTMLAttributes<E, T> = E & InherentProps<T>
+    type BooleanableHTMLProps<Props> = {
+        [K in keyof Props]: boolean | Props[K]
+    }
+
+    type HTMLAttributes<E, T> = BooleanableHTMLProps<E> & InherentProps<T>
 
     type Props<T> = T extends HTMLElement ? T & InherentProps<T> : InherentProps<T>
 
     type VirtualElementTypeType = 'component' | typeof validTags[number] | typeof voidElements[number]
+
     interface VirtualElementInterface<T extends VirtualElementTypeType = VirtualElementTypeType, P = Props<T>> {
         type: T;
         props: P;

@@ -23,15 +23,15 @@ export function getRenderer(template: ReturnType<typeof extractTemplates>) {
                             const isVoidElement = ((tagName): tagName is typeof voidElements[number] =>
                                     voidElements.some(tag => tag === node.tagName)
                             )(node.tagName)
+                            const stringifiedPropsArray = mapObjectToArray(node.props,
+                                ([propKey, propValue]) => `${propKey}="${propValue}"`
+                            )
+                            const stringifiedProps = stringifiedPropsArray.length > 0 ? ' ' + stringifiedPropsArray.join(' ') : ''
                             if (isVoidElement) {
-                                return `<${node.tagName}/>`
+                                return `<${node.tagName}${stringifiedProps}/>`
                             } else {
                                 const children = ensureArray(node.children)
                                 const stringifiedChildren = children.length > 0 ? stringifyNodes(children) : ''
-                                const stringifiedPropsArray = mapObjectToArray(node.props,
-                                    ([propKey, propValue]) => `${propKey}="${propValue}"`
-                                )
-                                const stringifiedProps = stringifiedPropsArray.length > 0 ? ' ' + stringifiedPropsArray.join(' ') : ''
                                 return `<${node.tagName}${stringifiedProps}>${stringifiedChildren}</${node.tagName}>`
                             }
                         case 'text':
