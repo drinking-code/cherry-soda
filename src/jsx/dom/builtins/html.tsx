@@ -1,5 +1,6 @@
 export default function Html({...props}: JSX.IntrinsicElements['html']) {
-    return (
+    return <>
+        {'<!DOCTYPE html>'}
         <html {...props}>{props.children}</html>
-    )
+    </>
 }

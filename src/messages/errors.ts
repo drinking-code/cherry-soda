@@ -17,7 +17,7 @@ export const messages = {
 export function makeError(...args: FormatMessageParametersType) {
     const message = formatMessage(format.errorLabel, ...args)
     const [messageData]: [MessageType<any>, unknown] = args
-    const error =  class extends Error {
+    const error = class extends Error {
         name = messageData.type.value
     }
     return new error(message)

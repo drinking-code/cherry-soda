@@ -3,20 +3,14 @@
 // a template may include a state somewhere (plain, or convoluted)
 
 import '../imports/'
-import {VirtualElement} from '../jsx/VirtualElement'
-import {VirtualElementInterface, VirtualElementTypeType} from '../jsx/cherry-cola'
+import {Props, VirtualElementInterface, VirtualElementTypeType} from '../jsx/cherry-cola'
 import {ElementChild, ElementChildren} from '../jsx/ElementChildren'
 import {filterObject, mapObject, mapObjectToArray} from '../utils/iterate-object'
-import {ensureArray, isArray} from '../utils/array'
-import {isObject} from '../utils/object'
+import {ensureArray} from '../utils/array'
 import {AllHTMLAttributes} from '../jsx/jsx-dom'
-
-interface HasToStringInterface {
-    toString: () => string
-}
-
-type StringifiableType = StringifiableVariety | string | number | boolean | null | HasToStringInterface
-type StringifiableVariety = { [p: string]: StringifiableType } | StringifiableType[]
+import bundleVirtualFiles from './bundler'
+import stringifyValue, {StringifiableType} from '../utils/stringify'
+import State, {createState, isState} from '../state/state'
 
 type StateOnlyPropsType = { [p: string]: number/*todo: State*/ }
 type HTMLPropsType = MappedHTMLProps<AllHTMLAttributes<any>>
@@ -40,7 +34,7 @@ export type ServerTemplateNodeType =
 type ClientTemplatesMapType = Map<number, string>
 export type ServerTemplatesMapType = Map<number, ServerTemplateNodeType[]>
 
-export default async function extractTemplates(entry: string) {
+export default async function extractTemplates(entry: string, volumeAndPathPromise: Promise<ReturnType<typeof bundleVirtualFiles>>) {
     const clientTemplates: ClientTemplatesMapType = new Map()
     const serverTemplates: ServerTemplatesMapType = new Map()
     const componentFunction = (await import(entry)).main
@@ -70,17 +64,18 @@ export default async function extractTemplates(entry: string) {
     }
     if (!firstElementHtml) {
         const Document = (await import('../jsx/dom/default-document')).default
-        const mockedDocumentComponent: VirtualElementInterface<'component'> = {
+        const volumeAndPath = await volumeAndPathPromise
+        const mockedDocumentComponent: VirtualElementInterface<'component', Props<'component'> & {clientAssets: State<typeof volumeAndPath>}> = {
             type: 'component',
             function: Document,
-            props: {},
+            props: {clientAssets: createState(volumeAndPath)},
             children: new ElementChildren(mockedComponent)
         }
         entryHash = extractTemplateFromComponent(mockedDocumentComponent, clientTemplates, serverTemplates)
     }
 
-    // clientTemplates.forEach(value => console.log(value))
-    // serverTemplates.forEach(value => console.log(value))
+    clientTemplates.forEach(value => console.log(value))
+    serverTemplates.forEach(value => console.log(value))
     return {clientTemplates, serverTemplates, entry: entryHash}
 }
 
@@ -140,7 +135,6 @@ export function extractTemplateFromComponent(
 
     function stringifyComponent(component: VirtualElementInterface<'component'>): [string, ServerTemplateComponentType] {
         const hash = extractTemplateFromComponent(component, clientTemplates, serverTemplates)
-        const isState = value => false // todo
         const statesOnlyProps = filterObject(component.props as { [p: string]: any }, ([key, value]) => isState(value))
         const stringifiedProps = mapObjectToArray(statesOnlyProps, ([key, value]) =>
             `[${key}${stringifyStateNode(value)}]`
@@ -178,15 +172,6 @@ export function extractTemplateFromComponent(
     }
 
     /* *** UTILS *** */
-
-    function stringifyValue(value: StringifiableType) {
-        if (isArray(value))
-            return JSON.stringify(value.map(stringifyValue))
-        else if (isObject(value))
-            return JSON.stringify(mapObject(value, ([key, value]) => [key, stringifyValue(value)]))
-        else
-            return value.toString()
-    }
 
     function acceptableProps(props: { [propName: string]: any }) { // todo
         const mapped = mapObject(props, ([propName, propValue]) => {

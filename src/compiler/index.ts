@@ -11,7 +11,9 @@ import extractTemplates from './template'
 import {getRenderer} from '../renderer/renderer'
 
 export default function compile(entry: string): { outputPath: string, fs: Volume, render: () => string } {
-    const templatePromise = extractTemplates(entry)
+    let resolveVolumeAndPathPromise
+    const volumeAndPathPromise = new Promise<ReturnType<typeof bundleVirtualFiles>>(resolve => resolveVolumeAndPathPromise = resolve)
+    const templatePromise = extractTemplates(entry, volumeAndPathPromise)
     const render = getRenderer(templatePromise)
     const parser = new Parser()
     const parseFileAndAllImportedFiles = filePath => {
@@ -29,5 +31,6 @@ export default function compile(entry: string): { outputPath: string, fs: Volume
     const clientScriptTrees = generateClientScriptTrees(parser)
     const styleFilePaths = collectStyleFilePaths(parser)
     const volumeAndPath = bundleVirtualFiles(clientScriptTrees, styleFilePaths)
+    resolveVolumeAndPathPromise(volumeAndPath)
     return {...volumeAndPath, render}
 }
