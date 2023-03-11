@@ -3,9 +3,9 @@ import {NodePath, Scope} from '@babel/traverse'
 
 import {doSomething} from '#cherry-cola'
 import Parser, {FileToImportsMapType} from '../parser'
-import getAllScopeBindings from './all-scope-bindings'
+import getAllScopeBindings from '../helpers/all-scope-bindings'
 import resolveIdentifierIfImported from './resolve-identifier-if-imported'
-import resolveImportFileSpecifier from './resolve-import-file-specifier'
+import resolveImportFileSpecifier from '../helpers/resolve-import-file-specifier'
 import {ensureArray} from '../../utils/array'
 
 export const cherryColaIndex = resolveImportFileSpecifier('', '#cherry-cola')

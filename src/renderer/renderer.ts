@@ -6,20 +6,17 @@ import {mapObjectToArray} from '../utils/iterate-object'
 const bunPeek = ((Bun as unknown as { peek: Function }).peek as <V>(promise: Promise<V>) => Promise<V> | V)
 
 export function getRenderer(template: ReturnType<typeof extractTemplates>) {
-    let serverTemplates: ServerTemplatesMapType, entry: number
+    let resolvedTemplate: Awaited<typeof template>
     const possiblyResolvedTemplate = bunPeek(template)
     if (possiblyResolvedTemplate instanceof Promise) {
-        ;(async () => {
-            const resolvedTemplate = await template
-            serverTemplates = resolvedTemplate.serverTemplates
-            entry = resolvedTemplate.entry
-        })()
+        ;(async () => resolvedTemplate = await template)()
     } else {
-        const resolvedTemplate = possiblyResolvedTemplate
-        serverTemplates = resolvedTemplate.serverTemplates
-        entry = resolvedTemplate.entry
+        resolvedTemplate = possiblyResolvedTemplate
     }
     return () => {
+        const serverTemplates: ServerTemplatesMapType = resolvedTemplate.serverTemplates
+        const entry: number = resolvedTemplate.entry
+
         function renderTemplate(key): string {
             const template = serverTemplates.get(key)
 

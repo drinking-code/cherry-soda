@@ -1,8 +1,9 @@
 import State from './state'
 import stringifyValue, {StringifiableType} from '../utils/stringify'
 import {VirtualElement} from '../jsx/VirtualElement'
-import {ClientTemplatesMapType, ServerTemplatesMapType, stringifyNodes} from '../compiler/template'
 import {getRenderer} from '../renderer/renderer'
+import {ClientTemplatesMapType, ServerTemplatesMapType} from '../compiler/template/types'
+import stringifyNode from '../compiler/template/stringify-node'
 
 export type StateUsageFunctionType<V, U extends StringifiableType = StringifiableType> = (...values: V[]) => U
 
@@ -28,13 +29,7 @@ export default class StateUsage<V = any> {
                 if (!(element instanceof VirtualElement)) return transformResult
                 clientTemplates ??= new Map()
                 serverTemplates ??= new Map()
-                let [clientTemplatePart, serverTemplatePart] = stringifyNodes([element], clientTemplates, serverTemplates)
-                const randomString = new TextDecoder().decode(
-                    crypto.getRandomValues(new Uint8Array(8))
-                )
-                const hash = Bun.hash(randomString) as number
-                clientTemplates.set(hash, clientTemplatePart.join(''))
-                serverTemplates.set(hash, serverTemplatePart)
+                const hash = stringifyNode(element, clientTemplates, serverTemplates)
                 return getRenderer(Promise.resolve({clientTemplates, serverTemplates, entry: hash}))()
             }).join('')
         return stringifyValue(transformResult)

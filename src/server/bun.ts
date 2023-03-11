@@ -18,7 +18,7 @@ export default function cherryCola(entry): (req: Request) => Promise<Response> {
         const res: Response = serveStaticListener(req)
         if (res.status < 400) return res
         try {
-            return new Response('<style>*{background:#222}</style>' + render(), {
+            return new Response(render(), {
                 headers: {
                     "Content-Type": "text/html; charset=utf-8"
                 }

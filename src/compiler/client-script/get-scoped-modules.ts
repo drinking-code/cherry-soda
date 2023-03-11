@@ -19,8 +19,8 @@ import babelPluginRemoveUnusedImport from 'babel-plugin-remove-unused-import'
 import Parser from '../parser'
 import {iterateObject} from '../../utils/iterate-object'
 import {cherryColaIndex, DoSomethingsScopesType, isCherryColaFunction} from './find-do-somethings'
-import resolveImportFileSpecifier from './resolve-import-file-specifier'
-import getAllScopeBindings from './all-scope-bindings'
+import resolveImportFileSpecifier from '../helpers/resolve-import-file-specifier'
+import getAllScopeBindings from '../helpers/all-scope-bindings'
 import {createRef, createState} from '#cherry-cola'
 
 export type ClientModulesType = { [filename: string]: BabelFileResult }

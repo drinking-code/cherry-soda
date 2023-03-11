@@ -9,11 +9,11 @@ import PrettyError from 'pretty-error'
 import createHybridFs from 'hybridfs'
 import {Volume} from 'memfs/lib/volume'
 
-import {ClientModulesType} from './helpers/get-scoped-modules'
+import {ClientModulesType} from './client-script/get-scoped-modules'
 import {mapObjectToArray} from '../utils/iterate-object'
 import projectRoot, {resolve as resolveProjectRoot} from '../utils/project-root'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
-import {useFs} from './helpers/use-fs'
+import {useFs} from './bundler/use-fs'
 import {imageLoader} from '../imports/images'
 
 export const isProduction = process.env.BUN_ENV === 'production'

@@ -52,4 +52,10 @@ export class ElementChildren<T = ElementChild> extends Array {
     map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[] {
         return new ElementChildren(Array.from(this).map(callbackfn, thisArg))
     }
+
+    flat<A, D extends number = 1>(depth?: D): FlatArray<A, D>[] {
+        if (!this[0])
+            return this as FlatArray<A, D>[]
+        return super.flat(depth)
+    }
 }

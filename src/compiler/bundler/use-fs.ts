@@ -1,6 +1,6 @@
 import path from 'path'
 import {Plugin} from 'esbuild'
-import resolveFile from './resolve-file'
+import resolveFile from '../helpers/resolve-file'
 import {isObject} from '../../utils/object'
 import moduleRoot from '../../utils/module-root'
 

@@ -10,7 +10,7 @@ import {
 } from '@babel/types'
 
 import {messages as warnings, printWarning} from '../../messages/warnings'
-import getAllScopeBindings from './all-scope-bindings'
+import getAllScopeBindings from '../helpers/all-scope-bindings'
 
 export default function resolveIdentifierIfImported(expression: Identifier | MemberExpression, fullScope: Scope['bindings']) {
     const expressionBinding = fullScope[
