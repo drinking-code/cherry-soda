@@ -47,6 +47,6 @@ export function createState<T = any>(initialValue: T): State<T> {
     return new State<T>(initialValue)
 }
 
-export function isState(value: any): value is State {
-    return value instanceof State
+export function isState(value: any): value is State | StateConcatenation {
+    return value instanceof State || value instanceof StateConcatenation
 }

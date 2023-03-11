@@ -3,13 +3,22 @@ import {voidElements} from '../jsx/dom/html-props'
 import {ensureArray} from '../utils/array'
 import {mapObjectToArray} from '../utils/iterate-object'
 
+const bunPeek = ((Bun as unknown as { peek: Function }).peek as <V>(promise: Promise<V>) => Promise<V> | V)
+
 export function getRenderer(template: ReturnType<typeof extractTemplates>) {
     let serverTemplates: ServerTemplatesMapType, entry: number
-    ;(async () => {
-        const resolvedTemplate = await template
+    const possiblyResolvedTemplate = bunPeek(template)
+    if (possiblyResolvedTemplate instanceof Promise) {
+        ;(async () => {
+            const resolvedTemplate = await template
+            serverTemplates = resolvedTemplate.serverTemplates
+            entry = resolvedTemplate.entry
+        })()
+    } else {
+        const resolvedTemplate = possiblyResolvedTemplate
         serverTemplates = resolvedTemplate.serverTemplates
         entry = resolvedTemplate.entry
-    })()
+    }
     return () => {
         function renderTemplate(key): string {
             const template = serverTemplates.get(key)
@@ -36,6 +45,8 @@ export function getRenderer(template: ReturnType<typeof extractTemplates>) {
                             }
                         case 'text':
                             return node.content
+                        case 'state':
+                            return node.stateUsage.render()
                     }
                 }).join('')
             }
