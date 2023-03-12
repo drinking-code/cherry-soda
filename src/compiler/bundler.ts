@@ -15,6 +15,7 @@ import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './bundler/use-fs'
 import {imageLoader} from '../imports/images'
 import stylePlugin from './bundler/style-plugin'
+import generateClassName from '../utils/generate-css-class-name'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const outputPath = '/dist'
@@ -102,7 +103,12 @@ async function startEsbuild() {
                 },
                 postcss: {
                     plugins: [autoprefixer]
-                }
+                },
+                cssModulesOptions: {
+                    scopeBehaviour: 'local',
+                    generateScopedName: (name, filename) =>
+                        generateClassName(name, filename),
+                },
             }),
             imageLoader({path: outputPath}),
             useFs({fs: hfs, defaultImports: packageJson.imports}),

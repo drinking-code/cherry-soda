@@ -3,6 +3,7 @@ import {BunPlugin} from 'bun'
 import sass from 'sass'
 import postcss from 'postcss'
 import PostcssModulesPlugin from 'postcss-modules'
+import generateClassName from '../utils/generate-css-class-name'
 
 export default function bunStylePlugin(): Parameters<BunPlugin>[0] {
     return {
@@ -13,7 +14,10 @@ export default function bunStylePlugin(): Parameters<BunPlugin>[0] {
                 let cssModulesJson
                 await postcss([
                     PostcssModulesPlugin({
-                        getJSON: (cssFileName, json) => cssModulesJson = json
+                        getJSON: (cssFileName, json) => cssModulesJson = json,
+                        scopeBehaviour: 'local',
+                        generateScopedName: (name, filename) =>
+                            generateClassName(name, filename),
                     })
                 ])
                     .process(sassResult.css, {from: args.path, to: undefined})
