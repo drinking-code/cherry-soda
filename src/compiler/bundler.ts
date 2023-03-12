@@ -3,7 +3,6 @@ import {randomBytes} from 'crypto'
 
 import esbuild, {BuildResult} from 'esbuild'
 import browserslist from 'browserslist'
-import stylePlugin from 'esbuild-style-plugin'
 import autoprefixer from 'autoprefixer'
 import PrettyError from 'pretty-error'
 import createHybridFs from 'hybridfs'
@@ -15,6 +14,7 @@ import projectRoot, {resolve as resolveProjectRoot} from '../utils/project-root'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './bundler/use-fs'
 import {imageLoader} from '../imports/images'
+import stylePlugin from './bundler/style-plugin'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const outputPath = '/dist'
@@ -93,7 +93,17 @@ async function startEsbuild() {
         bundle: true,
         write: false,
         plugins: [
-            stylePlugin({postcss: {plugins: [autoprefixer]}}),
+            stylePlugin({
+                renderOptions: {
+                    sassOptions: {
+                        sourceMap: true,
+                        sourceMapIncludeSources: true,
+                    },
+                },
+                postcss: {
+                    plugins: [autoprefixer]
+                }
+            }),
             imageLoader({path: outputPath}),
             useFs({fs: hfs, defaultImports: packageJson.imports}),
         ],
