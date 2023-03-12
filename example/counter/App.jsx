@@ -8,10 +8,11 @@ export default function App() {
     const subtractButton = createRef()
 
     doSomething(([count, setCount], addButton, subtractButton) => {
+        console.log([count, setCount], addButton, subtractButton)
         addButton.addEventListener('click', () => {
             setCount(count + 1)
         })
-        // console.log('test')
+        console.log('test')
         subtractButton.addEventListener('click', () => {
             setCount(Math.max(count - 1, 0))
         })
