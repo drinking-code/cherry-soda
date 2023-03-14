@@ -1,7 +1,8 @@
-import extractTemplates, {ServerTemplateNodeType, ServerTemplatesMapType} from '../compiler/template'
+import extractTemplates from '../compiler/template'
 import {voidElements} from '../jsx/dom/html-props'
 import {ensureArray} from '../utils/array'
 import {mapObjectToArray} from '../utils/iterate-object'
+import {ServerTemplateNodeType, ServerTemplatesMapType} from '../compiler/template/types'
 
 const bunPeek = ((Bun as unknown as { peek: Function }).peek as <V>(promise: Promise<V>) => Promise<V> | V)
 

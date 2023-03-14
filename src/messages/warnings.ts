@@ -2,7 +2,8 @@ import {formatMessage, FormatMessageParametersType, userDef} from './utils'
 import format from '#messages/colors'
 
 const types = {
-    UnhandledExpression: {value: 'UnhandledExpression', noUserError: true}
+    UnhandledExpression: {value: 'UnhandledExpression', noUserError: true},
+    ResolveError: {value: 'ResolveError'},
 }
 
 export const messages = {
@@ -13,6 +14,13 @@ export const messages = {
                 makeMessage: (key, objectName) =>
                     `Could not find key ${userDef(key)} in ${userDef(objectName)}.`
             }
+        }
+    },
+    resolve: {
+        noImports: {
+            type: types.ResolveError,
+            makeMessage: (path) =>
+                `Could not resolve path "${format.userDef(path)}". "imports" in package.json is not defined.`
         }
     }
 }

@@ -10,7 +10,7 @@ export default function bunStylePlugin(): Parameters<BunPlugin>[0] {
         name: 'bun-style-plugin',
         setup(builder) {
             builder.onLoad({filter: /\.module\.s?[ac]ss$/}, async args => {
-                const sassResult = sass.compile(args.path)
+                const sassResult = sass.compile(args.path) // todo: this right here tanks startup performance
                 let cssModulesJson
                 await postcss([
                     PostcssModulesPlugin({

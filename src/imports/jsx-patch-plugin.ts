@@ -20,12 +20,15 @@ export default function jsxPatchPlugin(): Parameters<BunPlugin>[0] {
 }
 
 const tsconfig = Bun.file('./tsconfig.json')
-const transpiler = new Bun.Transpiler({
-    loader: 'tsx',
-    autoImportJSX: true,
-    platform: 'node',
-    tsconfig: await tsconfig.text()
-})
+let transpiler
+;(async () =>
+        transpiler = new Bun.Transpiler({
+            loader: 'tsx',
+            autoImportJSX: true,
+            platform: 'node',
+            tsconfig: await tsconfig.text()
+        })
+)()
 
 export function transformTsx(contents) {
     return transpiler.transformSync(contents, 'tsx')
