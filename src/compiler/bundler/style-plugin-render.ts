@@ -115,7 +115,7 @@ export const getPostCSSWatchFiles = (result: Result) => {
             if (message.glob && message.glob !== '') globString = message.glob
 
             const globPath = path.join(message.dir, globString)
-            const files = glob.sync(globPath)
+            const files = glob.globSync(globPath)
             watchFiles = [...watchFiles, ...files]
         }
     }

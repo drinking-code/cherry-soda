@@ -51,7 +51,5 @@ export default async function extractTemplates(entry: string, volumeAndPathPromi
         entryHash = builder.makeTemplate(mockedDocumentComponent)
     }
 
-    // clientTemplates.forEach(value => console.log(value))
-    // serverTemplates.forEach(value => console.log(value))
     return {clientTemplates, serverTemplates, entry: entryHash}
 }

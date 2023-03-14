@@ -13,6 +13,7 @@ import StateUsage, {isStateUsage} from '../../state/state-usage'
 import {filterObject, mapObject, mapObjectToArray} from '../../utils/iterate-object'
 import stringifyValue, {StringifiableType} from '../../utils/stringify'
 import {randomNumber} from '../../utils/random'
+import {setAutoComponent} from '../states-collector'
 
 export default class TemplateBuilder {
     private readonly clientTemplates: ClientTemplatesMapType
@@ -28,8 +29,10 @@ export default class TemplateBuilder {
 
     makeTemplate(component) {
         const constructor = component.function
+        // seed to generate different hash when using `stringifyNode()`
         const seed = randomNumber(2)
-        const hash = Bun.hash(constructor.toString(), seed) as number
+        const hash = Bun.hash(constructor.toString(), constructor.name === 'function' && seed) as number
+        setAutoComponent(hash)
         if (!this.clientTemplates.has(hash)) {
             const returnValue = constructor({
                 children: component.children,

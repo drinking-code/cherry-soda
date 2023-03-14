@@ -4,9 +4,9 @@ import {StringifiableType} from '../utils/stringify'
 
 export default class State<V = any> {
     $$stateId: StateId
-    private readonly _value: V
+    protected _value: V
 
-    constructor(initialValue?: any) {
+    constructor(initialValue?: V) {
         this._value = initialValue
         this.$$stateId = new StateId()
     }

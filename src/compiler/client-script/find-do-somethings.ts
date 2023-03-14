@@ -7,6 +7,7 @@ import getAllScopeBindings from '../helpers/all-scope-bindings'
 import resolveIdentifierIfImported from './resolve-identifier-if-imported'
 import resolveImportFileSpecifier from '../helpers/resolve-import-file-specifier'
 import {ensureArray} from '../../utils/array'
+import getComponentHashFromScope from './get-component-hash-from-scope'
 
 export const cherryColaIndex = resolveImportFileSpecifier('', '#cherry-cola')
 
@@ -21,12 +22,16 @@ export default function findDoSomethings(parser: Parser): DoSomethingsScopesType
                 const fileImports = parser.getImports(fileName)
                 if (isCherryColaFunction(nodePath, fileImports, doSomething)) {
                     const thisScopeAndParents: Scope[] = [nodePath.scope]
+                    getComponentHashFromScope(nodePath.scope, parser, fileName)
                     let scope = nodePath.scope
                     while (scope.parent) {
                         scope = scope.parent
                         thisScopeAndParents.push(scope)
                     }
-                    doSomethingsScopes[fileName].set(nodePath.node as CallExpression, thisScopeAndParents.map(scope => scope.block as Node))
+                    doSomethingsScopes[fileName].set(
+                        nodePath.node as CallExpression,
+                        thisScopeAndParents.map(scope => scope.block as Node)
+                    )
                 }
             },
         })

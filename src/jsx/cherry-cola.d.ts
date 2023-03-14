@@ -1,7 +1,7 @@
 import {validTags, voidElements} from './dom/html-props'
 import {ElementChildren} from './ElementChildren'
 import {Fragment} from '#cherry-cola'
-import {Ref} from './create-ref'
+import {Ref} from '../state/create-ref'
 import JSX_DOM from './jsx-dom'
 
 export = CherryCola;

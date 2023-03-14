@@ -1,5 +1,4 @@
 import path from 'path'
-import crypto from 'crypto'
 
 import {
     assignmentExpression,
@@ -8,7 +7,7 @@ import {
     identifier,
     Identifier, memberExpression,
     Node,
-    numericLiteral, variableDeclaration,
+    numericLiteral, stringLiteral, variableDeclaration,
     variableDeclarator
 } from '@babel/types'
 import {NodePath} from '@babel/traverse'
@@ -22,6 +21,10 @@ import {cherryColaIndex, DoSomethingsScopesType, isCherryColaFunction} from './f
 import resolveImportFileSpecifier from '../helpers/resolve-import-file-specifier'
 import getAllScopeBindings from '../helpers/all-scope-bindings'
 import {createRef, createState} from '#cherry-cola'
+import {generateId} from '../../utils/random'
+import {getState} from '../states-collector'
+import getComponentHashFromScope from './get-component-hash-from-scope'
+import {createClientState, registerStateChangeHandler} from '../../runtime'
 
 export type ClientModulesType = { [filename: string]: BabelFileResult }
 
@@ -55,6 +58,10 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
         let programScopeBeforeImportDeletion
         const probableStates = {}
         // parser.printFileTree(fileName)
+        const stateDeclarationCalls: Map<Identifier, CallExpression> = new Map()
+        const getStateDeclarationCall = identifierNeedle => stateDeclarationCalls.get(
+            Array.from(stateDeclarationCalls.keys()).find(haystackIdentifier => identifierNeedle.name === haystackIdentifier.name)
+        )
         const ast = parser.traverseClonedFile(fileName, {
             ImportDeclaration(nodePath) {
                 programScopeBeforeImportDeletion ??= getAllScopeBindings(nodePath.scope)
@@ -76,12 +83,9 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                     ...allBindings,
                 }
                 if ((doSomethingCalls as Node[]).some(node => nodeMatches(node, nodePath.node as Node))) {
-                    getNodeId(nodePath.node).name = 'registerStateChangeHandler' // todo: use function name from runtime
                     const secondArgument = nodePath.node.arguments[1]
                     if (secondArgument && secondArgument.type === 'ArrayExpression') {
-                        const arrayName = 'statesToListenTo_' + crypto.randomBytes(4)
-                            .toString('base64url')
-                            .replace(/-/g, '_')
+                        const arrayName = 'statesToListenTo_' + generateId()
                         nodePath.insertBefore(variableDeclaration('const', [variableDeclarator(
                                 identifier(arrayName),
                                 callExpression(identifier('Array'), [numericLiteral(secondArgument.elements.length)])
@@ -96,14 +100,24 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                                         stateIdentifier
                                     )
                                 ))
+                                const stateId = getState(
+                                    getComponentHashFromScope(nodePath.scope, parser, fileName),
+                                    (doSomethingCalls as Node[]).findIndex(node => nodeMatches(node, nodePath.node)),
+                                    i
+                                ) as string
+                                getStateDeclarationCall(stateIdentifier).arguments.push(stringLiteral(stateId))
                             })
                         nodePath.node.arguments[1] = identifier(arrayName)
                     }
+                    getNodeId(nodePath.node).name = registerStateChangeHandler.name
                 } else if (isCherryColaFunction(nodePath, fileImports, createState, allBindingsBeforeImportDeletion)) {
                     const identifier = getNodeId(nodePath.node)
-                    identifier.name = 'createClientState' // todo: use function name from runtime
+                    identifier.name = createClientState.name
+                    stateDeclarationCalls.set(getNodeId(nodePath.parentPath.node), nodePath.node)
                 } else if (isCherryColaFunction(nodePath, fileImports, createRef, allBindingsBeforeImportDeletion)) {
-                    nodePath.remove()
+                    const identifier = getNodeId(nodePath.node)
+                    identifier.name = 'findNode' // todo: use function name from runtime
+                    stateDeclarationCalls.set(getNodeId(nodePath.parentPath.node), nodePath.node)
                 }
             },
             // @ts-ignore
@@ -122,7 +136,7 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                     ...programScopeBeforeImportDeletion,
                     ...allBindings,
                 }
-                if (!isCherryColaFunction(fakePath as NodePath<CallExpression>, fileImports, [createState], allBindingsBeforeImportDeletion))
+                if (!isCherryColaFunction(fakePath as NodePath<CallExpression>, fileImports, [createState, createRef], allBindingsBeforeImportDeletion))
                     return
                 probableStates[name.name] = value
             },

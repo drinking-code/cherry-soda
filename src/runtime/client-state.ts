@@ -7,7 +7,7 @@ function cloneStateValue(value) {
         return new value.constructor(value)
 }
 
-class State<V = any> {
+export class State<V = any> {
     private _value: V
     private _listeners: (() => void)[] = []
 
