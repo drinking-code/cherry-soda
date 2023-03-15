@@ -5,7 +5,7 @@ import {possibleExtensions} from './helpers/resolve-file'
 import {resolve as resolveProjectRoot} from '../utils/project-root'
 import generateClientScriptTrees from './client-script'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
-import collectStyleFilePaths from './styles'
+import collectAssetsFilePaths from './assets'
 import bundleVirtualFiles from './bundler'
 import extractTemplates from './template'
 import {getRenderer} from '../renderer/renderer'
@@ -29,8 +29,8 @@ export default function compile(entry: string): { outputPath: string, fs: Volume
     }
     parseFileAndAllImportedFiles(entry)
     const clientScriptTrees = generateClientScriptTrees(parser)
-    const styleFilePaths = collectStyleFilePaths(parser)
-    const volumeAndPath = bundleVirtualFiles(clientScriptTrees, styleFilePaths)
+    const assetsFilePaths = collectAssetsFilePaths(parser)
+    const volumeAndPath = bundleVirtualFiles(clientScriptTrees, assetsFilePaths)
     resolveVolumeAndPathPromise(volumeAndPath)
     return {...volumeAndPath, render}
 }

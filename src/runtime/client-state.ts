@@ -1,9 +1,7 @@
-const cloneableConstructors = [Object, WeakRef, Array, Map, Set, WeakMap, WeakSet] // todo: add all here
-
 function cloneStateValue(value) {
     if (['string', 'number', 'boolean'].includes(typeof value) || [null, undefined].includes(value))
         return value
-    else if (cloneableConstructors.includes(value.constructor))
+    else
         return new value.constructor(value)
 }
 

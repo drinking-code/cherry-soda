@@ -19,7 +19,7 @@ export default function Head({children, clientAssets, ...props}:
                     asset = '/' + asset
                 if (asset.endsWith('.css'))
                     return <link rel={'stylesheet'} href={asset}/>
-                else if (asset.endsWith('.js'))
+                else if (asset.endsWith('.js')) // todo: don't include if file empty
                     return <script src={asset} defer/>
             })
     })

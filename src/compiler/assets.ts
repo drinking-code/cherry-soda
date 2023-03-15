@@ -2,8 +2,10 @@
 
 import Parser from './parser'
 import {iterateObject} from '../utils/iterate-object'
+import {styleFilter} from './bundler/style-plugin'
+import {imageFilter} from '../imports/images'
 
-export default function collectStyleFilePaths(parser: Parser): string[] {
+export default function collectAssetsFilePaths(parser: Parser): string[] {
     // todo: separate critical from non critical styles
     /* or into a level system:
     * 0: critical css      - must be immediately available
@@ -17,8 +19,8 @@ export default function collectStyleFilePaths(parser: Parser): string[] {
     parser.fileNames.forEach(fileName => {
         const fileImports = parser.getImports(fileName)
         iterateObject(fileImports, ([file]) => {
-            if (!file.match(/\.s?[ac]ss$/)) return
-                styleFiles.push(file)
+            if (!file.match(styleFilter) && !file.match(imageFilter)) return
+            styleFiles.push(file)
         })
     })
 

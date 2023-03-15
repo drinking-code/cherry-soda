@@ -25,7 +25,7 @@ interface PluginOptions {
 const LOAD_TEMP_NAMESPACE = 'temp_stylePlugin'
 const LOAD_STYLE_NAMESPACE = 'stylePlugin'
 const SKIP_RESOLVE = 'esbuild-style-plugin-skipResolve'
-const styleFilter = /.\.(css|sass|scss|less|styl)$/
+export const styleFilter = /\.((c|s[ac]|le)ss|styl)$/
 
 const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesOptions) => {
     const _getJSON = cssModulesOptions.getJSON

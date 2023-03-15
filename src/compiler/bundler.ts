@@ -1,7 +1,7 @@
 import path from 'path'
 import {randomBytes} from 'crypto'
 
-import esbuild, {BuildResult} from 'esbuild'
+import esbuild, {BuildResult, Plugin} from 'esbuild'
 import browserslist from 'browserslist'
 import autoprefixer from 'autoprefixer'
 import PrettyError from 'pretty-error'
@@ -13,7 +13,7 @@ import {mapObjectToArray} from '../utils/iterate-object'
 import projectRoot, {resolve as resolveProjectRoot} from '../utils/project-root'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './bundler/use-fs'
-import {imageLoader} from '../imports/images'
+import imageLoader from '../imports/images'
 import stylePlugin from './bundler/style-plugin'
 import generateClassName from '../utils/generate-css-class-name'
 import {getStateFromPlaceholderId, stateIdPlaceholderPrefix} from './states-collector'
@@ -27,7 +27,7 @@ const pe = new PrettyError()
 let hfs: Volume
 let moduleToFileNameMap
 
-export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType, styleFilePaths: string[]): { outputPath: string, fs: Volume } {
+export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType, assetsFilePaths: string[]): { outputPath: string, fs: Volume } {
     const entryPoint = process.env.CHERRY_COLA_ENTRY
     const entryDir = path.dirname(entryPoint)
     const mountFromSrc = ['runtime', 'messages', 'utils']
@@ -55,7 +55,7 @@ export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType,
                 )
                 const code = await replaceAsync(
                     fileResult.code,
-                    new RegExp(`[\'"]${stateIdPlaceholderPrefix}([a-zA-Z0-9]+)[\'"]`, 'g'),
+                    new RegExp(`['"]${stateIdPlaceholderPrefix}([a-zA-Z0-9]+)['"]`, 'g'),
                     async (match, id) => `"${await getStateFromPlaceholderId(id)}"`)
                 const fileContents = code + newLine +
                     `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${new Buffer(sourceMap).toString('base64')}`
@@ -69,9 +69,10 @@ export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType,
             else return null
         }).filter(v => v)
         let inputFile = ''
-        inputFile += styleFilePaths.map(path => `import '${path}'`).join(newLine)
+        inputFile += assetsFilePaths.map(path => `import '${path}'`).join(newLine)
         inputFile += newLine
         inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
+        console.log(inputFile)
         hfs.writeFileSync(inputFilePath, inputFile)
         await startEsbuild()
     })()
@@ -124,7 +125,7 @@ async function startEsbuild() {
                         generateClassName(name, filename),
                 },
             }),
-            imageLoader({path: outputPath}),
+            imageLoader({fs: hfs, emit: true, path: outputPath}) as Plugin,
             useFs({fs: hfs, defaultImports: packageJson.imports}),
         ],
         watch: process.env.BUN_ENV === 'development' && {
