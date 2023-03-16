@@ -50,11 +50,32 @@ export function iterateMap<K, V>(
     Array.from(map.entries()).forEach(mapFunction)
 }
 
+export function mapMapToArray<U, TK, TV>(
+    map: Map<TK, TV>,
+    mapFunction: (entry: [TK, TV], index: number, entries: [TK, TV][]) => U): U[] {
+    return Array.from(map.entries()).map(mapFunction)
+}
+
 export function mapMap<UK, UV, TK, TV>(
     map: Map<TK, TV>,
     mapFunction: (entry: [TK, TV], index: number, entries: [TK, TV][]) => [UK, UV]): Map<UK, UV> {
-    return new Map(
-        Array.from(map.entries())
-            .map(mapFunction)
-    )
+    return new Map(mapMapToArray(map, mapFunction))
+}
+
+export function mapSetToArray<U, T>(
+    set: Set<T>,
+    mapFunction: (entry: T, index: number, entries: T[]) => U): Array<U> {
+    return Array.from(set.values()).map(mapFunction)
+}
+
+export function mapSet<U, T>(
+    set: Set<T>,
+    mapFunction: (entry: T, index: number, entries: T[]) => U): Set<U> {
+    return new Set(mapSetToArray(set, mapFunction))
+}
+
+export function mapSetToObject<UK extends string, UV, T>(
+    set: Set<T>,
+    mapFunction: (entry: T, index: number, entries: T[]) => [UK, UV]): {[key: string]: UV} {
+    return Object.fromEntries(mapSetToArray(set, mapFunction).map(([key, entry]: [UK, UV]): [string, UV] => [key.toString(), entry]))
 }

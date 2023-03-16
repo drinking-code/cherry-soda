@@ -14,6 +14,8 @@ import {filterObject, mapObject, mapObjectToArray} from '../../utils/iterate-obj
 import stringifyValue, {StringifiableType} from '../../utils/stringify'
 import {randomNumber} from '../../utils/random'
 import {setAutoComponent} from '../states-collector'
+import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
+import {numberToAlphanumeric} from '../../utils/number-to-string'
 
 export default class TemplateBuilder {
     private readonly clientTemplates: ClientTemplatesMapType
@@ -27,29 +29,31 @@ export default class TemplateBuilder {
         this.serverTemplates = serverTemplates
     }
 
-    makeTemplate(component) {
+    makeTemplate(component: VirtualElementInterface<'component'>) {
         const constructor = component.function
         // seed to generate different hash when using `stringifyNode()`
         const seed = randomNumber(2)
-        const hash = Bun.hash(constructor.toString(), constructor.name === 'function' && seed) as number
+        const hash: HashType = isVirtualElement(component) && 'hash' in component
+            ? component.hash()
+            : numberToAlphanumeric(Bun.hash(constructor.toString(), constructor.name === 'function' && seed) as number)
         setAutoComponent(hash)
         if (!this.clientTemplates.has(hash)) {
             const returnValue = constructor({
                 children: component.children,
                 ...component.props,
             })
-            let [clientTemplatePart, serverTemplatePart] = this.stringifyNodes(returnValue)
+            let [clientTemplatePart, serverTemplatePart] = this.stringifyNodes(returnValue, component)
             this.clientTemplates.set(hash, clientTemplatePart.join(''))
             this.serverTemplates.set(hash, serverTemplatePart)
         }
         return hash
     }
 
-    private stringifyNodes(nodes: ElementChild | ElementChild[]): [string[], ServerTemplateNodeType[]] {
+    private stringifyNodes(nodes: ElementChild | ElementChild[], parent: VirtualElementInterface): [string[], ServerTemplateNodeType[]] {
         const nodesArray = ensureArray(nodes)
         const clientTemplate: (string | false)[] = []
         const serverTemplate: (ServerTemplateNodeType | false)[] = []
-        nodesArray.forEach((node) => {
+        nodesArray.forEach((node, index) => {
             let clientTemplatePart: string | false, serverTemplatePart: ServerTemplateNodeType | false
             const isVirtualElementInterface = ((node): node is VirtualElementInterface =>
                     typeof node === 'object' && 'type' in node && 'props' in node
@@ -59,6 +63,9 @@ export default class TemplateBuilder {
                     node is VirtualElementInterface<'component'> => node.type === 'component'
                 const isNotComponent = (node: VirtualElementInterface):
                     node is VirtualElementInterface<Exclude<VirtualElementTypeType, 'component'>> => node.type !== 'component'
+
+                if ('trace' in node)
+                    node.trace(index, parent as VirtualElement)
 
                 if (isComponent(node)) {
                     [clientTemplatePart, serverTemplatePart] = this.stringifyComponent(node)
@@ -103,13 +110,16 @@ export default class TemplateBuilder {
     }
 
     private stringifyHtmlElement(element: VirtualElementInterface<Exclude<VirtualElementTypeType, 'component'>>): [string, ServerTemplateHTMLElementType] {
+        if ('ref' in element.props) {
+            element.props.ref.populate(element)
+        }
         const props = checkProps(element.props)
         const stringifiedProps = mapObjectToArray(props, ([key, value]) =>
             isState(value) || isStateUsage(value)
                 ? '' // todo
                 : key + JSON.stringify(stringifyValue(value))
         )
-        const [stringifiedChildren, serverChildren] = this.stringifyNodes(element.children.flat())
+        const [stringifiedChildren, serverChildren] = this.stringifyNodes(element.children.flat(), element)
         const wrappedChildren = stringifiedChildren.length === 1 ? stringifiedChildren : `[${stringifiedChildren.join('')}]`
         return [
             `[${element.type}[${stringifiedProps.join('')}]${wrappedChildren}]`,

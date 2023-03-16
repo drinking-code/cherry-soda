@@ -3,6 +3,7 @@ import {voidElements} from '../jsx/dom/html-props'
 import {ensureArray} from '../utils/array'
 import {mapObjectToArray} from '../utils/iterate-object'
 import {ServerTemplateNodeType, ServerTemplatesMapType} from '../compiler/template/types'
+import {HashType} from '../jsx/VirtualElement'
 
 const bunPeek = ((Bun as unknown as { peek: Function }).peek as <V>(promise: Promise<V>) => Promise<V> | V)
 
@@ -16,7 +17,7 @@ export function getRenderer(template: ReturnType<typeof extractTemplates>) {
     }
     return () => {
         const serverTemplates: ServerTemplatesMapType = resolvedTemplate.serverTemplates
-        const entry: number = resolvedTemplate.entry
+        const entry: HashType = resolvedTemplate.entry
 
         function renderTemplate(key): string {
             const template = serverTemplates.get(key)

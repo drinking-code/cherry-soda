@@ -1,14 +1,13 @@
-import {StateId} from './state-id'
 import StateUsage from './state-usage'
 import {StringifiableType} from '../utils/stringify'
+import AbstractState from './abstract-state'
 
-export default class State<V = any> {
-    $$stateId: StateId
+export default class State<V = any> extends AbstractState {
     protected _value: V
 
     constructor(initialValue?: V) {
+        super()
         this._value = initialValue
-        this.$$stateId = new StateId()
     }
 
     /**
@@ -48,5 +47,5 @@ export function createState<T = any>(initialValue: T): State<T> {
 }
 
 export function isState(value: any): value is State | StateConcatenation {
-    return value instanceof State || value instanceof StateConcatenation
+    return (value instanceof State && value?.constructor?.name === State.name) || value instanceof StateConcatenation
 }

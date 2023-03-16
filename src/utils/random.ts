@@ -1,4 +1,4 @@
-import {numberToAlphanumeric} from './numberToString'
+import {numberToAlphanumeric} from './number-to-string'
 
 export function randomNumber(bytesAmount = 4) {
     return crypto.getRandomValues(new Uint8Array(bytesAmount))

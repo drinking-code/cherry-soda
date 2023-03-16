@@ -1,4 +1,4 @@
-import {numberToAlphabetic} from './numberToString'
+import {numberToAlphabetic} from './number-to-string'
 
 export default function generateClassName(className, fileName) {
     if (className.startsWith('_')) return className

@@ -16,8 +16,10 @@ import {useFs} from './bundler/use-fs'
 import imageLoader from '../imports/images'
 import stylePlugin from './bundler/style-plugin'
 import generateClassName from '../utils/generate-css-class-name'
-import {getStateFromPlaceholderId, stateIdPlaceholderPrefix} from './states-collector'
+import {getRefs, getStateFromPlaceholderId, stateIdPlaceholderPrefix} from './states-collector'
 import {replaceAsync} from '../utils/replace-async'
+import {clientTemplatesToJs, refsToJs} from './generate-code'
+import {ClientTemplatesMapType} from './template/types'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const outputPath = '/dist'
@@ -27,7 +29,11 @@ const pe = new PrettyError()
 let hfs: Volume
 let moduleToFileNameMap
 
-export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType, assetsFilePaths: string[]): { outputPath: string, fs: Volume } {
+export default function bundleVirtualFiles(
+    clientScriptTrees: ClientModulesType,
+    assetsFilePaths: string[],
+    template: Promise<{ clientTemplates: ClientTemplatesMapType }>
+): { outputPath: string, fs: Volume } {
     const entryPoint = process.env.CHERRY_COLA_ENTRY
     const entryDir = path.dirname(entryPoint)
     const mountFromSrc = ['runtime', 'messages', 'utils']
@@ -74,7 +80,12 @@ export default function bundleVirtualFiles(clientScriptTrees: ClientModulesType,
         inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
         console.log(inputFile)
         hfs.writeFileSync(inputFilePath, inputFile)
-        await startEsbuild()
+        const refsAndTemplatesFile = path.join(virtualFilesPath, 'refs-and-templates.js')
+        hfs.writeFileSync(
+            refsAndTemplatesFile,
+            refsToJs(getRefs()) + newLine + clientTemplatesToJs((await template).clientTemplates)
+        )
+        await startEsbuild(refsAndTemplatesFile)
     })()
     return {outputPath, fs: hfs}
 }
@@ -89,12 +100,12 @@ const browserslistEsbuildMap = {
     'safari': 'safari',
 }
 
-async function startEsbuild() {
+async function startEsbuild(refsAndTemplatesFile: string) {
     // @ts-ignore TS2339: Property 'json' does not exist on type 'FileBlob'.
     const packageJson = await Bun.file(resolveModuleRoot('package.json')).json()
     await esbuild.build({
         entryPoints: [inputFilePath],
-        inject: [path.join('/', 'runtime', 'index.ts')],
+        inject: [path.join('/', 'runtime', 'index.ts'), refsAndTemplatesFile],
         outfile: path.join(outputPath, 'main.js'),
         target: browserslist('> 1%, not dead') // todo: make a changeable option
             .map(browser => {

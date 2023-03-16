@@ -1,23 +1,25 @@
 import {VirtualElement} from '../jsx/VirtualElement'
 import State from './state'
 import {isArray} from '../utils/array'
+import AbstractState from './abstract-state'
 
 export default function createRef<T extends RefConstraint = RefConstraint>() {
     return new Ref<T>()
 }
 
-type HTMLOrVirtualElement = VirtualElement | HTMLElement
-type RefConstraint = HTMLElement | HTMLElement[] | unknown
+// type HTMLOrVirtualElement = VirtualElement | HTMLElement
+type RefConstraint = HTMLElement /*| HTMLElement[]*/ | unknown
 
-export class Ref<P extends RefConstraint = RefConstraint> extends State<RefConstraint> {
-    declare _value: RefConstraint
+export class Ref<P extends RefConstraint = RefConstraint> extends AbstractState {
+    declare _value: P | P[]
 
     constructor() {
         super()
     }
 
-    populate(element: RefConstraint) {
-        if (!super._value) {
+
+    populate(element: P) {
+        if (!this._value) {
             this._value = element
         } else {
             if (!isArray(this._value)) {
@@ -28,8 +30,13 @@ export class Ref<P extends RefConstraint = RefConstraint> extends State<RefConst
             }
         }
     }
+
+    getIds() {
+        const value = Array.isArray(this._value) ? this._value : [this._value]
+        return value.map(element => (element as VirtualElement).id)
+    }
 }
 
 export function isRef(value): value is Ref {
-    return value?.constructor?.name === 'Ref'
+    return value instanceof Ref
 }

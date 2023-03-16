@@ -2,10 +2,12 @@ import {Scope} from '@babel/traverse'
 
 import Parser from '../parser'
 import {transformTsx} from '../../imports/jsx-patch-plugin'
+import {numberToAlphanumeric} from '../../utils/number-to-string'
+import {HashType} from '../../jsx/VirtualElement'
 
-const cache: { [filename: string]: Map<Scope, number> } = {}
+const cache: { [filename: string]: Map<Scope, HashType> } = {}
 
-export default function getComponentHashFromScope(scope: Scope, parser: Parser, fileName: string): number {
+export default function getComponentHashFromScope(scope: Scope, parser: Parser, fileName: string): HashType {
     if (fileName in cache && cache[fileName].has(scope))
         return cache[fileName].get(scope)
     const block = scope.block
@@ -15,7 +17,7 @@ export default function getComponentHashFromScope(scope: Scope, parser: Parser, 
     const lastLineIndex = componentLines.length - 1
     componentLines[lastLineIndex] = componentLines[lastLineIndex].slice(0, block.loc.end.column)
     const functionString = componentLines.join("\n")
-    const hash = Bun.hash(transformTsx(functionString).split("\n").slice(4).join("\n").trim()) as number
+    const hash = numberToAlphanumeric(Bun.hash(transformTsx(functionString).split("\n").slice(4).join("\n").trim()) as number)
     if (!(fileName in cache)){
         cache[fileName] = new Map()
     }

@@ -1,18 +1,21 @@
-import State from '../state/state'
+import State, {isState} from '../state/state'
 import {Ref} from '../state/create-ref'
 import {generateId} from '../utils/random'
+import {mapSet, mapSetToObject} from '../utils/iterate-object'
+import {ElementId, HashType, VirtualElement} from '../jsx/VirtualElement'
 
-const componentStates: Map<number, Array<(State | Ref | Promise<string>)[]>> = new Map()
+const componentStates: Map<HashType, Array<(State | Ref | Promise<string>)[]>> = new Map()
 const componentStatesPromises: Map<Promise<string>, typeof Promise.resolve> = new Map()
-const componentStatesPlaceholders: Map<string, [number, number, number]> = new Map()
+const componentStatesPlaceholders: Map<string, [HashType, number, number]> = new Map()
+const refs: Set<Ref<VirtualElement>> = new Set()
 
-export function setStates(hash: number, doSomethingIndex: number, states: (State | Ref)[]) {
+export function setStates(hash: HashType, doSomethingIndex: number, states: (State | Ref<VirtualElement>)[]) {
     states.forEach((state, index) => {
         setState(hash, doSomethingIndex, index, state)
     })
 }
 
-export function setState(hash: number, doSomethingIndex: number, stateIndex: number, state: State | Ref | Promise<string>, onlySetIfUndefined: boolean = false) {
+export function setState(hash: HashType, doSomethingIndex: number, stateIndex: number, state: State | Ref<VirtualElement> | Promise<string>, onlySetIfUndefined: boolean = false) {
     if (!componentStates.has(hash)) {
         componentStates.set(hash, [])
     }
@@ -26,7 +29,19 @@ export function setState(hash: number, doSomethingIndex: number, stateIndex: num
         } else {
             stateArray[stateIndex] = state
         }
+        if (!isState(state) && !(state instanceof Promise)) { // instanceof Ref would throw
+            refs.add(state)
+        }
     }
+}
+
+export function getRefs(): { [refId: string]: ElementId['fullPath'][] } {
+    return mapSetToObject(refs, ref => {
+        return [
+            ref.$$stateId.serialize(),
+            ref.getIds()
+        ]
+    })
 }
 
 const autoData = {
@@ -34,12 +49,12 @@ const autoData = {
     doSomethingIndex: null,
 }
 
-export function setAutoComponent(hash: number) {
+export function setAutoComponent(hash: HashType) {
     autoData.hash = hash
     autoData.doSomethingIndex = 0
 }
 
-export function autoSetState(states: (State | Ref)[]) {
+export function autoSetState(states: (State | Ref<VirtualElement>)[]) {
     if (autoData.hash === null) return false
     setStates(autoData.hash, autoData.doSomethingIndex, states)
     autoData.doSomethingIndex++
@@ -47,7 +62,7 @@ export function autoSetState(states: (State | Ref)[]) {
 
 export const stateIdPlaceholderPrefix = 'stateIdPlaceholder_'
 
-export function getState(hash: number, doSomethingIndex: number, stateIndex: number, givePlaceholder: boolean = true):
+export function getState(hash: HashType, doSomethingIndex: number, stateIndex: number, givePlaceholder: boolean = true):
     typeof givePlaceholder extends true | undefined ? string : string | Promise<string> {
     function fallback(): typeof givePlaceholder extends true ? string : string | Promise<string> {
         let resolve

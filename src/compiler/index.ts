@@ -30,7 +30,7 @@ export default function compile(entry: string): { outputPath: string, fs: Volume
     parseFileAndAllImportedFiles(entry)
     const clientScriptTrees = generateClientScriptTrees(parser)
     const assetsFilePaths = collectAssetsFilePaths(parser)
-    const volumeAndPath = bundleVirtualFiles(clientScriptTrees, assetsFilePaths)
+    const volumeAndPath = bundleVirtualFiles(clientScriptTrees, assetsFilePaths, templatePromise)
     resolveVolumeAndPathPromise(volumeAndPath)
     return {...volumeAndPath, render}
 }

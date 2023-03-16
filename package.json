@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.21.0",
+    "@babel/generator": "^7.21.3",
     "@babel/parser": "^7.19.3",
     "@babel/traverse": "^7.21.2",
     "babel-plugin-minify-dead-code-elimination": "^0.5.2",

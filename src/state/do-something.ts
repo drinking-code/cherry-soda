@@ -2,6 +2,7 @@ import {State as ClientState} from '../runtime/client-state'
 import State from './state'
 import {Ref} from './create-ref'
 import {autoSetState} from '../compiler/states-collector'
+import {VirtualElement} from '../jsx/VirtualElement'
 
 type StateOrRefType = State | Ref
 type StateType = State
@@ -27,5 +28,5 @@ export default function doSomething<States extends StateOrRefType[]>(
     callback: (...args: MappedStateOrRefType<States>) => void | Function,
     statesAndRefs: States
 ) {
-    autoSetState(statesAndRefs)
+    autoSetState(statesAndRefs as Ref<VirtualElement>[])
 }

@@ -40,7 +40,7 @@ function prepStatesAndRefs(statesAndRefs: (State | Ref)[]): ([any, (value: any) 
         if (stateOrRef instanceof State)
             return [stateOrRef.valueOf(), stateOrRef.updateValue]
         else
-            return document.createElement('div') // todo
+            return null // todo
     })
 }
 

@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import {Plugin} from 'esbuild'
 import {BunPlugin} from 'bun'
-import {numberToHex} from '../utils/numberToString'
+import {numberToHex} from '../utils/number-to-string'
 
 interface ImageLoaderOptions {
     emit?: boolean
