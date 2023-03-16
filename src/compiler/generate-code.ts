@@ -1,4 +1,4 @@
-import {ElementId} from '../jsx/VirtualElement'
+import {ElementId, HashType} from '../jsx/VirtualElement'
 import {
     arrayExpression, exportNamedDeclaration,
     identifier, numericLiteral,
@@ -32,17 +32,21 @@ export function refsToJs(refs: { [refId: string]: ElementId['fullPath'][] }): st
     return generate(ast).code
 }
 
-export function clientTemplatesToJs(template: ClientTemplatesMapType): string {
-    const ast = variableDeclaration('const', [
+export function clientTemplatesToJs(templates: { clientTemplates: ClientTemplatesMapType, entry: HashType }): string {
+    const ast = exportNamedDeclaration(variableDeclaration('const', [
         variableDeclarator(
             identifier('templates'),
-            objectExpression(mapMapToArray(template, ([componentId, template]) =>
+            objectExpression(mapMapToArray(templates.clientTemplates, ([componentId, template]) =>
                 objectProperty(
                     identifier(wrapQuoteIfStartsWithNumber(componentId)),
                     stringLiteral(template)
                 )
             ))
+        ),
+        variableDeclarator(
+            identifier('templatesEntry'),
+            stringLiteral(templates.entry)
         )
-    ])
+    ]))
     return generate(ast, {jsescOption: {quotes: 'single'}}).code
 }
