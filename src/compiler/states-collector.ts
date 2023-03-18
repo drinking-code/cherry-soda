@@ -1,7 +1,7 @@
 import State, {isState} from '../state/state'
 import {Ref} from '../state/create-ref'
 import {generateId} from '../utils/random'
-import {mapSet, mapSetToObject} from '../utils/iterate-object'
+import {filterObject, mapSet, mapSetToObject} from '../utils/iterate-object'
 import {ElementId, HashType, VirtualElement} from '../jsx/VirtualElement'
 
 const componentStates: Map<HashType, Array<(State | Ref | Promise<string>)[]>> = new Map()
@@ -36,12 +36,14 @@ export function setState(hash: HashType, doSomethingIndex: number, stateIndex: n
 }
 
 export function getRefs(): { [refId: string]: ElementId['fullPath'][] } {
-    return mapSetToObject(refs, ref => {
-        return [
-            ref.$$stateId.serialize(),
-            ref.getIds()
-        ]
-    })
+    return filterObject(
+        mapSetToObject(refs, ref => {
+            return [
+                ref.$$stateId.serialize(),
+                ref.getIds()
+            ]
+        }), v => v.length > 0
+    )
 }
 
 const autoData = {

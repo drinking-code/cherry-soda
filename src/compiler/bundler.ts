@@ -81,9 +81,10 @@ export default function bundleVirtualFiles(
         inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
         hfs.writeFileSync(inputFilePath, inputFile)
         const refsAndTemplatesFile = path.join(virtualFilesPath, 'refs-and-templates.js')
+        const awaitedTemplate = await template // await before calling getRefs() to make sure all elements are traced
         hfs.writeFileSync(
             refsAndTemplatesFile,
-            refsToJs(getRefs()) + newLine + clientTemplatesToJs(await template)
+            refsToJs(getRefs()) + newLine + clientTemplatesToJs(awaitedTemplate)
         )
         await startEsbuild(refsAndTemplatesFile)
     })()

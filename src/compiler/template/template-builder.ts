@@ -12,10 +12,8 @@ import State, {isState, StateConcatenation} from '../../state/state'
 import StateUsage, {isStateUsage} from '../../state/state-usage'
 import {filterObject, mapObject, mapObjectToArray} from '../../utils/iterate-object'
 import stringifyValue, {StringifiableType} from '../../utils/stringify'
-import {randomNumber} from '../../utils/random'
 import {setAutoComponent} from '../states-collector'
 import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
-import {numberToAlphanumeric} from '../../utils/number-to-string'
 
 export default class TemplateBuilder {
     private readonly clientTemplates: ClientTemplatesMapType
@@ -29,14 +27,13 @@ export default class TemplateBuilder {
         this.serverTemplates = serverTemplates
     }
 
-    makeTemplate(component: VirtualElementInterface<'component'>) {
+    makeTemplate(component: VirtualElementInterface<'component'>, parent?: VirtualElementInterface) {
         const constructor = component.function
-        // seed to generate different hash when using `stringifyNode()`
-        const seed = randomNumber(2)
-        const hash: HashType = isVirtualElement(component) && 'hash' in component
-            ? component.hash()
-            : numberToAlphanumeric(Bun.hash(constructor.toString(), constructor.name === 'function' && seed) as number)
+        const hash: HashType = isVirtualElement(component) && 'hash' in component && component.hash()
         setAutoComponent(hash)
+        if (isVirtualElement(component)) {
+            component.generatePreliminaryId(parent as VirtualElement)
+        }
         if (!this.clientTemplates.has(hash)) {
             const returnValue = constructor({
                 children: component.children,
@@ -45,6 +42,9 @@ export default class TemplateBuilder {
             let [clientTemplatePart, serverTemplatePart] = this.stringifyNodes(returnValue, component)
             this.clientTemplates.set(hash, clientTemplatePart.join(''))
             this.serverTemplates.set(hash, serverTemplatePart)
+        }
+        if (isVirtualElement(component)) {
+            component.trace()
         }
         return hash
     }
@@ -64,14 +64,18 @@ export default class TemplateBuilder {
                 const isNotComponent = (node: VirtualElementInterface):
                     node is VirtualElementInterface<Exclude<VirtualElementTypeType, 'component'>> => node.type !== 'component'
 
-                if ('trace' in node)
-                    node.trace(index, parent as VirtualElement)
+
+                if (isVirtualElement(node))
+                    node.generatePreliminaryId(parent as VirtualElement)
 
                 if (isComponent(node)) {
-                    [clientTemplatePart, serverTemplatePart] = this.stringifyComponent(node)
+                    [clientTemplatePart, serverTemplatePart] = this.stringifyComponent(node, parent)
                 } else if (isNotComponent(node)) {
-                    [clientTemplatePart, serverTemplatePart] = this.stringifyHtmlElement(node)
+                    ;[clientTemplatePart, serverTemplatePart] = this.stringifyHtmlElement(node)
                 } else clientTemplatePart = serverTemplatePart = false
+
+                if (isVirtualElement(node))
+                    node.trace()
             } else if (!Array<any>(undefined, null, false).includes(node)) {
                 if (isState(node) || isStateUsage(node))
                     [clientTemplatePart, serverTemplatePart] = this.stringifyStateNode(node)
@@ -88,8 +92,8 @@ export default class TemplateBuilder {
         ]
     }
 
-    private stringifyComponent(component: VirtualElementInterface<'component'>): [string, ServerTemplateComponentType] {
-        const hash = this.makeTemplate(component)
+    private stringifyComponent(component: VirtualElementInterface<'component'>, parent?: VirtualElementInterface): [string, ServerTemplateComponentType] {
+        const hash = this.makeTemplate(component, parent)
         const statesOnlyProps = filterObject(
             component.props as { [p: string]: any },
             (entry): entry is [string, State | StateConcatenation | StateUsage] =>

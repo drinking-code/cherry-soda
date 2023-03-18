@@ -1,5 +1,4 @@
 import {VirtualElement} from '../jsx/VirtualElement'
-import State from './state'
 import {isArray} from '../utils/array'
 import AbstractState from './abstract-state'
 
@@ -7,8 +6,7 @@ export default function createRef<T extends RefConstraint = RefConstraint>() {
     return new Ref<T>()
 }
 
-// type HTMLOrVirtualElement = VirtualElement | HTMLElement
-type RefConstraint = HTMLElement /*| HTMLElement[]*/ | unknown
+type RefConstraint = HTMLElement | unknown
 
 export class Ref<P extends RefConstraint = RefConstraint> extends AbstractState {
     declare _value: P | P[]
@@ -16,7 +14,6 @@ export class Ref<P extends RefConstraint = RefConstraint> extends AbstractState 
     constructor() {
         super()
     }
-
 
     populate(element: P) {
         if (!this._value) {
@@ -33,7 +30,7 @@ export class Ref<P extends RefConstraint = RefConstraint> extends AbstractState 
 
     getIds() {
         const value = Array.isArray(this._value) ? this._value : [this._value]
-        return value.map(element => (element as VirtualElement).id)
+        return value.map(element => (element as VirtualElement).id).filter(v => v)
     }
 }
 

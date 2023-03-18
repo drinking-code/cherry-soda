@@ -15,15 +15,15 @@ const domMethods = {
 }
 
 export function findNode(refId: string) {
-    // console.log(refs[refId])
+    console.log(refs[refId])
     // console.log(templates[templatesEntry])
     // console.log(templatesEntry)
     // const parser = new TemplateParser(templates[refs[refId][0][0]], domMethods)
-    const parserEntry = new TemplateParser(templates[templatesEntry], domMethods)
+    // const parserEntry = new TemplateParser(templates[templatesEntry], domMethods)
     // parser.parseTemplate()
-    parserEntry.parseTemplate(templates)
+    // parserEntry.parseTemplate(templates)
     // console.log(parser.elements)
-    console.log(parserEntry.elements)
+    // console.log(parserEntry.elements)
 }
 
 class VirtualNode {

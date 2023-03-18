@@ -3,25 +3,24 @@
 // a template may include a state somewhere (plain, or convoluted)
 
 import '../imports/'
-import {Props, VirtualElementInterface} from '../jsx/cherry-cola'
+import {VirtualElementInterface} from '../jsx/cherry-cola'
 import {ElementChildren} from '../jsx/ElementChildren'
 import bundleVirtualFiles from './bundler'
-import State, {createState} from '../state/state'
+import {createState} from '#cherry-cola'
 import {ClientTemplatesMapType, ServerTemplateHTMLElementType, ServerTemplatesMapType} from './template/types'
 import TemplateBuilder from './template/template-builder'
+import {jsx} from '../jsx-runtime'
+import {VirtualElement} from '../jsx/VirtualElement'
 
 export default async function extractTemplates(entry: string, volumeAndPathPromise: Promise<ReturnType<typeof bundleVirtualFiles>>) {
     const clientTemplates: ClientTemplatesMapType = new Map()
     const serverTemplates: ServerTemplatesMapType = new Map()
     const componentFunction = (await import(entry)).main
 
-    const mockedComponent: VirtualElementInterface<'component'> = {
-        type: 'component',
-        function: componentFunction,
-        props: {},
-    }
+    const mainComponent = jsx(componentFunction, {}) as VirtualElement
+
     const builder = new TemplateBuilder(clientTemplates, serverTemplates)
-    let entryHash = builder.makeTemplate(mockedComponent)
+    let entryHash = builder.makeTemplate(mainComponent as VirtualElementInterface<'component'>)
     // check if first element is <html>
     let keyIndex = entryHash, firstElementHtml = false
     while (firstElementHtml === false) {
@@ -42,13 +41,23 @@ export default async function extractTemplates(entry: string, volumeAndPathPromi
     if (!firstElementHtml) {
         const Document = (await import('../jsx/dom/default-document')).default
         const volumeAndPath = await volumeAndPathPromise
-        const mockedDocumentComponent: VirtualElementInterface<'component', Props<'component'> & { clientAssets: State<typeof volumeAndPath> }> = {
-            type: 'component',
-            function: Document,
-            props: {clientAssets: createState(volumeAndPath)},
-            children: new ElementChildren(mockedComponent)
+        const documentComponent = jsx(Document, {
+            clientAssets: createState(volumeAndPath),
+            children: new ElementChildren(mainComponent)
+        }) as VirtualElement
+
+        entryHash = builder.makeTemplate(documentComponent as VirtualElementInterface<'component'>)
+
+        // retrace body dom children because dom elements could not find <body> before
+        function traceDomElements(component: VirtualElement) {
+            component.realChildren.forEach((child: VirtualElement) => {
+                if (child.type === 'component') traceDomElements(child)
+                else if ('trace' in child && typeof child.trace === 'function') child.trace()
+            })
         }
-        entryHash = builder.makeTemplate(mockedDocumentComponent)
+
+        mainComponent.trace()
+        traceDomElements(mainComponent)
     }
 
     return {clientTemplates, serverTemplates, entry: entryHash}
