@@ -1,20 +1,38 @@
-function cloneStateValue(value) {
-    if (['string', 'number', 'boolean'].includes(typeof value) || [null, undefined].includes(value))
+import {Ref} from './dom'
+
+function cloneStateValue<V>(value: V): V {
+    if (['string', 'number', 'boolean'].includes(typeof value) || [null, undefined].includes(value)) {
         return value
-    else
-        return new value.constructor(value)
+    } else if (typeof value === 'function') {
+        return value.bind({})
+    } else {
+        const valueWithNotFunctionType = value as Exclude<any, Function>
+        console.log(valueWithNotFunctionType)
+        return new valueWithNotFunctionType.constructor(value)
+    }
 }
 
-export class State<V = any> {
-    private _value: V
-    private _listeners: (() => void)[] = []
+export abstract class AbstractState<V = any> {
+    protected _value: V
 
-    constructor(value: V) {
-        this._value = cloneStateValue(value)
+    protected constructor(value: V) {
+        this._value = value
     }
 
     valueOf(): V {
-        return cloneStateValue(this._value)
+        return this._value
+    }
+}
+
+export class State<V = any> extends AbstractState<V> {
+    private _listeners: (() => void)[] = []
+
+    constructor(value: V) {
+        super(cloneStateValue(value))
+    }
+
+    valueOf(): V {
+        return cloneStateValue(super.valueOf())
     }
 
     updateValue(value: V) {
@@ -27,28 +45,24 @@ export class State<V = any> {
     }
 }
 
-class Ref {
-
-}
-
 export function createClientState(value: any, id: number) {
     return new State(value)
 }
 
-function prepStatesAndRefs(statesAndRefs: (State | Ref)[]): ([any, (value: any) => void] | HTMLElement)[] {
+function prepStatesAndRefs(statesAndRefs: (State | Ref<any>)[]): ([any, (value: any) => void] | HTMLElement)[] {
     return statesAndRefs.map(stateOrRef => {
         if (stateOrRef instanceof State)
             return [stateOrRef.valueOf(), stateOrRef.updateValue]
         else
-            return null // todo
+            return stateOrRef.valueOf()
     })
 }
 
 export function registerStateChangeHandler(
     callback: (...preppedStatesAndRefs: ([any, (value: any) => void] | HTMLElement)[]) => void,
-    statesAndRefs: (State | Ref)[]
+    statesAndRefs: (State | Ref<any>)[]
 ) {
-    console.log('register', callback, statesAndRefs)
+    // console.log('register', callback, statesAndRefs)
     statesAndRefs.forEach(state => {
         if (!(state instanceof State)) return
         state.listen(() => callback(...prepStatesAndRefs(statesAndRefs)))
