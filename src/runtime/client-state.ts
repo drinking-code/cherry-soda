@@ -38,6 +38,11 @@ export class State<V = any> extends AbstractState<V> {
     }
 
     updateValue(value: V) {
+        this._updateValueInternal(value, false)
+    }
+
+    private _updateValueInternal(value: V, forceUpdate: boolean = false) {
+        if (!forceUpdate && value === this._value) return
         if (this._listenersCleanup)
             this._listenersCleanup.forEach(cleanup => cleanup && cleanup())
         this._value = cloneStateValue(value)
@@ -45,7 +50,7 @@ export class State<V = any> extends AbstractState<V> {
     }
 
     update() {
-        this.updateValue(this._value)
+        this._updateValueInternal(this._value, true)
     }
 
     listen(listener: () => void) {
