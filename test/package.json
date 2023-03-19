@@ -1,0 +1,36 @@
+{
+  "name": "cherry-cola-test",
+  "version": "0.1.0",
+  "description": "Tests for cherry-cola",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "bun run test",
+    "test:jest": "cd .. && BUN_ENV=development node --no-warnings --experimental-vm-modules --experimental-global-customevent ./test/node_modules/.bin/jest",
+    "readme": "bun run readme.check.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@julian_cataldo/retext-case-police": "^1.1.4",
+    "dale-chall": "^2.0.0",
+    "dictionary-en-gb": "^2.4.0",
+    "jest": "^29.2.2",
+    "playwright": "^1.27.1",
+    "remark-gfm": "^3.0.1",
+    "remark-parse": "^10.0.1",
+    "remark-retext": "^5.0.1",
+    "retext-english": "^4.1.0",
+    "retext-indefinite-article": "^4.1.0",
+    "retext-readability": "^7.2.0",
+    "retext-repeated-words": "^4.2.0",
+    "retext-spell": "^5.3.0",
+    "retext-stringify": "^3.1.0",
+    "spache": "^2.0.0",
+    "syllable": "^5.0.0",
+    "to-vfile": "^7.2.3",
+    "typescript": "^4.8.4",
+    "unified": "^10.1.2",
+    "vfile-message": "^3.1.2"
+  }
+}

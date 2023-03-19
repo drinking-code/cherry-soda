@@ -15,7 +15,7 @@ Yet another JavaScript framework that nobody needs. It has an SSR-first approach
 components to build apps. The components are rendered on the server, but contain state change handlers that are executed
 in the browser. Instead of bundling the full component, cherry-cola extracts and bundles only the necessary code (the
 event handler with its lexical scope, a template for client-side rendering, and styles) which can drastically reduce
-bundle size. Therefore, by default (i.e. without using state change handlers), there is no client side javascript
+bundle size. Therefore, by default (i.e. without using state change handlers), there is no client side JavaScript
 whatsoever.
 
 Currently, cherry-cola only runs on bun, Node compatibility is planned.
