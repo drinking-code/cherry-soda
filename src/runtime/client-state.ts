@@ -7,7 +7,6 @@ function cloneStateValue<V>(value: V): V {
         return value.bind({})
     } else {
         const valueWithNotFunctionType = value as Exclude<any, Function>
-        console.log(valueWithNotFunctionType)
         return new valueWithNotFunctionType.constructor(value)
     }
 }
@@ -24,8 +23,11 @@ export abstract class AbstractState<V = any> {
     }
 }
 
+type StateChangeHandlerType = (...args: ([any, (value: any) => void] | HTMLElement)[]) => (() => void) | void
+
 export class State<V = any> extends AbstractState<V> {
-    private _listeners: (() => void)[] = []
+    private _listeners: (StateChangeHandlerType)[] = []
+    private _listenersCleanup: (ReturnType<StateChangeHandlerType>)[]
 
     constructor(value: V) {
         super(cloneStateValue(value))
@@ -36,8 +38,14 @@ export class State<V = any> extends AbstractState<V> {
     }
 
     updateValue(value: V) {
+        if (this._listenersCleanup)
+            this._listenersCleanup.forEach(cleanup => cleanup && cleanup())
         this._value = cloneStateValue(value)
-        this._listeners.forEach(listener => listener())
+        this._listenersCleanup = this._listeners.map(listener => listener())
+    }
+
+    update() {
+        this.updateValue(this._value)
     }
 
     listen(listener: () => void) {
@@ -52,20 +60,19 @@ export function createClientState(value: any, id: number) {
 function prepStatesAndRefs(statesAndRefs: (State | Ref<any>)[]): ([any, (value: any) => void] | HTMLElement)[] {
     return statesAndRefs.map(stateOrRef => {
         if (stateOrRef instanceof State)
-            return [stateOrRef.valueOf(), stateOrRef.updateValue]
+            return [stateOrRef.valueOf(), stateOrRef.updateValue.bind(stateOrRef)]
         else
             return stateOrRef.valueOf()
     })
 }
 
 export function registerStateChangeHandler(
-    callback: (...preppedStatesAndRefs: ([any, (value: any) => void] | HTMLElement)[]) => void,
+    callback: StateChangeHandlerType,
     statesAndRefs: (State | Ref<any>)[]
 ) {
-    // console.log('register', callback, statesAndRefs)
     statesAndRefs.forEach(state => {
         if (!(state instanceof State)) return
         state.listen(() => callback(...prepStatesAndRefs(statesAndRefs)))
+        state.update()
     })
-    callback(...prepStatesAndRefs(statesAndRefs))
 }
