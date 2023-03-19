@@ -16,8 +16,7 @@ components to build apps. The components are rendered on the server, but contain
 in the browser. Instead of bundling the full component, cherry-cola extracts and bundles only the necessary code (the
 event handler with its lexical scope, a template for client-side rendering, and styles) which can drastically reduce
 bundle size. Therefore, by default (i.e. without using state change handlers), there is no client side JavaScript
-whatsoever.
-
+whatsoever.  
 Currently, cherry-cola only runs on bun, Node compatibility is planned.
 
 > **Warning**&nbsp;&nbsp;
@@ -67,8 +66,7 @@ export default function App() {
 `index.js` is the main entry point for cherry-cola. It will look for an exported function `main()` and will
 use the returned value to render HTML. `App.js` is an example function component similar to a React component.
 
-Run `cherry-cola dev src/index.js` to start the dev server with Bun, or `cherry-cola dev --node src/index.js` to run
-with Node. Then, visit `localhost:3000`.
+Run `cherry-cola dev src/index.js` to start the dev server. Then, visit `localhost:3000`.
 
 Alternatively, you can use the [`cherryCola()`](#cherrycolaentry-string) function in your own server to render the app.
 This also automatically serves the asset files (JavaScript, CSS, images, etc.).  
@@ -91,21 +89,6 @@ Bun.serve({
 })
 ```
 
-or for Express in Node:
-
-```javascript
-// main.js
-import cherryCola from 'cherry-cola/express'
-
-const app = express()
-
-app.all('/api', (req, res, next) => {
-    // your custom responses
-})
-app.use(await cherryCola(process.env.CHERRY_COLA_ENTRY))
-app.listen(3000)
-```
-
 ### Dev server (HMR-like)
 
 Cherry-cola doesn't use webpack, so HMR isn't really an option. However, cherry-cola provides a feature (preliminarily
@@ -113,17 +96,7 @@ called dynamic code synchronisation) that reflects changes made to your code in 
 The `cherry-cola dev` command has this activated out of the box.  
 For usage with a custom server use the `dynamicCodeSynchronisation()` function.
 
-For Express in Node:
-
-```javascript
-// main.js
-import cherryCola, {dynamicCodeSynchronisation} from 'cherry-cola/express'
-
-// ... server stuff
-
-const server = app.listen(3000)
-dynamicCodeSynchronisation(server)
-```
+[//]: # (todo: example)
 
 ## Guides
 
