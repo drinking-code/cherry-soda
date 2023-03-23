@@ -28,5 +28,7 @@ export default function doSomething<States extends StateOrRefType[]>(
     callback: (...args: MappedStateOrRefType<States>) => void | Function,
     statesAndRefs: States
 ) {
+    // const err = new Error()
+    // console.log(err.stack)
     autoSetState(statesAndRefs as Ref<VirtualElement>[])
 }

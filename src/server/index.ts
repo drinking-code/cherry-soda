@@ -11,4 +11,4 @@ Bun.serve({
 
 const url = `http://localhost:${process.env.PORT}`
 console.log(chalk.magenta('dev server: ') + `listening at ${url}`)
-setTimeout(() => open(url), 100)
+// setTimeout(() => open(url), 100)

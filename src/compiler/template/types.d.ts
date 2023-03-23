@@ -24,4 +24,5 @@ export type ServerTemplateNodeType =
     | ServerTemplateStateType
 
 export type ClientTemplatesMapType = Map<HashType, string>
+// export type StateUsage = Map<HashType, string>
 export type ServerTemplatesMapType = Map<HashType, ServerTemplateNodeType[]>

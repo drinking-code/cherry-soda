@@ -6,4 +6,8 @@ export default abstract class AbstractState {
     protected constructor() {
         this.$$stateId = new StateId()
     }
+
+    get id() {
+        return this.$$stateId.serialize()
+    }
 }

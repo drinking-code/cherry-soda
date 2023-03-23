@@ -58,8 +58,13 @@ export class State<V = any> extends AbstractState<V> {
     }
 }
 
-export function createClientState(value: any, id: number) {
-    return new State(value)
+const states = new Map()
+
+export function getClientState(id: number, value?: any) {
+    console.log()
+    if (!states.has(id))
+        states.set(id, new State(value))
+    return states.get(id)
 }
 
 function prepStatesAndRefs(statesAndRefs: (State | Ref<any>)[]): ([any, (value: any) => void] | HTMLElement)[] {

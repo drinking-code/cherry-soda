@@ -24,7 +24,7 @@ import {createRef, createState} from '#cherry-cola'
 import {generateId} from '../../utils/random'
 import {getState} from '../states-collector'
 import getComponentHashFromScope from './get-component-hash-from-scope'
-import {createClientState, registerStateChangeHandler} from '../../runtime'
+import {getClientState, registerStateChangeHandler} from '../../runtime'
 
 export type ClientModulesType = { [filename: string]: BabelFileResult }
 
@@ -105,14 +105,14 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                                     (doSomethingCalls as Node[]).findIndex(node => nodeMatches(node, nodePath.node)),
                                     i
                                 ) as string
-                                getStateDeclarationCall(stateIdentifier).arguments.push(stringLiteral(stateId))
+                                getStateDeclarationCall(stateIdentifier).arguments.unshift(stringLiteral(stateId))
                             })
                         nodePath.node.arguments[1] = identifier(arrayName)
                     }
                     getNodeId(nodePath.node).name = registerStateChangeHandler.name
                 } else if (isCherryColaFunction(nodePath, fileImports, createState, allBindingsBeforeImportDeletion)) {
                     const identifier = getNodeId(nodePath.node)
-                    identifier.name = createClientState.name
+                    identifier.name = getClientState.name
                     stateDeclarationCalls.set(getNodeId(nodePath.parentPath.node), nodePath.node)
                 } else if (isCherryColaFunction(nodePath, fileImports, createRef, allBindingsBeforeImportDeletion)) {
                     const identifier = getNodeId(nodePath.node)

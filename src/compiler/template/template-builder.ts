@@ -14,9 +14,12 @@ import {filterObject, mapObject, mapObjectToArray} from '../../utils/iterate-obj
 import stringifyValue, {StringifiableType} from '../../utils/stringify'
 import {setAutoComponent} from '../states-collector'
 import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
+import {includeStateUsage} from '../client-script'
+import {makeContext} from './state-usage'
 
 export default class TemplateBuilder {
     private readonly clientTemplates: ClientTemplatesMapType
+    private readonly clientStateUsages: ClientTemplatesMapType
     private readonly serverTemplates: ServerTemplatesMapType
 
     constructor(
@@ -78,7 +81,7 @@ export default class TemplateBuilder {
                     node.trace()
             } else if (!Array<any>(undefined, null, false).includes(node)) {
                 if (isState(node) || isStateUsage(node))
-                    [clientTemplatePart, serverTemplatePart] = this.stringifyStateNode(node)
+                    [clientTemplatePart, serverTemplatePart] = this.stringifyStateNode(node, 'child', parent)
                 else
                     [clientTemplatePart, serverTemplatePart] = this.stringifyTextNode(node)
             } else clientTemplatePart = serverTemplatePart = false
@@ -103,9 +106,10 @@ export default class TemplateBuilder {
             statesOnlyProps,
             ([key, value]) => [key, isStateUsage(value) ? value : value.use()]
         )
-        const stringifiedProps = mapObjectToArray(ensuredStateUsageProps, ([key, value]) =>
-            `[${key}${this.stringifyStateNode(value)}]`
-        )
+        const stringifiedProps = mapObjectToArray(ensuredStateUsageProps, ([key, value]) => {
+            const [clientStringifiedStateNode] = this.stringifyStateNode(value) // context is given by usages inside component
+            return `[${key}${clientStringifiedStateNode}]`
+        })
         const wrappedProps = stringifiedProps.length === 1 ? stringifiedProps : `[${stringifiedProps}]`
         return [
             `[${hash}${wrappedProps}]`,
@@ -139,10 +143,18 @@ export default class TemplateBuilder {
         ]
     }
 
-    private stringifyStateNode(state: State | StateConcatenation | StateUsage): [string, ServerTemplateStateType] {
+    private stringifyStateNode(
+        state: State | StateConcatenation | StateUsage,
+        context?: 'child' | 'prop',
+        contextElement?: VirtualElementInterface<any>,
+        prop?: string,
+    ): [string, ServerTemplateStateType] {
         const stateUsage = isStateUsage(state) ? state : state.use()
+        if (context) {
+            includeStateUsage(stateUsage, {type: context, contextElement, prop})
+        }
         return [
-            '#',
+            '#' + stateUsage.id,
             {type: 'state', stateUsage}
         ]
     }

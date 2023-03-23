@@ -21,6 +21,7 @@ import {replaceAsync} from '../utils/replace-async'
 import {clientTemplatesToJs, refsToJs} from './generate-code'
 import {ClientTemplatesMapType} from './template/types'
 import {HashType} from '../jsx/VirtualElement'
+import {getStateUsagesAsCode} from './client-script'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const outputPath = '/dist'
@@ -81,11 +82,13 @@ export default function bundleVirtualFiles(
         inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
         hfs.writeFileSync(inputFilePath, inputFile)
         const refsAndTemplatesFile = path.join(virtualFilesPath, 'refs-and-templates.js')
+        moduleToFileNameMap.set(refsAndTemplatesFile, 'refs and states')
         const awaitedTemplate = await template // await before calling getRefs() to make sure all elements are traced
-        hfs.writeFileSync(
-            refsAndTemplatesFile,
-            refsToJs(getRefs()) + newLine + clientTemplatesToJs(awaitedTemplate)
-        )
+        const refsAndTemplatesFileContents = refsToJs(getRefs()) + newLine +
+            clientTemplatesToJs(awaitedTemplate) + newLine +
+            getStateUsagesAsCode()
+        // console.log(refsAndTemplatesFileContents)
+        hfs.writeFileSync(refsAndTemplatesFile, refsAndTemplatesFileContents)
         await startEsbuild(refsAndTemplatesFile)
     })()
     return {outputPath, fs: hfs}
