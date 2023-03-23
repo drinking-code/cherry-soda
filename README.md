@@ -25,25 +25,20 @@ Currently, cherry-cola only runs on bun, Node compatibility is planned.
 ## Test the waters, dip a toe
 
 If you just to test out cherry-cola, you can run the examples. For that you need to have [Bun](https://bun.sh)
-installed. Then, clone the repository, install the dependencies with `bun i`. Use [cherry-cola's CLI](#cli) to run an
-example:
+installed. Then, clone the repository, install the dependencies with `bun i`. Use cherry-cola's CLI to run an example:
 
 ```shell
 cli/index dev example/cherry-cola-template/index.jsx
 ```
 
-or, if you use Node:
-
-```shell
-cli/index dev --node example/cherry-cola-template/index.jsx`
-```
-
-Visit `localhost:3000` and / or edit files in `example/cherry-cola-template/`. To test out the other examples, use the
-respective `index.jsx` as an argument instead.
+[//]: # (Visit `localhost:3000` and / or edit files in `example/cherry-cola-template/`. To test out the other examples, use the
+respective `index.jsx` as an argument instead.)
 
 ## Get started
 
-In a new Bun / Node project add an `src/index.js` and an `src/App.js`:
+[//]: # (todo: add command to add boilerplate code)
+
+In a new Bun project add an `src/index.js` and an `src/App.js`:
 
 ```javascript
 // src/index.js
@@ -64,7 +59,7 @@ export default function App() {
 ```
 
 `index.js` is the main entry point for cherry-cola. It will look for an exported function `main()` and will
-use the returned value to render HTML. `App.js` is an example function component similar to a React component.
+use the returned value to render HTML. `App.js` is an example component.
 
 Run `cherry-cola dev src/index.js` to start the dev server. Then, visit `localhost:3000`.
 
@@ -89,12 +84,12 @@ Bun.serve({
 })
 ```
 
-### Dev server (HMR-like)
+[//]: # (### Dev server (HMR-like)
 
-Cherry-cola doesn't use webpack, so HMR isn't really an option. However, cherry-cola provides a feature (preliminarily
-called dynamic code synchronisation) that reflects changes made to your code in the browser immediately after saving.
+[//]: # (Cherry-cola doesn't use webpack, so HMR isn't really an option. However, cherry-cola provides a feature &#40;preliminarily
+called dynamic code synchronisation&#41; that reflects changes made to your code in the browser immediately after saving.
 The `cherry-cola dev` command has this activated out of the box.  
-For usage with a custom server use the `dynamicCodeSynchronisation()` function.
+For usage with a custom server use the `dynamicCodeSynchronisation&#40;&#41;` function.)
 
 [//]: # (todo: example)
 
@@ -103,22 +98,26 @@ For usage with a custom server use the `dynamicCodeSynchronisation()` function.
 ### Add client-side code
 
 In a function component typically all code is executed on the server. To execute code on the client you can use
-the [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. The function you provide
-here will only be executed on the client. All "dependencies" for this function that must be provided through an array.
-This is because the function context will be different on the client.  
-To refer to an element that the component returns you can use refs (similar to React) with
-[`createRef()`](#createref-ref), which you will also need to pass in the array. Inside
-[`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) a ref will be the actual node of the
-DOM. States can also be passed in the dependency array. A state will be passed to the function as an array of the state
-and a function to change the state.  
-Here is [example](/example/counter/App.jsx) to illustrate all those features:
+the [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. The callback provided
+will only be executed on the client. You can provide states and/or refs to listen to in an array as the second
+parameter. If given, the callback will be called everytime a state or ref changes. To clean up, the callback may return
+a function, which will be called before the callback is called after a state change.
+
+[//]: # (todo: ref changing ??? wtf)
+To refer to an element that the component returns you can use a ref with [`createRef()`](#createref-ref), which you will
+also need to pass in the array. Inside [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any)
+a ref will be the actual node of the DOM. States can also be passed in the dependency array. A state will be passed to
+the function as an array of the state value and a function to change the state.  
+Here is an [example](/example/counter/App.jsx) to illustrate all those features:
 
 ```javascript
-import {createRef, createState, doSomething, Fragment} from 'cherry-cola'
+import {createRef, createState, doSomething} from 'cherry-cola'
 
 export default function Counter() {
     // create a state with an initial value `0`
-    // the returned value is an extended "Number" object to track this state
+    /* the returned value is an "State" object that can be used 
+     * as a child, prop value, as is or with ".use()"
+     */
     const count = createState(0)
     // two refs for the two buttons
     const addButton = createRef()
@@ -132,7 +131,7 @@ export default function Counter() {
      */
     doSomething(([count, setCount], addButton, subtractButton) => {
         /* "addButton" and "subtractButton" are now just DOM elements
-         * and not a refence objects anymore.
+         * and not refs anymore.
          */
         addButton.addEventListener('click', () => {
             setCount(count + 1)
@@ -142,36 +141,16 @@ export default function Counter() {
         })
     }, [count, addButton, subtractButton])
 
-    return (
-        <Fragment>
-            {/* The ref object must be passed here as "ref" to assign this node */}
-            <button ref={addButton}>+</button>
-            {/* The state object can be used here just like that. 
-            It'll be converted to a number (or rather a string) internally. */}
-            <span>Count: {count}</span>
-            <button ref={subtractButton}>-</button>
-        </Fragment>
-    )
+    return <>
+        {/* The ref object must be passed here as prop "ref" to assign this node */}
+        <button ref={addButton}>+</button>
+        {/* The state object can be used here just like that. 
+        It'll be converted to a number (or rather a string) internally. */}
+        <span>Count: {count}</span>
+        <button ref={subtractButton}>-</button>
+    </>
 }
 ```
-
-#### Importing modules for client-side use
-
-Cherry-cola only includes imported CSS (including SASS/SCSS) files in the frontend assets automatically. If you want to
-import modules into the frontend code, use the [`importOnClient()`](#importonclientmodule-string-clientsidemodule)
-function in the dependency array like so:
-
-```javascript
-import {doSomething, importOnClient} from 'cherry-cola'
-
-function Component() {
-    doSomething((_) => {
-        console.log(_.flattenDeep([1, [2, [3, [4]], 5]])) // [1, 2, 3, 4, 5]
-    }, [importOnClient('lodash')])
-}
-```
-
-Just like the other dependencies, it gets passed at the respective position to the given callback.
 
 ### Route on the server, and the client will route, too
 
@@ -179,63 +158,14 @@ Just like the other dependencies, it gets passed at the respective position to t
 
 ## Reference
 
-### CLI
-
-**Usage:** `cherry-cola <command> [options] <entry>`
-
-`<entry>` is the file you want to use as an entry point. This file should export a function `main()` (see
-[Rendering and function components](#rendering-and-function-components)). For `cherry-cola start` this is used as an
-"id" to find the correct files generated by `cherry-cola build`.
-
-**Global options:**
-
-- `--help` Print help (globally or for respective command)
-- `--version` Print version
-
-#### `build`
-
-`cherry-cola build [options] <entry>`  
-Compile code files and build assets for the client (and for Node, if specified) for this entry point.
-
-[//]: # (todo: multiple entrypoints? be able to compile multiple apps, and also serve maybe multiple?)
-
-**Options:**
-
-- `--node` Use Node instead of Bun
-
-[//]: # (todo: option for static site generation)
-
-#### `start`
-
-`cherry-cola start [options] <entry>`  
-Start the built-in web server (in production mode). You first must run `cherry-cola build` in order to
-for `cherry-cola start` to run properly.
-
-**Options:**
-
-- `--node` Use Node instead of Bun
-- `--port` Specify the port to be used
-
-#### `dev`
-
-`cherry-cola dev [options] <entry>`  
-Start the built-in web server (in development mode). This also compiles code files and builds assets for the client (and
-for Node, if specified). It also watches for any changes to update the server and all connected clients.
-
-**Options:**
-
-- `--node` Use Node instead of Bun
-- `--port` Specify the port to be used
-
 ### Rendering and function components
 
 #### Rendering
 
 ##### `cherryCola(entry: string)`
 
-To render an app, you can use the `cherryCola()` function. It returns either a request handler for `Bun.serve()` if you
-import from `cherry-cola/bun`, or an Express router if imported from `cherry-cola/express`. In dev mode this function
-also handles compiling / building and watching all the files belonging to you app.
+To render an app, you can use the `cherryCola()` function. It returns a request handler for `Bun.serve()` and handles
+compiling / building and watching all the files belonging to your app.
 
 **Parameters:**
 
@@ -243,10 +173,7 @@ also handles compiling / building and watching all the files belonging to you ap
 
 **Returns:**
 
-Both handle all requests with the app given as `entry` and serves all related (built) assets.
-
-- `Express.Router`, if imported from `cherry-cola/express`
-- `(req: Request) => Response`, if imported from `cherry-cola/bun`
+- `(req: Request) => Response`
 
 [//]: # (todo: document the element children find method)
 
@@ -255,6 +182,8 @@ Both handle all requests with the app given as `entry` and serves all related (b
 Every cherry-cola app has a single entry file. This file exports a function `main()`, which returns the main function
 component (usually called `<App/>`). If this component does not yield a `<html>` tag, cherry-cola will automatically
 wrap the resulting HTML in a standard document.
+
+[//]: # (todo: create option to turn that off)
 
 #### Function components
 
