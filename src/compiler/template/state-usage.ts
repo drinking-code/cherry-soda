@@ -2,6 +2,8 @@ import {VirtualElementInterface} from '../../jsx/cherry-cola'
 import {isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import State, {isState} from '../../state/state'
 import StateUsage, {isStateUsage} from '../../state/state-usage'
+import {getClientState} from '../../runtime'
+import {stateIsListenedTo} from '../states-collector'
 
 export type ContextType<T extends 'child' | 'prop'> = {
     type: T,
@@ -15,6 +17,73 @@ export type ProtoContextType<T extends 'child' | 'prop'> = {
     type: T,
     contextElement?: VirtualElement,
     prop: T extends 'prop' ? string : never,
+}
+
+const stateUsages: Map<string, StateUsage<any>> = new Map()
+const stateUsageProtoContexts: Map<string, ProtoContextType<any>[]> = new Map()
+
+export function includeStateUsage(stateUsage: StateUsage, context: ProtoContextType<any>) {
+    // todo: extract lexical scope of function (if function is given)
+    stateUsages.set(stateUsage.id, stateUsage)
+    if (!stateUsageProtoContexts.has(stateUsage.id)) {
+        stateUsageProtoContexts.set(stateUsage.id, [])
+    }
+    stateUsageProtoContexts.get(stateUsage.id).push(context)
+}
+
+export function getStateUsagesAsCode() {
+    // todo: only include if has listener (or rather the setState function is called client-side)
+    const stateUsagesName = 'stateUsages'
+    const stateUsagesParametersName = 'stateUsagesParameters'
+    const stateUsagesContextsName = 'stateUsagesContexts'
+    const stateStateUsagesMapName = 'stateStateUsagesMap'
+    let code = ''
+    code += `import {${getClientState.name}} from '/runtime/client-state';`
+    code += `const ${stateUsagesName} = new Map();`
+    code += `const ${stateUsagesParametersName} = new Map();`
+    code += `const ${stateUsagesContextsName} = new Map();`
+    const stateStateUsagesMap = {}
+    stateUsages.forEach((usage: StateUsage<any>, key: string) => {
+        if (!usage.states.some(stateIsListenedTo)) return
+        code += '{'
+        // todo: put lexical stuff here
+        if (usage.transform)
+            code += `${stateUsagesName}.set('${key}', ${usage.transform.toString()});`
+        let functionArray = '['
+        for (const state of usage.states) {
+            functionArray += `${getClientState.name}('${state.id}')`
+            if (!stateStateUsagesMap[state.id]) {
+                stateStateUsagesMap[state.id] = []
+            }
+            stateStateUsagesMap[state.id].push(usage.id)
+        }
+        functionArray += ']'
+        code += `${stateUsagesParametersName}.set('${key}', ${functionArray});`
+        const stateUsageContexts = '[' + stateUsageProtoContexts.get(key)
+            .map(ctx => stringifyContext(makeContext(ctx, usage)))
+            .join(',') + ']'
+        code += `${stateUsagesContextsName}.set('${key}', ${stateUsageContexts});` // todo: minify
+        code += '}'
+    })
+    code += `export {${stateUsagesName}};`
+    code += `export {${stateUsagesParametersName}};`
+    code += `export {${stateUsagesContextsName}};`
+    code += `export const ${stateStateUsagesMapName} = ${JSON.stringify(stateStateUsagesMap)};`
+    return code
+}
+
+function stringifyContext(context: ContextType<any>): string {
+    let contextString = '{'
+    contextString += `type:"${context.type}",`
+    contextString += `contextElement:${JSON.stringify(context.contextElement)},`
+    if (context.prop !== undefined)
+        contextString += `prop:"${context.prop}",`
+    if (context.beforeChild !== undefined)
+        contextString += `beforeChild:${context.beforeChild},`
+    if (context.makeString !== undefined)
+        contextString += `makeString:${context.makeString},`
+    contextString += '}'
+    return contextString
 }
 
 export function makeContext<T extends 'child' | 'prop'>(

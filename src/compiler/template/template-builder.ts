@@ -14,8 +14,7 @@ import {filterObject, mapObject, mapObjectToArray} from '../../utils/iterate-obj
 import stringifyValue, {StringifiableType} from '../../utils/stringify'
 import {setAutoComponent} from '../states-collector'
 import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
-import {includeStateUsage} from '../client-script'
-import {makeContext} from './state-usage'
+import {includeStateUsage, makeContext} from './state-usage'
 
 export default class TemplateBuilder {
     private readonly clientTemplates: ClientTemplatesMapType
@@ -151,7 +150,7 @@ export default class TemplateBuilder {
     ): [string, ServerTemplateStateType] {
         const stateUsage = isStateUsage(state) ? state : state.use()
         if (context) {
-            includeStateUsage(stateUsage, {type: context, contextElement, prop})
+            includeStateUsage(stateUsage, {type: context, contextElement: contextElement as VirtualElement, prop})
         }
         return [
             '#' + stateUsage.id,

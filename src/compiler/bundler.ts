@@ -21,7 +21,7 @@ import {replaceAsync} from '../utils/replace-async'
 import {clientTemplatesToJs, refsToJs} from './generate-code'
 import {ClientTemplatesMapType} from './template/types'
 import {HashType} from '../jsx/VirtualElement'
-import {getStateUsagesAsCode} from './client-script'
+import {getStateUsagesAsCode} from './template/state-usage'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const outputPath = '/dist'
