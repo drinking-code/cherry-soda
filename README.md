@@ -84,7 +84,7 @@ Bun.serve({
 })
 ```
 
-[//]: # (### Dev server (HMR-like)
+[//]: # (### Dev server &#40;HMR-like&#41;)
 
 [//]: # (Cherry-cola doesn't use webpack, so HMR isn't really an option. However, cherry-cola provides a feature &#40;preliminarily
 called dynamic code synchronisation&#41; that reflects changes made to your code in the browser immediately after saving.
