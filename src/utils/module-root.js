@@ -1,19 +1,9 @@
 import path from 'path'
-import fs from 'fs'
 import findDirWith from './find-dir-with.js'
 
-const moduleRoot = {
-    resolve(...filePath) {
-        if (!process.env.APP_MODULE_PATH)
-            findModuleRoot()
+process.env.APP_MODULE_PATH = findDirWith('package.json')
+export default process.env.APP_MODULE_PATH
 
-        return path.join(process.env.APP_MODULE_PATH, ...filePath)
-    }
+export function resolve(...filePath) {
+    return path.join(process.env.PROJECT_ROOT_PATH, ...filePath)
 }
-
-function findModuleRoot() {
-    process.env.APP_MODULE_PATH = findDirWith('package.json')
-}
-findModuleRoot()
-
-export default moduleRoot

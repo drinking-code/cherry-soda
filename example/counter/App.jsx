@@ -1,4 +1,4 @@
-import {createRef, createState, doSomething, Fragment} from '#cherry-cola'
+import {createRef, createState, doSomething} from '#cherry-cola'
 
 import styles from './App.module.scss'
 
@@ -8,20 +8,20 @@ export default function App() {
     const subtractButton = createRef()
 
     doSomething(([count, setCount], addButton, subtractButton) => {
-        addButton.addEventListener('click', () => {
-            setCount(count + 1)
-        })
-        // console.log('test')
-        subtractButton.addEventListener('click', () => {
-            setCount(Math.max(count - 1, 0))
-        })
+        const addClickHandler = () => setCount(count + 1)
+        addButton.addEventListener('click', addClickHandler)
+        const subtractClickHandler = () => setCount(Math.max(count - 1, 0))
+        subtractButton.addEventListener('click', subtractClickHandler)
+
+        return () => {
+            addButton.removeEventListener('click', addClickHandler)
+            subtractButton.removeEventListener('click', subtractClickHandler)
+        }
     }, [count, addButton, subtractButton])
 
-    return (
-        <Fragment>
-            <button className={styles.button} ref={addButton}>+</button>
-            <span className={styles.count}>Count: {count}</span>
-            <button className={styles.button} ref={subtractButton}>-</button>
-        </Fragment>
-    )
+    return <>
+        <button className={styles.button} ref={addButton}>+</button>
+        <span className={styles.count}>Count: {count}</span>
+        <button className={styles.button} ref={subtractButton}>-</button>
+    </>
 }

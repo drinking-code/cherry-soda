@@ -39,6 +39,7 @@ const file = await unified()
                 'CLI',
                 'dev/development',
                 'DOM',
+                'frontend',
                 'HMR',
                 'JSX',
                 'lang/language',
@@ -46,6 +47,7 @@ const file = await unified()
                 'natively/native',
                 'preliminarily/preliminary',
                 'SEO',
+                'stateful',
                 'webpack',
             ].join("\n"),
             ignore: ['DIwhy']
