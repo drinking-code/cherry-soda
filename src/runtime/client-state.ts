@@ -60,15 +60,18 @@ export class State<V = any> extends AbstractState<V> {
                 }
                 const transformParameters = stateUsagesParameters.get(stateUsageId)
                 const target = findElementByPath(context.contextElement)
+                const newString = context.makeString(
+                    transform(
+                        ...transformParameters.map(state => state.valueOf())
+                    )
+                )
                 if (context.type === 'child') {
                     if (target.childElementCount == 0) {
-                        target.innerText = context.makeString(
-                            transform(
-                                ...transformParameters.map(state => state.valueOf())
-                            )
-                        )
+                        target.innerText = newString
                     } else {
-                        // todo
+                        target.children[context.beforeChild].previousSibling.replaceWith(
+                            document.createTextNode(newString)
+                        )
                     }
                 } else if (context.type === 'prop') {
                     // todo
