@@ -1,7 +1,7 @@
 {
   "name": "cherry-cola",
   "module": "src/index.ts",
-  "version": "0.1.0-experimental.0",
+  "version": "0.1.0-experimental",
   "exports": {
     ".": "./src/index.ts",
     "./bun": "./src/server/bun.ts",
