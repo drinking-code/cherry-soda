@@ -142,13 +142,7 @@ async function startEsbuild(refsAndTemplatesFile: string) {
             }),
             imageLoader({fs: hfs, emit: true, path: outputPath}) as Plugin,
             useFs({fs: hfs, defaultImports: packageJson.imports}),
-        ],
-        watch: process.env.BUN_ENV === 'development' && {
-            async onRebuild(error, result) {
-                if (error) return console.log(pe.render(error))
-                handleResult(result)
-            },
-        },
+        ]
     }).then(handleResult)
 
     function handleResult(result: BuildResult) {
