@@ -17,10 +17,10 @@ import babelPluginRemoveUnusedImport from 'babel-plugin-remove-unused-import'
 
 import Parser from '../parser'
 import {iterateObject} from '../../utils/iterate-object'
-import {cherryColaIndex, DoSomethingsScopesType, isCherryColaFunction} from './find-do-somethings'
+import {cherrySodaIndex, DoSomethingsScopesType, isCherrySodaFunction} from './find-do-somethings'
 import resolveImportFileSpecifier from '../helpers/resolve-import-file-specifier'
 import getAllScopeBindings from '../helpers/all-scope-bindings'
-import {createRef, createState} from '#cherry-cola'
+import {createRef, createState} from '#cherry-soda'
 import {generateId} from '../../utils/random'
 import {getState} from '../states-collector'
 import getComponentHashFromScope from './get-component-hash-from-scope'
@@ -65,7 +65,7 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
         const ast = parser.traverseClonedFile(fileName, {
             ImportDeclaration(nodePath) {
                 programScopeBeforeImportDeletion ??= getAllScopeBindings(nodePath.scope)
-                if (resolveImportFileSpecifier(path.dirname(fileName), nodePath.node.source.value) === cherryColaIndex)
+                if (resolveImportFileSpecifier(path.dirname(fileName), nodePath.node.source.value) === cherrySodaIndex)
                     nodePath.remove()
             },
             FunctionDeclaration(nodePath) {
@@ -110,11 +110,11 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                         nodePath.node.arguments[1] = identifier(arrayName)
                     }
                     getNodeId(nodePath.node).name = registerStateChangeHandler.name
-                } else if (isCherryColaFunction(nodePath, fileImports, createState, allBindingsBeforeImportDeletion)) {
+                } else if (isCherrySodaFunction(nodePath, fileImports, createState, allBindingsBeforeImportDeletion)) {
                     const identifier = getNodeId(nodePath.node)
                     identifier.name = getClientState.name
                     stateDeclarationCalls.set(getNodeId(nodePath.parentPath.node), nodePath.node)
-                } else if (isCherryColaFunction(nodePath, fileImports, createRef, allBindingsBeforeImportDeletion)) {
+                } else if (isCherrySodaFunction(nodePath, fileImports, createRef, allBindingsBeforeImportDeletion)) {
                     const identifier = getNodeId(nodePath.node)
                     identifier.name = 'findNode' // todo: use function name from runtime
                     stateDeclarationCalls.set(getNodeId(nodePath.parentPath.node), nodePath.node)
@@ -136,7 +136,7 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                     ...programScopeBeforeImportDeletion,
                     ...allBindings,
                 }
-                if (!isCherryColaFunction(fakePath as NodePath<CallExpression>, fileImports, [createState, createRef], allBindingsBeforeImportDeletion))
+                if (!isCherrySodaFunction(fakePath as NodePath<CallExpression>, fileImports, [createState, createRef], allBindingsBeforeImportDeletion))
                     return
                 probableStates[name.name] = value
             },

@@ -1,5 +1,5 @@
 <div align="center">
-    <img width="300" height="300" src="/img/logo.svg" alt="cherry-cola">
+    <img width="300" height="300" src="/img/logo.svg" alt="cherry-soda">
 </div>
 <div align="center">
     <a href="#get-started">Get started</a>
@@ -13,25 +13,25 @@
 
 Yet another JavaScript framework that nobody needs. It has an SSR-first approach, and uses stateful, functional JSX
 components to build apps. The components are rendered on the server, but contain state change handlers that are executed
-in the browser. Instead of bundling the full component, cherry-cola extracts and bundles only the necessary code (the
+in the browser. Instead of bundling the full component, cherry-soda extracts and bundles only the necessary code (the
 event handler with its lexical scope, a template for client-side rendering, and styles) which can drastically reduce
 bundle size. Therefore, by default (i.e. without using state change handlers), there is no client side JavaScript
 whatsoever.  
-Currently, cherry-cola only runs on bun, Node compatibility is planned.
+Currently, cherry-soda only runs on bun, Node compatibility is planned.
 
 > **Warning**&nbsp;&nbsp;
-> Cherry-cola is experimental. Everything is subject to change.
+> Cherry-soda is experimental. Everything is subject to change.
 
 ## Test the waters, dip a toe
 
-If you just to test out cherry-cola, you can run the examples. For that you need to have [Bun](https://bun.sh)
-installed. Then, clone the repository, install the dependencies with `bun i`. Use cherry-cola's CLI to run an example:
+If you just to test out cherry-soda, you can run the examples. For that you need to have [Bun](https://bun.sh)
+installed. Then, clone the repository, install the dependencies with `bun i`. Use cherry-soda's CLI to run an example:
 
 ```shell
-cli/index dev example/cherry-cola-template/index.jsx
+cli/index dev example/cherry-soda-template/index.jsx
 ```
 
-[//]: # (Visit `localhost:3000` and / or edit files in `example/cherry-cola-template/`. To test out the other examples, use the
+[//]: # (Visit `localhost:3000` and / or edit files in `example/cherry-soda-template/`. To test out the other examples, use the
 respective `index.jsx` as an argument instead.)
 
 ## Get started
@@ -58,38 +58,38 @@ export default function App() {
 }
 ```
 
-`index.js` is the main entry point for cherry-cola. It will look for an exported function `main()` and will
+`index.js` is the main entry point for cherry-soda. It will look for an exported function `main()` and will
 use the returned value to render HTML. `App.js` is an example component.
 
-Then, add the cherry-cola jsx runtime to your `tsconfig.json`:
+Then, add the cherry-soda jsx runtime to your `tsconfig.json`:
 
 ```json
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "cherry-cola"
+    "jsxImportSource": "cherry-soda"
   }
 }
 ```
 
-Run `cherry-cola dev src/index.js` to start the dev server. Then, visit `localhost:3000`.
+Run `cherry-soda dev src/index.js` to start the dev server. Then, visit `localhost:3000`.
 
-Alternatively, you can use the [`cherryCola()`](#cherrycolaentry-string) function in your own server to render the app.
+Alternatively, you can use the [`cherrySoda()`](#cherrysodaentry-string) function in your own server to render the app.
 This also automatically serves the asset files (JavaScript, CSS, images, etc.).  
 For Bun.serve:
 
 ```javascript
 // main.js
-import cherryCola from 'cherry-cola/bun'
+import cherrySoda from 'cherry-soda'
 
-const cherryColaApp = cherryCola('src/index.js')
+const cherrySodaApp = cherrySoda('src/index.js')
 
 Bun.serve({
     async fetch(req) {
         const url = new URL(req.url)
         if (url.pathname.startsWith('/api'))
             return new Response() // your custom responses
-        return await cherryColaApp(req)
+        return await cherrySodaApp(req)
     },
     port: 3000,
 })
@@ -97,9 +97,9 @@ Bun.serve({
 
 [//]: # (### Dev server &#40;HMR-like&#41;)
 
-[//]: # (Cherry-cola doesn't use webpack, so HMR isn't really an option. However, cherry-cola provides a feature &#40;preliminarily
+[//]: # (Cherry-soda doesn't use webpack, so HMR isn't really an option. However, cherry-soda provides a feature &#40;preliminarily
 called dynamic code synchronisation&#41; that reflects changes made to your code in the browser immediately after saving.
-The `cherry-cola dev` command has this activated out of the box.  
+The `cherry-soda dev` command has this activated out of the box.  
 For usage with a custom server use the `dynamicCodeSynchronisation&#40;&#41;` function.)
 
 [//]: # (todo: example)
@@ -122,7 +122,7 @@ the function as an array of the state value and a function to change the state.
 Here is an [example](/example/counter/App.jsx) to illustrate all those features:
 
 ```javascript
-import {createRef, createState, doSomething} from 'cherry-cola'
+import {createRef, createState, doSomething} from 'cherry-soda'
 
 export default function Counter() {
     // create a state with an initial value `0`
@@ -173,9 +173,9 @@ export default function Counter() {
 
 #### Rendering
 
-##### `cherryCola(entry: string)`
+##### `cherrySoda(entry: string)`
 
-To render an app, you can use the `cherryCola()` function. It returns a request handler for `Bun.serve()` and handles
+To render an app, you can use the `cherrySoda()` function. It returns a request handler for `Bun.serve()` and handles
 compiling / building and watching all the files belonging to your app.
 
 **Parameters:**
@@ -190,23 +190,23 @@ compiling / building and watching all the files belonging to your app.
 
 #### Entry file
 
-Every cherry-cola app has a single entry file. This file exports a function `main()`, which returns the main function
-component (usually called `<App/>`). If this component does not yield a `<html>` tag, cherry-cola will automatically
+Every cherry-soda app has a single entry file. This file exports a function `main()`, which returns the main function
+component (usually called `<App/>`). If this component does not yield a `<html>` tag, cherry-soda will automatically
 wrap the resulting HTML in a standard document.
 
 [//]: # (todo: create option to turn that off)
 
 #### Function components
 
-cherry-cola function components look similar to React's function components. They are a function that accept props as a
+cherry-soda function components look similar to React's function components. They are a function that accept props as a
 parameter and return a component. The difference to React's function components is that the function code itself does
 not get send to the browser. All code in function components gets executed on the server.  
 Internally, function components are called immediately after they change. This can cause unexpected effects for example
 when a function components writes to a database. To fix that, you can use the
-[`sideEffect()`](#sideeffectcallback-args-any--void) function to tell cherry-cola that you want to execute this code
+[`sideEffect()`](#sideeffectcallback-args-any--void) function to tell cherry-soda that you want to execute this code
 only for a request.  
 If you want to execute code on the component in the browser, you can use the
-[`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. Cherry-cola collects the
+[`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. Cherry-soda collects the
 code gives as a function to `doSomething()` at build time and compiles it together with the other `doSomething()`s into
 one file.
 
@@ -262,7 +262,7 @@ callback.
 Returns a new `Ref`. Pass this to an element like so:
 
 ```javascript
-import {createRef} from 'cherry-cola'
+import {createRef} from 'cherry-soda'
 
 function Component() {
     const myRef = createRef()
@@ -306,7 +306,7 @@ and stays at an older version.
 Example of updating immutable type state:
 
 ```javascript
-import {createState, doSomething} from 'cherry-cola'
+import {createState, doSomething} from 'cherry-soda'
 
 function App() {
     const state = createState('oldValue')
@@ -330,7 +330,7 @@ function App() {
 
 ### Essential built-in components
 
-Cherry-cola provides some built-in components that are essential to a document.
+Cherry-soda provides some built-in components that are essential to a document.
 
 #### `<Html>`
 
@@ -344,7 +344,7 @@ rendered inside the `<head>` and potentially replace the generated tags.
 For example:
 
 ```javascript
-import {Html, Head, Body} from 'cherry-cola'
+import {Html, Head, Body} from 'cherry-soda'
 
 function App() {
     return (

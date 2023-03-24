@@ -3,10 +3,10 @@
 // a template may include a state somewhere (plain, or convoluted)
 
 import '../imports/'
-import {VirtualElementInterface} from '../jsx/cherry-cola'
+import {VirtualElementInterface} from '../jsx/cherry-soda'
 import {ElementChildren} from '../jsx/ElementChildren'
 import bundleVirtualFiles from './bundler'
-import {createState} from '#cherry-cola'
+import {createState} from '#cherry-soda'
 import {ClientTemplatesMapType, ServerTemplateHTMLElementType, ServerTemplatesMapType} from './template/types'
 import TemplateBuilder from './template/template-builder'
 import {jsx} from '../jsx-runtime'

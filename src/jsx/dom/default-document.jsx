@@ -1,4 +1,4 @@
-import {Html, Head, Body} from '#cherry-cola'
+import {Html, Head, Body} from '#cherry-soda'
 
 export default function Document({clientAssets, ...props}) {
     return (

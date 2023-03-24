@@ -8,7 +8,7 @@ const pe = new PrettyError()
 /**
  * @param entry Absolute path to entry file
  * */
-export default function cherryCola(entry): (req: Request) => Promise<Response> {
+export default function cherrySoda(entry): (req: Request) => Promise<Response> {
     process.env.CHERRY_COLA_ENTRY = entry
     const {fs, outputPath, render} = compile(entry)
     const serveStaticListener: (req: Request) => Response = serveStatic(outputPath, fs)

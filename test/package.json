@@ -1,7 +1,7 @@
 {
-  "name": "cherry-cola-test",
+  "name": "cherry-soda-test",
   "version": "0.1.0",
-  "description": "Tests for cherry-cola",
+  "description": "Tests for cherry-soda",
   "main": "main.js",
   "type": "module",
   "scripts": {

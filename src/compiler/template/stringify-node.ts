@@ -1,4 +1,4 @@
-import {VirtualElementInterface} from '../../jsx/cherry-cola'
+import {VirtualElementInterface} from '../../jsx/cherry-soda'
 import TemplateBuilder from './template-builder'
 import {jsx} from '../../jsx-runtime'
 import {VirtualElement} from '../../jsx/VirtualElement'

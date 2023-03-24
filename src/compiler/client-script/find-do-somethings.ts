@@ -1,7 +1,7 @@
 import {CallExpression, Identifier, MemberExpression, Node} from '@babel/types'
 import {NodePath, Scope} from '@babel/traverse'
 
-import {doSomething} from '#cherry-cola'
+import {doSomething} from '#cherry-soda'
 import Parser, {FileToImportsMapType} from '../parser'
 import getAllScopeBindings from '../helpers/all-scope-bindings'
 import resolveIdentifierIfImported from './resolve-identifier-if-imported'
@@ -9,7 +9,7 @@ import resolveImportFileSpecifier from '../helpers/resolve-import-file-specifier
 import {ensureArray} from '../../utils/array'
 import getComponentHashFromScope from './get-component-hash-from-scope'
 
-export const cherryColaIndex = resolveImportFileSpecifier('', '#cherry-cola')
+export const cherrySodaIndex = resolveImportFileSpecifier('', '#cherry-soda')
 
 export type DoSomethingsScopesType = { [filename: string]: Map<CallExpression, Node[]> }
 
@@ -20,7 +20,7 @@ export default function findDoSomethings(parser: Parser): DoSomethingsScopesType
         parser.traverseFunctionComponents(fileName, {
             CallExpression(nodePath) {
                 const fileImports = parser.getImports(fileName)
-                if (isCherryColaFunction(nodePath, fileImports, doSomething)) {
+                if (isCherrySodaFunction(nodePath, fileImports, doSomething)) {
                     const thisScopeAndParents: Scope[] = [nodePath.scope]
                     getComponentHashFromScope(nodePath.scope, parser, fileName)
                     let scope = nodePath.scope
@@ -39,7 +39,7 @@ export default function findDoSomethings(parser: Parser): DoSomethingsScopesType
     return doSomethingsScopes
 }
 
-export function isCherryColaFunction(callExpression: NodePath<CallExpression>,
+export function isCherrySodaFunction(callExpression: NodePath<CallExpression>,
                                      fileImports: FileToImportsMapType,
                                      supposedFunctions: Function | string | (Function | string)[],
                                      fullScope?: ReturnType<typeof getAllScopeBindings>) {
@@ -54,7 +54,7 @@ export function isCherryColaFunction(callExpression: NodePath<CallExpression>,
     const importedIdentifier = resolveIdentifierIfImported(callExpression.node.callee as Identifier | MemberExpression, fullScope)
     if (!importedIdentifier) return false
     const importedLocalName = importedIdentifier.name
-    // must be imported from cherry-cola
+    // must be imported from cherry-soda
     let importedName, importedFile
     for (const importFilePath in fileImports) {
         const importSpecifiers = fileImports[importFilePath]
@@ -64,5 +64,5 @@ export function isCherryColaFunction(callExpression: NodePath<CallExpression>,
             break
         }
     }
-    return supposedFunctions.includes(importedName) && importedFile === cherryColaIndex
+    return supposedFunctions.includes(importedName) && importedFile === cherrySodaIndex
 }

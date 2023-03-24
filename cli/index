@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CC_MAIN_SCRIPT_PARTIAL="cherry-cola/cli/main.js"
+CC_MAIN_SCRIPT_PARTIAL="cherry-soda/cli/main.js"
 DIRNAME=$(dirname "$0")
 
 if [[ $DIRNAME == *node_modules/.bin ]]; then

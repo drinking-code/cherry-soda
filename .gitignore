@@ -171,7 +171,7 @@ dist
 # node
 package-lock.json
 
-# cherry-cola
+# cherry-soda
 .cc
 lib
 __generated

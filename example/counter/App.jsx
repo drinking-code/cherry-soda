@@ -1,4 +1,4 @@
-import {createRef, createState, doSomething} from '#cherry-cola'
+import {createRef, createState, doSomething} from '#cherry-soda'
 
 import styles from './App.module.scss'
 

@@ -13,7 +13,7 @@ export default function App() {
                 Edit <code>App.jsx</code> and save to reload.
             </p>
             <a className={'App-link'}
-               href={'https://github.com/drinking-code/cherry-cola#readme'}
+               href={'https://github.com/drinking-code/cherry-soda#readme'}
                target={'_blank'}
                rel={'noopener noreferrer'}
             >

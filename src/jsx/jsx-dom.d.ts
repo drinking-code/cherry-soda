@@ -1,4 +1,4 @@
-import CherryCola from './cherry-cola'
+import CherrySoda from './cherry-soda'
 
 export = JSX_DOM;
 export as namespace JSX_DOM;
@@ -203,7 +203,7 @@ declare namespace JSX_DOM {
 
         // Standard HTML Attributes
         accessKey?: string;
-        className?: CherryCola.DOMTokenListAttribute;
+        className?: CherrySoda.DOMTokenListAttribute;
         contentEditable?: Booleanish | "inherit";
         contextMenu?: string;
         dir?: string;
@@ -790,7 +790,7 @@ declare namespace JSX_DOM {
     interface SVGAttributes<T> extends AriaAttributes {
         // Attributes which also defined in HTMLAttributes
         // See comment in SVGDOMPropertyConfig.js
-        className?: CherryCola.DOMTokenListAttribute;
+        className?: CherrySoda.DOMTokenListAttribute;
         color?: string;
         height?: number | string;
         id?: string;

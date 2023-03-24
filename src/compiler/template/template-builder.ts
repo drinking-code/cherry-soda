@@ -1,5 +1,5 @@
 import {checkProps} from './check-props'
-import {VirtualElementInterface, VirtualElementTypeType} from '../../jsx/cherry-cola'
+import {VirtualElementInterface, VirtualElementTypeType} from '../../jsx/cherry-soda'
 import {
     ClientTemplatesMapType,
     ServerTemplateComponentType, ServerTemplateHTMLElementType,

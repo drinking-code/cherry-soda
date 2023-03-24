@@ -1,6 +1,6 @@
 import {VirtualElement} from './VirtualElement'
 import {ElementChildren} from './ElementChildren'
-import {Props} from './cherry-cola'
+import {Props} from './cherry-soda'
 
 function createVirtualElement(
     type: VirtualElement['type'] | VirtualElement['function'] | typeof Fragment,
@@ -14,7 +14,7 @@ function createVirtualElement(
     return new VirtualElement(type, props, children)
 }
 
-const Fragment = Symbol.for('cherry-cola.fragment')
+const Fragment = Symbol.for('cherry-soda.fragment')
 
 export {
     createVirtualElement as jsx,

@@ -44,7 +44,7 @@ if (!process.env.PORT)
 
 const program = yargs(pureArgs)
     .scriptName(packageJson.name)
-    .version('cherry-cola v' + packageJson.version)
+    .version('cherry-soda v' + packageJson.version)
     .usage('$0 <command> [options] <entry>')
     .command('build [options] <entry>', 'Build assets for client (and node, if specified).',
         (yargs) => {
@@ -61,7 +61,7 @@ const program = yargs(pureArgs)
             addNodeOption(yargs, 'Use Node.js server instead of Bun.js')
                 .version(false)
                 .positional('entry', {
-                    describe: 'Entry file for cherry-cola'
+                    describe: 'Entry file for cherry-soda'
                 })
         },
         dev

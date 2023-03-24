@@ -1,13 +1,13 @@
 import {validTags, voidElements} from './dom/html-props'
 import {ElementChildren} from './ElementChildren'
-import {Fragment} from '#cherry-cola'
+import {Fragment} from '#cherry-soda'
 import {Ref} from '../state/create-ref'
 import JSX_DOM from './jsx-dom'
 
-export = CherryCola;
-export as namespace CherryCola;
+export = CherrySoda;
+export as namespace CherrySoda;
 
-declare namespace CherryCola {
+declare namespace CherrySoda {
     type JSXElementConstructor<P> = (props: P) => VirtualElementInterface | ElementChildren | null
 
     interface InherentProps<T> {

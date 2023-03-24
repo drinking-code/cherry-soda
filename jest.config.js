@@ -3,7 +3,7 @@ export default {
     collectCoverage: true,
     extensionsToTreatAsEsm: ['.jsx', '.ts', '.tsx'],
     moduleNameMapper: {
-        '#cherry-cola': '<rootDir>/src/index.ts',
+        '#cherry-soda': '<rootDir>/src/index.ts',
         '#server/express': '<rootDir>/src/server/express.js',
         '#server/bun': '<rootDir>/src/server/bun.ts',
         '#compiler': '<rootDir>/src/compiler/node.app.js',

@@ -2,10 +2,10 @@ import '../imports'
 import chalk from 'chalk'
 import open from 'open'
 
-import cherryCola from '#server/bun'
+import cherrySoda from '#server/bun'
 
 Bun.serve({
-    fetch: cherryCola(process.env.CHERRY_COLA_ENTRY),
+    fetch: cherrySoda(process.env.CHERRY_COLA_ENTRY),
     port: Number(process.env.PORT),
 })
 

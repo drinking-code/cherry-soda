@@ -1,6 +1,6 @@
 import format from '#messages/colors'
 
-export const noUserError = format.note('(This is an error with cherry-cola. Report under https://github.com/drinking-code/cherry-cola/issues/new)')
+export const noUserError = format.note('(This is an error with cherry-soda. Report under https://github.com/drinking-code/cherry-soda/issues/new)')
 export const wrapWithBackticks = v => `\`${v}\``
 export const userDef = v => wrapWithBackticks(format.userDef(v))
 export const ccDef = v => wrapWithBackticks(format.ccDef(v))
