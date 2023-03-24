@@ -61,6 +61,17 @@ export default function App() {
 `index.js` is the main entry point for cherry-cola. It will look for an exported function `main()` and will
 use the returned value to render HTML. `App.js` is an example component.
 
+Then, add the cherry-cola jsx runtime to your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "cherry-cola"
+  }
+}
+```
+
 Run `cherry-cola dev src/index.js` to start the dev server. Then, visit `localhost:3000`.
 
 Alternatively, you can use the [`cherryCola()`](#cherrycolaentry-string) function in your own server to render the app.
