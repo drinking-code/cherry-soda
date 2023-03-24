@@ -1,9 +1,20 @@
 #!/bin/bash
 
-if [[ "$*" == *"--node"* ]]; then
-  /usr/bin/env node cli/main.js -- "$@"
-elif command /usr/bin/env bun &>/dev/null; then
-  /usr/bin/env bun cli/main.js -- "$@"
-elif command /usr/bin/env node &>/dev/null; then
-  /usr/bin/env node cli/main.js -- "$@"
+CC_MAIN_SCRIPT_PARTIAL="cherry-cola/cli/main.js"
+DIRNAME=$(dirname "$0")
+
+if [[ $DIRNAME == *node_modules/.bin ]]; then
+  CC_MAIN_SCRIPT="${DIRNAME//.bin/$CC_MAIN_SCRIPT_PARTIAL}"
+else
+  CC_MAIN_SCRIPT="${DIRNAME}/main.js"
 fi
+
+/usr/bin/env bun "$CC_MAIN_SCRIPT" -- "$@"
+
+#if [[ "$*" == *"--node"* ]]; then
+#  /usr/bin/env node "$CC_MAIN_SCRIPT" -- "$@"
+#elif command /usr/bin/env bun &>/dev/null; then
+#  /usr/bin/env bun "$CC_MAIN_SCRIPT" -- "$@"
+#elif command /usr/bin/env node &>/dev/null; then
+#  /usr/bin/env node "$CC_MAIN_SCRIPT" -- "$@"
+#fi
