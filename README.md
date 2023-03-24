@@ -1,5 +1,5 @@
 <div align="center">
-    <img width="300" height="300" src="/img/logo.svg" alt="cherry-soda">
+    <img width="300" height="300" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda@v0.1.0-experimental/img/logo.svg" alt="cherry-soda">
 </div>
 <div align="center">
     <a href="#get-started">Get started</a>
