@@ -61,7 +61,7 @@ export default function App() {
 `index.js` is the main entry point for cherry-soda. It will look for an exported function `main()` and will
 use the returned value to render HTML. `App.js` is an example component.
 
-Then, add the cherry-soda jsx runtime to your `tsconfig.json`:
+Then, add the cherry-soda JSX runtime to your `tsconfig.json`:
 
 ```json
 {
@@ -111,7 +111,7 @@ For usage with a custom server use the `dynamicCodeSynchronisation&#40;&#41;` fu
 In a function component typically all code is executed on the server. To execute code on the client you can use
 the [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
 function. The callback provided will only be executed on the client. You can provide states and/or refs to listen to in
-an array as the second parameter. If given, the callback will be called everytime a state or ref changes. To clean up,
+an array as the second parameter. If given, the callback will be called every time a state or ref changes. To clean up,
 the callback may return a function, which will be called before the callback is called immediately before a state
 change.
 
@@ -201,7 +201,7 @@ wrap the resulting HTML in a standard document.
 #### Function components
 
 Apps are built with stateful function components. Each component is a function that accept props as a parameter and
-return jsx element/s. All code in a function component gets executed on the server.  
+return JSX element/s. All code in a function component gets executed on the server.  
 Internally, function components are called once on startup in production mode, and immediately after they are changed in
 development mode. This can cause unexpected effects for example when a function component writes to a database. This is
 why you should use [`sideEffect()`](#sideeffectcallback-args-any--void) any non-deterministic server-side code.    

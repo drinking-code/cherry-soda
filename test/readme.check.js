@@ -47,6 +47,7 @@ const file = await unified()
                 'natively/native',
                 'preliminarily/preliminary',
                 'SEO',
+                'SSR',
                 'stateful',
                 'webpack',
             ].join("\n"),
