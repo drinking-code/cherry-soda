@@ -38,7 +38,7 @@ respective `index.jsx` as an argument instead.)
 
 [//]: # (todo: add command to add boilerplate code)
 
-In a new Bun project add an `src/index.js` and an `src/App.js`:
+In a new Bun project install cherry-soda with `bun i cherry-soda`, and add files `src/index.js` and `src/App.js`:
 
 ```javascript
 // src/index.js
@@ -109,14 +109,16 @@ For usage with a custom server use the `dynamicCodeSynchronisation&#40;&#41;` fu
 ### Add client-side code
 
 In a function component typically all code is executed on the server. To execute code on the client you can use
-the [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. The callback provided
-will only be executed on the client. You can provide states and/or refs to listen to in an array as the second
-parameter. If given, the callback will be called everytime a state or ref changes. To clean up, the callback may return
-a function, which will be called before the callback is called after a state change.
+the [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
+function. The callback provided will only be executed on the client. You can provide states and/or refs to listen to in
+an array as the second parameter. If given, the callback will be called everytime a state or ref changes. To clean up,
+the callback may return a function, which will be called before the callback is called immediately before a state
+change.
 
 [//]: # (todo: ref changing ??? wtf)
 To refer to an element that the component returns you can use a ref with [`createRef()`](#createref-ref), which you will
-also need to pass in the array. Inside [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any)
+also need to pass in the array.
+Inside [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
 a ref will be the actual node of the DOM. States can also be passed in the dependency array. A state will be passed to
 the function as an array of the state value and a function to change the state.  
 Here is an [example](/example/counter/App.jsx) to illustrate all those features:
@@ -198,64 +200,47 @@ wrap the resulting HTML in a standard document.
 
 #### Function components
 
-cherry-soda function components look similar to React's function components. They are a function that accept props as a
-parameter and return a component. The difference to React's function components is that the function code itself does
-not get send to the browser. All code in function components gets executed on the server.  
-Internally, function components are called immediately after they change. This can cause unexpected effects for example
-when a function components writes to a database. To fix that, you can use the
-[`sideEffect()`](#sideeffectcallback-args-any--void) function to tell cherry-soda that you want to execute this code
-only for a request.  
-If you want to execute code on the component in the browser, you can use the
-[`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) function. Cherry-soda collects the
-code gives as a function to `doSomething()` at build time and compiles it together with the other `doSomething()`s into
-one file.
+Apps are built with stateful function components. Each component is a function that accept props as a parameter and
+return jsx element/s. All code in a function component gets executed on the server.  
+Internally, function components are called once on startup in production mode, and immediately after they are changed in
+development mode. This can cause unexpected effects for example when a function component writes to a database. This is
+why you should use [`sideEffect()`](#sideeffectcallback-args-any--void) any non-deterministic server-side code.    
+If you want to execute code for a component in the browser, use
+[`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref).
+Cherry-soda collects the code given as the callback to `doSomething()` at build time and bundles it into a single file
+together with code from other `doSomething()`s and cherry-soda's runtime.
 
 ##### `sideEffect(callback: (...args: any[]) => void)`
 
-##### `doSomething(callback: (...args: any[]) => void | Function, dependencies: any[])`
+##### `doSomething(callback: (...args: ([any, (value: any) => void] | HTMLElement))[]) => void | Function, recallOn: (State | Ref)[])`
 
-This function lets you execute code in the browser. The function `callback` passed as the first parameter gets converted
-to a string and compiled into a JavaScript file to be served to the browser. Because of this, you must pass all
-dependencies to the function in the dependency array. Dependencies are all variables that are not already defined
-globally or natively.  
-The values you passed in the array will be passed in the same order into the `callback` function on the client. If you
-pass a ref into the array, the passed value for the function will be the matching HTML element. And if you pass a state
-into the array, the passed value for the function will be an array with the value as a [`Mutable`](#mutable-client-side)
-as the first entry and a function for changing the value as the second entry.  
-The callback function may return another function. This (returned) function will be called before the component's
-elements are removed from the DOM. That happens for example when the client navigates to a different page. You can use
-this function to clean up if you need to.
+This function lets you execute code in the browser. The function `callback` and its lexical scope get extracted by
+cherry-soda's compiler and bundled into the frontend JavaScript. All [refs](#refs) and [states](#states) that are used
+in the `callback` should be passed in the `recallOn` array.  
+The values you passed in the array will be passed in the same order into the `callback` function on the client. If a ref
+is passed into the array, the passed value for the function will be the matching HTML element. If a state is passed into
+the array, the passed value for the function will be an array with the value as the first entry and a function for
+changing the value as the second entry.  
+The callback function may return another function. This (returned) function will be called before a state changes
+value (after calling the function to change the state value). You can use this function to clean up if you need to.
 
 **Parameters:**
 
 - `callback: (...args: any[]) => void | Function` A function with the code that you want to execute on the client. The
   function may return another function. The returned function will be called anytime the component's elements are
   removed from the DOM.
-- `dependencies: any[]` An array with all dependencies for the callback function
-
-##### `importOnClient(module: string): ClientSideModule`
-
-A function for importing modules on the client. Use this inside the dependency array of
-[`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any).
-(See [Importing modules for client-side use](#importing-modules-for-client-side-use) for an example)
-
-**Parameters:**
-
-- `module: string` The name of a node module or path to a file that you want to import.
-
-**Returns:**
-
-- `ClientSideModule` An object representing the module. This gets converted into the actual module exports in
-  the `doSomething()` callback.
+- `recallOn: (State | Ref)[]` An array with all dependencies for the callback function
 
 ### Refs
 
 Refs are a way to work with the DOM nodes that your function components return. To use, get a reference instance by
 calling the [`createRef()`](#createref-ref) function, and pass it to the desired element with the `ref` parameter. When
-you use it inside a [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) callback, it
-becomes the actual DOM node on the client. You can also pass one ref to multiple elements. If you do that, the ref
-becomes a `HTMLCollection` inside of a [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any)
-callback.
+you pass the ref object in the `recallOn` array
+of [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
+cherry-soda will pass the actual DOM element to the callback on the client. You can also pass one ref to multiple
+elements.
+If you do that, cherry-soda will pass a `HTMLCollection` containing the respective DOM elements inside of
+the [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) callback.
 
 #### `createRef(): Ref`
 
@@ -277,18 +262,16 @@ function Component() {
 
 ### States
 
-You can create states with [`createState()`](#createstateinitialvalue-any-state). In the function component this will
-only return the state, which is an extended version of the respective object (Number, String, Array, etc.). Passing this
-state into [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) or
-[`sideEffect()`](#sideeffectcallback-args-any--void) will convert this into an array in which the first entry in the
+You can create states with [`createState()`](#createstateinitialvalue-any-state). This will return a `State` object that
+holds a value. Passing this state
+into [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
+or
+[`sideEffect()`](#sideeffectcallback-args-any--void) will convert it into an array in which the first entry in the
 state object and the second entry is a function for changing the value of the state.
 
 #### `createState(initialValue: any): State`
 
-Create a state with the given value. Depending on the type of the value, a different state type will be returned. For
-example, calling `createState()` with a number as the initial value will return a state object that is extended from
-the `Number` builtin. This makes it easier to work with the state as a number. For instance, you can use the state in
-math operations (`const incrementedValue = yourNumberState + 1`).
+Creates a `State` object with the given value.
 
 **Parameters:**
 
@@ -296,41 +279,70 @@ math operations (`const incrementedValue = yourNumberState + 1`).
 
 **Returns:**
 
-- `State` A state object depending on the type of `initialValue`.
+- `State` A `State` object with `initialValue` as its value.
 
-#### `Mutable` (Client-Side)
+#### `State` (Server-Side)
 
-`Mutable` is used for client side state objects. It extends the wrappers for immutable values and overwrites
-the `.valueOf()` method to always return the most current state value. The actual value of the immutable is – immutable,
-and stays at an older version.  
-Example of updating immutable type state:
+The `State` object holds the initial value of the state and can be passed into
+[`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
+or [`sideEffect()`](#sideeffectcallback-args-any--void) or used in the DOM by using it like a value:
 
 ```javascript
-import {createState, doSomething} from 'cherry-soda'
+import {createState} from 'cherry-soda'
 
-function App() {
-    const state = createState('oldValue')
-    const button = createRef()
+function Component() {
+    const myState = createState('foo')
 
-    doSomething(([state, setState], button) => {
-        button.addEventListener('click', () => {
-            setState('newValue')
-            console.log(state) // Mutable {value: "newValue"}
-            console.log(`New state: "${state}"`) // New state: "newValue"
-        })
-    }, [state, button])
-
-    return (
-        <button ref={button}/>
-    )
+    return <div id={myState}>
+        {myState}
+    </div>
 }
 ```
+
+Sometimes, you don't want to use the states value directly, but a transformed version of it. To do that, use
+the `.use()` method. It takes a callback which itself receives the state value as a parameter:
+
+```javascript
+import {createState} from 'cherry-soda'
+
+function Component() {
+    const elementType = createState('a')
+    const label = 'foo'
+
+    return <>
+        {elementType.use(tagName => {
+            if (tagName === 'a')
+                return <a>{label}</a>
+            else
+                return <span>{label}</span>
+        })}
+    </>
+}
+```
+
+You can also use multiple states in one `.use()` by concatenating them with `.and()`. The state's values are passed in
+the order they were concatenated in:
+
+```javascript
+import {createState} from 'cherry-soda'
+
+function Component() {
+    const revenue = createState(5)
+    const expenses = createState(3)
+
+    return <>
+        Profit: {revenue.and(expenses).use((a, b) => a - b)}
+    </>
+}
+```
+
+> Fun fact: using `myState` is the same as `myState.use()` is the same as `myState.use(value => value)`
 
 ### Location and Routing
 
 ### Essential built-in components
 
-Cherry-soda provides some built-in components that are essential to a document.
+Cherry-soda provides some built-in components that help you manage the basic document structure.
 
 #### `<Html>`
 
@@ -340,7 +352,7 @@ Renders a `<html>` element and manages the lang attribute (if you're building a 
 
 Renders a `<head>` element and manages the loading of scripts and assets. It can also automatically generate metadata
 for SEO, and icons from your given configuration. You can pass your own elements into `<Head>`. These will just be
-rendered inside the `<head>` and potentially replace the generated tags.  
+rendered inside the `<head>` and replace the generated elements if any.  
 For example:
 
 ```javascript
