@@ -107,7 +107,7 @@ const browserslistEsbuildMap = {
 async function startEsbuild(refsAndTemplatesFile: string) {
     // @ts-ignore TS2339: Property 'json' does not exist on type 'FileBlob'.
     const packageJson = await Bun.file(resolveModuleRoot('package.json')).json()
-    await esbuild.build({
+    let esCtx = await esbuild.context({
         entryPoints: [inputFilePath],
         inject: [path.join('/', 'runtime', 'index.ts'), refsAndTemplatesFile],
         outfile: path.join(outputPath, 'main.js'),
@@ -142,8 +142,16 @@ async function startEsbuild(refsAndTemplatesFile: string) {
             }),
             imageLoader({fs: hfs, emit: true, path: outputPath}) as Plugin,
             useFs({fs: hfs, defaultImports: packageJson.imports}),
+            {
+                name: 'result-handler',
+                setup(build) {
+                    build.onEnd(handleResult)
+                }
+            },
         ]
-    }).then(handleResult)
+    })
+
+    await esCtx.watch()
 
     function handleResult(result: BuildResult) {
         const virtualFilesDirName = virtualFilesPath.replace(/\//g, '')

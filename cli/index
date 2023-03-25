@@ -9,7 +9,7 @@ else
   CC_MAIN_SCRIPT="${DIRNAME}/main.js"
 fi
 
-/usr/bin/env bun "$CC_MAIN_SCRIPT" -- "$@"
+/usr/bin/env bun --hot "$CC_MAIN_SCRIPT" -- "$@"
 
 #if [[ "$*" == *"--node"* ]]; then
 #  /usr/bin/env node "$CC_MAIN_SCRIPT" -- "$@"

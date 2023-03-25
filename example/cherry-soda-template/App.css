@@ -17,21 +17,26 @@
 
 .App-logo {
     position: relative;
-    height: 40vmin;
-    width: 40vmin;
-    margin-bottom: -3vmin;
+    height: 80vmin;
+    width: 80vmin;
+    max-height: 25rem;
+    max-width: 25rem;
     pointer-events: none;
 }
 
 .App-logo img {
     position: absolute;
     left: 0;
-    height: 40vmin;
+    height: 100%
+}
+
+.App-logo + p {
+    margin-top: 0;
 }
 
 @media (prefers-reduced-motion: no-preference) {
     .App-logo-animated {
-        transform-origin: center 38%;
+        transform-origin: 48% 40%;
         animation: App-logo-spin infinite 10s linear;
     }
 }
