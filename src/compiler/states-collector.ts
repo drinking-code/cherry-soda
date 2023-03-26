@@ -3,6 +3,7 @@ import {isRef, Ref} from '../state/create-ref'
 import {generateId} from '../utils/random'
 import {filterObject, mapSet, mapSetToObject} from '../utils/iterate-object'
 import {ElementId, HashType, VirtualElement} from '../jsx/VirtualElement'
+import {addMarker} from './profiler'
 
 const componentStates: Map<HashType, Array<(State | Ref | Promise<string>)[]>> = new Map()
 const listenedToStates: Set<State['$$stateId']['value']> = new Set()
@@ -29,6 +30,7 @@ export function setState(hash: HashType, doSomethingIndex: number, stateIndex: n
     if (onlySetIfUndefined === false || componentStates.get(hash)[doSomethingIndex][stateIndex] === undefined) {
         const stateArray = componentStates.get(hash)[doSomethingIndex]
         if (stateArray[stateIndex] instanceof Promise) {
+            addMarker('template', 'resolve-' + (state as State | Ref).id)
             componentStatesPromises.get(stateArray[stateIndex] as Promise<string>)((state as State | Ref).id)
         } else {
             stateArray[stateIndex] = state

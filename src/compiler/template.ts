@@ -12,7 +12,7 @@ import {ClientTemplatesMapType, ServerTemplateHTMLElementType, ServerTemplatesMa
 import TemplateBuilder from './template/template-builder'
 import {jsx} from '../jsx-runtime'
 import {HashType, VirtualElement} from '../jsx/VirtualElement'
-import {addMarker} from './profiler'
+import {addMarker, addRange} from './profiler'
 
 const clientTemplates: ClientTemplatesMapType = new Map()
 const serverTemplates: ServerTemplatesMapType = new Map()
@@ -24,10 +24,12 @@ const waitForTemplatesPromise = new Promise(res => resolveWaitForTemplates = res
 export default async function extractTemplates(entry: string, volumeAndPathPromise: Promise<{ outputPath: string, fs: Volume }>) {
     addMarker('template', 'start')
     const componentFunction = (await import(entry)).main
+    addMarker('template', 'imported')
     const mainComponent = jsx(componentFunction, {}) as VirtualElement
 
     const builder = new TemplateBuilder(clientTemplates, serverTemplates)
     entryHash = builder.makeTemplate(mainComponent as VirtualElementInterface<'component'>)
+    addMarker('template', 'templates')
     // check if first element is <html>
     let keyIndex = entryHash, firstElementHtml = false
     while (firstElementHtml === false) {
@@ -46,8 +48,11 @@ export default async function extractTemplates(entry: string, volumeAndPathPromi
         break
     }
     if (!firstElementHtml) {
+        addMarker('template', 'document_start')
         const Document = (await import('../jsx/dom/default-document')).default
+        addRange('template', 'volume-path', 'start')
         const volumeAndPath = await volumeAndPathPromise
+        addRange('template', 'volume-path', 'end')
         const documentComponent = jsx(Document, {
             clientAssets: createState(volumeAndPath),
             children: new ElementChildren(mainComponent)
@@ -67,7 +72,6 @@ export default async function extractTemplates(entry: string, volumeAndPathPromi
         traceDomElements(mainComponent)
     }
     resolveWaitForTemplates()
-    console.log('done')
     addMarker('template', 'end')
 }
 

@@ -1,15 +1,15 @@
 import path from 'path'
 
-import {mapObjectToArray} from '../utils/iterate-object'
+import {filterObject, mapObject, mapObjectToArray} from '../utils/iterate-object'
 import serveStatic from '../server/serve-static'
 import {roundToDecimal} from '../utils/round'
 
-const measurements: { [key: MarkerKeyType]: { [marker: StartEndType | string]: number } } = {}
-
-export type MarkerKeyType = 'parser' | 'template' | 'bundler'
+export type MarkerKeyType = 'parser' | 'template' | 'client-scripts' | 'bundler'
 export type StartEndType = 'start' | 'end'
 
-export function addMarker(key: MarkerKeyType, marker: StartEndType) {
+const measurements: { [key: MarkerKeyType | string]: { [marker: StartEndType | string]: number } } = {}
+
+export function addMarker(key: MarkerKeyType, marker: StartEndType | string) {
     const time = performance.now()
     if (!measurements[key])
         measurements[key] = {}
@@ -35,7 +35,7 @@ Bun.serve({
         const earliestMeasurement = Math.min(...measurementValues)
         const latestMeasurement = Math.max(...measurementValues)
         const totalTimeDelta = latestMeasurement - earliestMeasurement
-        const getPercentage = time => (time - earliestMeasurement) / totalTimeDelta
+        const getGlobalPercentage = time => (time - earliestMeasurement) / totalTimeDelta
         return new Response(`\
 <!DOCTYPE html>
 <html lang="en">
@@ -49,16 +49,40 @@ Bun.serve({
     <figure class="measurements-figure">
         ${mapObjectToArray(measurements, ([label, measurementsOfCategory]) => {
             const startMeasurement = measurementsOfCategory['start']
-            const startPercentage = getPercentage(startMeasurement) * 100
+            const startPercentage = getGlobalPercentage(startMeasurement) * 100
             const endMeasurement = measurementsOfCategory['end']
-            const endPercentage = getPercentage(endMeasurement) * 100
+            const endPercentage = getGlobalPercentage(endMeasurement) * 100
             const measurementDelta = endMeasurement - startMeasurement
+            const getLocalPercentage = time => (time - startMeasurement) / measurementDelta
+            const additionalMarkers = filterObject(measurementsOfCategory, ([marker, value]) =>
+                !['start', 'end'].includes(marker) && !marker.endsWith('-start') && !marker.endsWith('-end')
+            )
+            const ranges = filterObject(measurementsOfCategory, ([marker, value]) =>
+                !['start', 'end'].includes(marker) && (marker.endsWith('-start') || marker.endsWith('-end'))
+            )
+            const concatenatedRanges = mapObject(
+                filterObject(ranges, ([marker, value]) => marker.endsWith('-start')),
+                ([marker, value]) => {
+                    const markerStem = marker.replace(/-start$/, '')
+                    return [markerStem, [value, ranges[markerStem + '-end']]]
+                }
+            )
             return [`<span>${label}</span>`,
-                `<div class="time-wrapper">${[
-                    `<div class="time-main" style="left:${startPercentage}%;right:${100 - endPercentage}%">${
-                        `<span class="time-main-label">${roundToDecimal(measurementDelta, 2)}ms</span>`
-                    }</div>`
-                ]}</div>`
+                `<div class="time-wrapper">
+                    <div class="time-main" style="left:${startPercentage}%;right:${100 - endPercentage}%">
+                        ${mapObjectToArray(concatenatedRanges, ([marker, [start, end]]) =>
+                            `<div class="time-range" style="left:${getLocalPercentage(start) * 100}%;right:${100 - getLocalPercentage(end) * 100}%">
+                                <span>${marker}</span>
+                            </div>`
+                        ).join('')}
+                        ${mapObjectToArray(additionalMarkers, ([marker, measurement]) =>
+                            `<div class="time-marker" style="left:${getLocalPercentage(measurement) * 100}%">
+                                <span>${marker}</span>
+                            </div>`
+                        ).join('')}
+                        <span class="time-main-label">${roundToDecimal(measurementDelta, 2)}ms</span>
+                    </div>
+                </div>`
             ].join('')
         }).join('')}
     </figure>

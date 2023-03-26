@@ -45,7 +45,7 @@ export function clientTemplatesToJs(): string {
         ),
         variableDeclarator(
             identifier('templatesEntry'),
-            stringLiteral(getEntryHash())
+            stringLiteral(getEntryHash() ?? '')
         )
     ]))
     return generate(ast, {jsescOption: {quotes: 'single'}}).code

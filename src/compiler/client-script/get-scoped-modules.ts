@@ -25,6 +25,7 @@ import {generateId} from '../../utils/random'
 import {getState} from '../states-collector'
 import getComponentHashFromScope from './get-component-hash-from-scope'
 import {getClientState, registerStateChangeHandler} from '../../runtime'
+import {addMarker} from '../profiler'
 
 export type ClientModulesType = { [filename: string]: BabelFileResult }
 
@@ -147,6 +148,7 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                 nodePath.remove()
             },
         })
+        addMarker('client-scripts', path.basename(fileName) + '-custom')
 
         const sourceCode = parser.files[fileName]
         let result = transformFromAstSync(ast, sourceCode, {
@@ -157,6 +159,7 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                 babel.createConfigItem(babelPluginMinifyDeadCodeElimination),
             ],
         })
+        addMarker('client-scripts', path.basename(fileName) + '-eliminate-dead')
         // because imports are placed at the top of the file, imported things that are later overwritten and
         // subsequently not used are left out if both plugins were run in parallel
         result = transformFromAstSync(result.ast, sourceCode, {
@@ -167,8 +170,11 @@ export default function getScopedModules(parser: Parser, doSomethings: DoSomethi
                 babel.createConfigItem(babelPluginRemoveUnusedImport),
             ],
         })
+        addMarker('client-scripts', path.basename(fileName) + '-unused-imports')
         clientModules[fileName] = result
+        addMarker('client-scripts', path.basename(fileName))
     })
+    addMarker('client-scripts', 'done')
 
     return clientModules
 }

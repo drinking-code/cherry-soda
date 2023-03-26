@@ -20,8 +20,8 @@ import {getRefs, getStateFromPlaceholderId, stateIdPlaceholderPrefix} from './st
 import {replaceAsync} from '../utils/replace-async'
 import {clientTemplatesToJs, refsToJs} from './generate-code'
 import {getStateUsagesAsCode} from './template/state-usage'
-import {waitForTemplates} from './template'
-import {addMarker} from './profiler'
+import {addMarker, addRange} from './profiler'
+import {AcceptedPlugin} from 'postcss'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const outputPath = '/dist'
@@ -45,6 +45,7 @@ export default async function bundleVirtualFiles(clientScriptTrees: ClientModule
     hfs.mkdirSync(virtualFilesPath)
     const newLine = "\n"
     moduleToFileNameMap = new Map()
+    addMarker('bundler', 'volume-created')
     const clientScriptsResolved = await Promise.allSettled(
         mapObjectToArray(clientScriptTrees, async ([filePath, fileResult]) => {
             const virtualFileName = randomBytes(16).toString('base64url') + '.js'
@@ -60,7 +61,12 @@ export default async function bundleVirtualFiles(clientScriptTrees: ClientModule
             const code = await replaceAsync(
                 fileResult.code,
                 new RegExp(`['"]${stateIdPlaceholderPrefix}([a-zA-Z0-9]+)['"]`, 'g'),
-                async (match, id) => `"${await getStateFromPlaceholderId(id)}"`)
+                async (match, id) => {
+                    addRange('bundler', `await-state-${id}`, 'start')
+                    const string = `"${await getStateFromPlaceholderId(id)}"`
+                    addRange('bundler', `await-state-${id}`, 'end')
+                    return string
+                })
             const fileContents = code + newLine +
                 `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${new Buffer(sourceMap).toString('base64')}`
             hfs.writeFileSync(virtualFilePath, fileContents)
@@ -77,6 +83,7 @@ export default async function bundleVirtualFiles(clientScriptTrees: ClientModule
     inputFile += newLine
     inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
     hfs.writeFileSync(inputFilePath, inputFile)
+    addMarker('bundler', 'client-script-file')
     const refsAndTemplatesFile = path.join(virtualFilesPath, 'refs-and-templates.js')
     moduleToFileNameMap.set(refsAndTemplatesFile, 'refs and states')
     // await waitForTemplates()
@@ -84,6 +91,7 @@ export default async function bundleVirtualFiles(clientScriptTrees: ClientModule
         clientTemplatesToJs() + newLine +
         getStateUsagesAsCode()
     hfs.writeFileSync(refsAndTemplatesFile, refsAndTemplatesFileContents)
+    addMarker('bundler', 'ref-templates-file')
     await startEsbuild(refsAndTemplatesFile)
 
     return hfs
@@ -127,7 +135,7 @@ async function startEsbuild(refsAndTemplatesFile: string) {
                     },
                 },
                 postcss: {
-                    plugins: [autoprefixer]
+                    plugins: [autoprefixer as AcceptedPlugin]
                 },
                 cssModulesOptions: {
                     scopeBehaviour: 'local',
@@ -146,9 +154,9 @@ async function startEsbuild(refsAndTemplatesFile: string) {
         ]
     })
 
-    await esCtx.watch()
-
     let measuredEnd = false
+
+    await esCtx.watch()
 
     function handleResult(result: BuildResult) {
         const virtualFilesDirName = virtualFilesPath.replace(/\//g, '')

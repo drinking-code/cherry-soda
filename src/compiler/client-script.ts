@@ -7,6 +7,7 @@ import StateUsage from '../state/state-usage'
 import {getClientState} from '../runtime'
 import {stateIsListenedTo} from './states-collector'
 import {makeContext, ProtoContextType} from './template/state-usage'
+import {addMarker} from './profiler'
 
 export default function generateClientScriptTrees(parser: Parser): ClientModulesType {
     /*
@@ -15,6 +16,10 @@ export default function generateClientScriptTrees(parser: Parser): ClientModules
      */
     // todo: make this whole wonky babel setup more robust to edge cases
     // todo: faster (swc???)
+    addMarker('client-scripts', 'start')
     const doSomethingsScopes = findDoSomethings(parser)
-    return getScopedModules(parser, doSomethingsScopes)
+    addMarker('client-scripts', 'find-do-somethings')
+    const result = getScopedModules(parser, doSomethingsScopes)
+    addMarker('client-scripts', 'end')
+    return result
 }
