@@ -1,99 +1,36 @@
 import path from 'path'
-import {randomBytes} from 'crypto'
 
 import esbuild, {BuildResult, Plugin} from 'esbuild'
 import browserslist from 'browserslist'
 import autoprefixer from 'autoprefixer'
-import PrettyError from 'pretty-error'
-import createHybridFs from 'hybridfs'
 import {Volume} from 'memfs/lib/volume'
 
-import {ClientModulesType} from './client-script/get-scoped-modules'
-import {mapObjectToArray} from '../utils/iterate-object'
-import projectRoot, {resolve as resolveProjectRoot} from '../utils/project-root'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './bundler/use-fs'
 import imageLoader from '../imports/images'
 import stylePlugin from './bundler/style-plugin'
 import generateClassName from '../utils/generate-css-class-name'
-import {getRefs, getStateFromPlaceholderId, stateIdPlaceholderPrefix} from './states-collector'
-import {replaceAsync} from '../utils/replace-async'
-import {clientTemplatesToJs, refsToJs} from './generate-code'
-import {getStateUsagesAsCode} from './template/state-usage'
-import {addMarker, addRange} from './profiler'
+import {addMarker} from './profiler'
 import {AcceptedPlugin} from 'postcss'
+import {
+    generateClientScriptFile, generateRefsAndTemplatesFile,
+    getVolume,
+    inputFilePath,
+    outputPath, refsAndTemplatesFilePath,
+    virtualFilesPath
+} from './client-script/generate-data-files'
 
 export const isProduction = process.env.BUN_ENV === 'production'
-export const outputPath = '/dist'
-export const virtualFilesPath = '/_virtual-files'
-const inputFilePath = '/input.js'
-const pe = new PrettyError()
-let hfs: Volume
 let moduleToFileNameMap
 
-export default async function bundleVirtualFiles(clientScriptTrees: ClientModulesType, assetsFilePaths: string[]): Promise<Volume> {
+export default async function bundleVirtualFiles(): Promise<Volume> {
     addMarker('bundler', 'start')
-    const entryPoint = process.env.CHERRY_COLA_ENTRY
-    const entryDir = path.dirname(entryPoint)
-    const mountFromSrc = ['runtime', 'messages', 'utils']
-    hfs = createHybridFs([
-        [resolveProjectRoot('node_modules'), '/node_modules'],
-        [entryDir, entryDir.replace(projectRoot, '')],
-        ...mountFromSrc.map(dir => [resolveModuleRoot('src', dir), '/' + dir]),
-    ])
-    hfs.mkdirSync(outputPath)
-    hfs.mkdirSync(virtualFilesPath)
-    const newLine = "\n"
+    const hfs = getVolume()
     moduleToFileNameMap = new Map()
-    addMarker('bundler', 'volume-created')
-    const clientScriptsResolved = await Promise.allSettled(
-        mapObjectToArray(clientScriptTrees, async ([filePath, fileResult]) => {
-            const virtualFileName = randomBytes(16).toString('base64url') + '.js'
-            const virtualFilePath = path.join(virtualFilesPath, virtualFileName)
-            // transform sources to show up correctly and relative to project root after esbuild
-            fileResult.map.sources = fileResult.map.sources.map(filePath => filePath.replace(projectRoot, '..'))
-            const sourceMap = JSON.stringify(fileResult.map)
-            moduleToFileNameMap.set(
-                virtualFilePath,
-                // @ts-ignore
-                fileResult.options.sourceFileName.replace(projectRoot, '.')
-            )
-            const code = await replaceAsync(
-                fileResult.code,
-                new RegExp(`['"]${stateIdPlaceholderPrefix}([a-zA-Z0-9]+)['"]`, 'g'),
-                async (match, id) => {
-                    addRange('bundler', `await-state-${id}`, 'start')
-                    const string = `"${await getStateFromPlaceholderId(id)}"`
-                    addRange('bundler', `await-state-${id}`, 'end')
-                    return string
-                })
-            const fileContents = code + newLine +
-                `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${new Buffer(sourceMap).toString('base64')}`
-            hfs.writeFileSync(virtualFilePath, fileContents)
-            return virtualFilePath
-        })
-    )
-    const clientScripts = clientScriptsResolved.map(settled => {
-        if (settled.status === 'fulfilled')
-            return settled.value
-        else return null
-    }).filter(v => v)
-    let inputFile = ''
-    inputFile += assetsFilePaths.map(path => `import '${path}'`).join(newLine)
-    inputFile += newLine
-    inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
-    hfs.writeFileSync(inputFilePath, inputFile)
-    addMarker('bundler', 'client-script-file')
-    const refsAndTemplatesFile = path.join(virtualFilesPath, 'refs-and-templates.js')
-    moduleToFileNameMap.set(refsAndTemplatesFile, 'refs and states')
-    // await waitForTemplates()
-    const refsAndTemplatesFileContents = refsToJs(getRefs()) + newLine +
-        clientTemplatesToJs() + newLine +
-        getStateUsagesAsCode()
-    hfs.writeFileSync(refsAndTemplatesFile, refsAndTemplatesFileContents)
-    addMarker('bundler', 'ref-templates-file')
-    await startEsbuild(refsAndTemplatesFile)
-
+    moduleToFileNameMap.set(refsAndTemplatesFilePath, 'refs and states')
+    generateClientScriptFile(moduleToFileNameMap)
+    generateRefsAndTemplatesFile()
+    await startEsbuild()
     return hfs
 }
 
@@ -107,12 +44,13 @@ const browserslistEsbuildMap = {
     'safari': 'safari',
 }
 
-async function startEsbuild(refsAndTemplatesFile: string) {
+async function startEsbuild() {
+    const hfs = getVolume()
     // @ts-ignore TS2339: Property 'json' does not exist on type 'FileBlob'.
     const packageJson = await Bun.file(resolveModuleRoot('package.json')).json()
     let esCtx = await esbuild.context({
         entryPoints: [inputFilePath],
-        inject: [path.join('/', 'runtime', 'index.ts'), refsAndTemplatesFile],
+        inject: [path.join('/', 'runtime', 'index.ts'), refsAndTemplatesFilePath],
         outfile: path.join(outputPath, 'main.js'),
         target: browserslist('> 1%, not dead') // todo: make a changeable option
             .map(browser => {
@@ -139,8 +77,7 @@ async function startEsbuild(refsAndTemplatesFile: string) {
                 },
                 cssModulesOptions: {
                     scopeBehaviour: 'local',
-                    generateScopedName: (name, filename) =>
-                        generateClassName(name, filename),
+                    generateScopedName: (name, filename) => generateClassName(name, filename),
                 },
             }),
             imageLoader({fs: hfs, emit: true, path: outputPath}) as Plugin,

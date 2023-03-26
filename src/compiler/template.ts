@@ -2,12 +2,9 @@
 // a template is the returned tree (where other components are references)
 // a template may include a state somewhere (plain, or convoluted)
 
-import {Volume} from 'memfs/lib/volume'
-
 import '../imports/'
 import {VirtualElementInterface} from '../jsx/cherry-soda'
 import {ElementChildren} from '../jsx/ElementChildren'
-import {createState} from '#cherry-soda'
 import {ClientTemplatesMapType, ServerTemplateHTMLElementType, ServerTemplatesMapType} from './template/types'
 import TemplateBuilder from './template/template-builder'
 import {jsx} from '../jsx-runtime'
@@ -21,7 +18,7 @@ let entryHash: HashType
 let resolveWaitForTemplates
 const waitForTemplatesPromise = new Promise(res => resolveWaitForTemplates = res)
 
-export default async function extractTemplates(entry: string, volumeAndPathPromise: Promise<{ outputPath: string, fs: Volume }>) {
+export default async function extractTemplates(entry: string) {
     addMarker('template', 'start')
     const componentFunction = (await import(entry)).main
     addMarker('template', 'imported')
@@ -51,10 +48,9 @@ export default async function extractTemplates(entry: string, volumeAndPathPromi
         addMarker('template', 'document_start')
         const Document = (await import('../jsx/dom/default-document')).default
         addRange('template', 'volume-path', 'start')
-        const volumeAndPath = await volumeAndPathPromise
+        // todo: // await
         addRange('template', 'volume-path', 'end')
         const documentComponent = jsx(Document, {
-            clientAssets: createState(volumeAndPath),
             children: new ElementChildren(mainComponent)
         }) as VirtualElement
 

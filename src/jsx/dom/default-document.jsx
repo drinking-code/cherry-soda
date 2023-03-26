@@ -1,11 +1,11 @@
 import {Html, Head, Body} from '#cherry-soda'
 
-export default function Document({clientAssets, ...props}) {
+export default function Document({children}) {
     return (
         <Html lang={'en'}>
-            <Head clientAssets={clientAssets}/>
+            <Head/>
             <Body>
-                {props.children}
+                {children}
             </Body>
         </Html>
     )

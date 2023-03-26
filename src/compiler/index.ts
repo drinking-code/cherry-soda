@@ -6,16 +6,13 @@ import {resolve as resolveProjectRoot} from '../utils/project-root'
 import generateClientScriptTrees from './client-script'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import collectAssetsFilePaths from './assets'
-import bundleVirtualFiles, {outputPath} from './bundler'
+import bundleVirtualFiles from './bundler'
 import extractTemplates from './template'
-import {getRenderer} from '../renderer/renderer'
 import {addMarker} from './profiler'
+import {getVolume, outputPath} from './client-script/generate-data-files'
 
-export default function compile(entry: string): { outputPath: string, fs: Promise<Volume>, render: () => string } {
-    let resolveVolumeAndPathPromise
-    const volumeAndPathPromise = new Promise<{ outputPath: string, fs: Volume }>(resolve => resolveVolumeAndPathPromise = resolve)
-    extractTemplates(entry, volumeAndPathPromise)
-    const render = getRenderer()
+export default function compile(entry: string): { outputPath: string, fs: Volume } {
+    extractTemplates(entry)
     const parser = new Parser()
     const parseFileAndAllImportedFiles = filePath => {
         parser.parseFile(filePath)
@@ -31,9 +28,8 @@ export default function compile(entry: string): { outputPath: string, fs: Promis
     addMarker('parser', 'start')
     parseFileAndAllImportedFiles(entry)
     addMarker('parser', 'end')
-    const clientScriptTrees = generateClientScriptTrees(parser)
-    const assetsFilePaths = collectAssetsFilePaths(parser)
-    const volumePromise = bundleVirtualFiles(clientScriptTrees, assetsFilePaths)
-    volumePromise.then(volume => resolveVolumeAndPathPromise({outputPath, fs: volume}))
-    return {outputPath, fs: volumePromise, render}
+    generateClientScriptTrees(parser)
+    collectAssetsFilePaths(parser)
+    bundleVirtualFiles()
+    return {outputPath, fs: getVolume()}
 }

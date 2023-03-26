@@ -5,6 +5,8 @@ import {iterateObject} from '../utils/iterate-object'
 import {styleFilter} from './bundler/style-plugin'
 import {imageFilter} from '../imports/images'
 
+let styleFiles: string[] = []
+
 export default function collectAssetsFilePaths(parser: Parser): string[] {
     // todo: separate critical from non critical styles
     /* or into a level system:
@@ -14,8 +16,6 @@ export default function collectAssetsFilePaths(parser: Parser): string[] {
     * 3: out-of-scope css  - not used on the current page / view (i.e. in another or not at all)
     *  */
 
-    const styleFiles = []
-
     parser.fileNames.forEach(fileName => {
         const fileImports = parser.getImports(fileName)
         iterateObject(fileImports, ([file]) => {
@@ -24,5 +24,9 @@ export default function collectAssetsFilePaths(parser: Parser): string[] {
         })
     })
 
+    return styleFiles
+}
+
+export function getAssetsFilePaths(): string[] {
     return styleFiles
 }

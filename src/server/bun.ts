@@ -2,6 +2,7 @@ import PrettyError from 'pretty-error'
 
 import compile from '../compiler'
 import serveStatic from './serve-static'
+import {getRenderer} from '../renderer/renderer'
 
 const pe = new PrettyError()
 
@@ -10,9 +11,9 @@ const pe = new PrettyError()
  * */
 export default function cherrySoda(entry): (req: Request) => Promise<Response> {
     process.env.CHERRY_COLA_ENTRY = entry
-    const {fs, outputPath, render} = compile(entry)
-    let serveStaticListener: (req: Request) => Response
-    ;(async () => serveStaticListener = serveStatic(outputPath, await fs as Parameters<typeof serveStatic>[1]))()
+    const {fs, outputPath} = compile(entry)
+    const render = getRenderer()
+    let serveStaticListener: (req: Request) => Response = serveStatic(outputPath, fs)
 
     return async (req) => {
         // todo: routing; next if request should not be handled
