@@ -18,7 +18,6 @@ import {includeStateUsage, makeContext} from './state-usage'
 
 export default class TemplateBuilder {
     private readonly clientTemplates: ClientTemplatesMapType
-    private readonly clientStateUsages: ClientTemplatesMapType
     private readonly serverTemplates: ServerTemplatesMapType
 
     constructor(

@@ -2,25 +2,32 @@
 // a template is the returned tree (where other components are references)
 // a template may include a state somewhere (plain, or convoluted)
 
+import {Volume} from 'memfs/lib/volume'
+
 import '../imports/'
 import {VirtualElementInterface} from '../jsx/cherry-soda'
 import {ElementChildren} from '../jsx/ElementChildren'
-import bundleVirtualFiles from './bundler'
 import {createState} from '#cherry-soda'
 import {ClientTemplatesMapType, ServerTemplateHTMLElementType, ServerTemplatesMapType} from './template/types'
 import TemplateBuilder from './template/template-builder'
 import {jsx} from '../jsx-runtime'
-import {VirtualElement} from '../jsx/VirtualElement'
+import {HashType, VirtualElement} from '../jsx/VirtualElement'
+import {addMarker} from './profiler'
 
-export default async function extractTemplates(entry: string, volumeAndPathPromise: Promise<ReturnType<typeof bundleVirtualFiles>>) {
-    const clientTemplates: ClientTemplatesMapType = new Map()
-    const serverTemplates: ServerTemplatesMapType = new Map()
+const clientTemplates: ClientTemplatesMapType = new Map()
+const serverTemplates: ServerTemplatesMapType = new Map()
+let entryHash: HashType
+
+let resolveWaitForTemplates
+const waitForTemplatesPromise = new Promise(res => resolveWaitForTemplates = res)
+
+export default async function extractTemplates(entry: string, volumeAndPathPromise: Promise<{ outputPath: string, fs: Volume }>) {
+    addMarker('template', 'start')
     const componentFunction = (await import(entry)).main
-
     const mainComponent = jsx(componentFunction, {}) as VirtualElement
 
     const builder = new TemplateBuilder(clientTemplates, serverTemplates)
-    let entryHash = builder.makeTemplate(mainComponent as VirtualElementInterface<'component'>)
+    entryHash = builder.makeTemplate(mainComponent as VirtualElementInterface<'component'>)
     // check if first element is <html>
     let keyIndex = entryHash, firstElementHtml = false
     while (firstElementHtml === false) {
@@ -59,6 +66,23 @@ export default async function extractTemplates(entry: string, volumeAndPathPromi
         mainComponent.trace()
         traceDomElements(mainComponent)
     }
+    resolveWaitForTemplates()
+    console.log('done')
+    addMarker('template', 'end')
+}
 
-    return {clientTemplates, serverTemplates, entry: entryHash}
+export function waitForTemplates() {
+    return waitForTemplatesPromise
+}
+
+export function getClientTemplates() {
+    return clientTemplates
+}
+
+export function getServerTemplates() {
+    return serverTemplates
+}
+
+export function getEntryHash() {
+    return entryHash
 }

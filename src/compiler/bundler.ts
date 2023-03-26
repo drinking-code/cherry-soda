@@ -19,9 +19,9 @@ import generateClassName from '../utils/generate-css-class-name'
 import {getRefs, getStateFromPlaceholderId, stateIdPlaceholderPrefix} from './states-collector'
 import {replaceAsync} from '../utils/replace-async'
 import {clientTemplatesToJs, refsToJs} from './generate-code'
-import {ClientTemplatesMapType} from './template/types'
-import {HashType} from '../jsx/VirtualElement'
 import {getStateUsagesAsCode} from './template/state-usage'
+import {waitForTemplates} from './template'
+import {addMarker} from './profiler'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const outputPath = '/dist'
@@ -31,11 +31,8 @@ const pe = new PrettyError()
 let hfs: Volume
 let moduleToFileNameMap
 
-export default function bundleVirtualFiles(
-    clientScriptTrees: ClientModulesType,
-    assetsFilePaths: string[],
-    template: Promise<{ clientTemplates: ClientTemplatesMapType, entry: HashType }>
-): { outputPath: string, fs: Volume } {
+export default async function bundleVirtualFiles(clientScriptTrees: ClientModulesType, assetsFilePaths: string[]): Promise<Volume> {
+    addMarker('bundler', 'start')
     const entryPoint = process.env.CHERRY_COLA_ENTRY
     const entryDir = path.dirname(entryPoint)
     const mountFromSrc = ['runtime', 'messages', 'utils']
@@ -46,52 +43,50 @@ export default function bundleVirtualFiles(
     ])
     hfs.mkdirSync(outputPath)
     hfs.mkdirSync(virtualFilesPath)
-    ;(async () => {
-        const newLine = "\n"
-        moduleToFileNameMap = new Map()
-        const clientScriptsResolved = await Promise.allSettled(
-            mapObjectToArray(clientScriptTrees, async ([filePath, fileResult]) => {
-                const virtualFileName = randomBytes(16).toString('base64url') + '.js'
-                const virtualFilePath = path.join(virtualFilesPath, virtualFileName)
-                // transform sources to show up correctly and relative to project root after esbuild
-                fileResult.map.sources = fileResult.map.sources.map(filePath => filePath.replace(projectRoot, '..'))
-                const sourceMap = JSON.stringify(fileResult.map)
-                moduleToFileNameMap.set(
-                    virtualFilePath,
-                    // @ts-ignore
-                    fileResult.options.sourceFileName.replace(projectRoot, '.')
-                )
-                const code = await replaceAsync(
-                    fileResult.code,
-                    new RegExp(`['"]${stateIdPlaceholderPrefix}([a-zA-Z0-9]+)['"]`, 'g'),
-                    async (match, id) => `"${await getStateFromPlaceholderId(id)}"`)
-                const fileContents = code + newLine +
-                    `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${new Buffer(sourceMap).toString('base64')}`
-                hfs.writeFileSync(virtualFilePath, fileContents)
-                return virtualFilePath
-            })
-        )
-        const clientScripts = clientScriptsResolved.map(settled => {
-            if (settled.status === 'fulfilled')
-                return settled.value
-            else return null
-        }).filter(v => v)
-        let inputFile = ''
-        inputFile += assetsFilePaths.map(path => `import '${path}'`).join(newLine)
-        inputFile += newLine
-        inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
-        hfs.writeFileSync(inputFilePath, inputFile)
-        const refsAndTemplatesFile = path.join(virtualFilesPath, 'refs-and-templates.js')
-        moduleToFileNameMap.set(refsAndTemplatesFile, 'refs and states')
-        const awaitedTemplate = await template // await before calling getRefs() to make sure all elements are traced
-        const refsAndTemplatesFileContents = refsToJs(getRefs()) + newLine +
-            clientTemplatesToJs(awaitedTemplate) + newLine +
-            getStateUsagesAsCode()
-        // console.log(refsAndTemplatesFileContents)
-        hfs.writeFileSync(refsAndTemplatesFile, refsAndTemplatesFileContents)
-        await startEsbuild(refsAndTemplatesFile)
-    })()
-    return {outputPath, fs: hfs}
+    const newLine = "\n"
+    moduleToFileNameMap = new Map()
+    const clientScriptsResolved = await Promise.allSettled(
+        mapObjectToArray(clientScriptTrees, async ([filePath, fileResult]) => {
+            const virtualFileName = randomBytes(16).toString('base64url') + '.js'
+            const virtualFilePath = path.join(virtualFilesPath, virtualFileName)
+            // transform sources to show up correctly and relative to project root after esbuild
+            fileResult.map.sources = fileResult.map.sources.map(filePath => filePath.replace(projectRoot, '..'))
+            const sourceMap = JSON.stringify(fileResult.map)
+            moduleToFileNameMap.set(
+                virtualFilePath,
+                // @ts-ignore
+                fileResult.options.sourceFileName.replace(projectRoot, '.')
+            )
+            const code = await replaceAsync(
+                fileResult.code,
+                new RegExp(`['"]${stateIdPlaceholderPrefix}([a-zA-Z0-9]+)['"]`, 'g'),
+                async (match, id) => `"${await getStateFromPlaceholderId(id)}"`)
+            const fileContents = code + newLine +
+                `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${new Buffer(sourceMap).toString('base64')}`
+            hfs.writeFileSync(virtualFilePath, fileContents)
+            return virtualFilePath
+        })
+    )
+    const clientScripts = clientScriptsResolved.map(settled => {
+        if (settled.status === 'fulfilled')
+            return settled.value
+        else return null
+    }).filter(v => v)
+    let inputFile = ''
+    inputFile += assetsFilePaths.map(path => `import '${path}'`).join(newLine)
+    inputFile += newLine
+    inputFile += clientScripts.map(virtualPath => `import '${virtualPath}'`).join(newLine)
+    hfs.writeFileSync(inputFilePath, inputFile)
+    const refsAndTemplatesFile = path.join(virtualFilesPath, 'refs-and-templates.js')
+    moduleToFileNameMap.set(refsAndTemplatesFile, 'refs and states')
+    // await waitForTemplates()
+    const refsAndTemplatesFileContents = refsToJs(getRefs()) + newLine +
+        clientTemplatesToJs() + newLine +
+        getStateUsagesAsCode()
+    hfs.writeFileSync(refsAndTemplatesFile, refsAndTemplatesFileContents)
+    await startEsbuild(refsAndTemplatesFile)
+
+    return hfs
 }
 
 const browserslistEsbuildMap = {
@@ -153,6 +148,8 @@ async function startEsbuild(refsAndTemplatesFile: string) {
 
     await esCtx.watch()
 
+    let measuredEnd = false
+
     function handleResult(result: BuildResult) {
         const virtualFilesDirName = virtualFilesPath.replace(/\//g, '')
         const matchFileComment = new RegExp(`^( *// ).+?(/${virtualFilesDirName}/.+)$`, 'gm')
@@ -162,5 +159,9 @@ async function startEsbuild(refsAndTemplatesFile: string) {
                     return insetComment + moduleToFileNameMap.get(module)
                 }))
         })
+        if (!measuredEnd) {
+            addMarker('bundler', 'end')
+            measuredEnd = true
+        }
     }
 }

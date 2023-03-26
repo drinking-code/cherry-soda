@@ -1,4 +1,4 @@
-import {ElementId, HashType} from '../jsx/VirtualElement'
+import {ElementId} from '../jsx/VirtualElement'
 import {
     arrayExpression, exportNamedDeclaration,
     identifier, numericLiteral,
@@ -9,7 +9,7 @@ import {
 } from '@babel/types'
 import generate from '@babel/generator'
 import {mapMapToArray, mapObjectToArray} from '../utils/iterate-object'
-import {ClientTemplatesMapType} from './template/types'
+import {getClientTemplates, getEntryHash} from './template'
 
 const wrapQuoteIfStartsWithNumber = value => value.match(/^[0-9]/) ? `"${value}"` : value
 
@@ -32,11 +32,11 @@ export function refsToJs(refs: { [refId: string]: ElementId['fullPath'][] }): st
     return generate(ast).code
 }
 
-export function clientTemplatesToJs(templates: { clientTemplates: ClientTemplatesMapType, entry: HashType }): string {
+export function clientTemplatesToJs(): string {
     const ast = exportNamedDeclaration(variableDeclaration('const', [
         variableDeclarator(
             identifier('templates'),
-            objectExpression(mapMapToArray(templates.clientTemplates, ([componentId, template]) =>
+            objectExpression(mapMapToArray(getClientTemplates(), ([componentId, template]) =>
                 objectProperty(
                     identifier(wrapQuoteIfStartsWithNumber(componentId)),
                     stringLiteral(template)
@@ -45,7 +45,7 @@ export function clientTemplatesToJs(templates: { clientTemplates: ClientTemplate
         ),
         variableDeclarator(
             identifier('templatesEntry'),
-            stringLiteral(templates.entry)
+            stringLiteral(getEntryHash())
         )
     ]))
     return generate(ast, {jsescOption: {quotes: 'single'}}).code

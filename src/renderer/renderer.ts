@@ -1,29 +1,20 @@
-import extractTemplates from '../compiler/template'
+import {getEntryHash, getServerTemplates} from '../compiler/template'
 import {voidElements} from '../jsx/dom/html-props'
 import {ensureArray} from '../utils/array'
 import {mapObjectToArray} from '../utils/iterate-object'
 import {ServerTemplateNodeType, ServerTemplatesMapType} from '../compiler/template/types'
 import {HashType} from '../jsx/VirtualElement'
 
-const bunPeek = ((Bun as unknown as { peek: Function }).peek as <V>(promise: Promise<V>) => Promise<V> | V)
-
-export function getRenderer(template: ReturnType<typeof extractTemplates>) {
-    let resolvedTemplate: Awaited<typeof template>
-    const possiblyResolvedTemplate = bunPeek(template)
-    if (possiblyResolvedTemplate instanceof Promise) {
-        ;(async () => resolvedTemplate = await template)()
-    } else {
-        resolvedTemplate = possiblyResolvedTemplate
-    }
+export function getRenderer(hash?: HashType) {
     return () => {
-        const serverTemplates: ServerTemplatesMapType = resolvedTemplate.serverTemplates
-        const entry: HashType = resolvedTemplate.entry
+        const serverTemplates: ServerTemplatesMapType = getServerTemplates()
+        const entry: HashType = hash ?? getEntryHash()
 
         function renderTemplate(key): string {
             const template = serverTemplates.get(key)
 
-            function stringifyNodes(nodes: ServerTemplateNodeType[]) {
-                return nodes.map(node => {
+            function stringifyNodes(nodes: ServerTemplateNodeType[]): string {
+                return nodes.map((node): string => {
                     switch (node.type) {
                         case 'component':
                             return renderTemplate(node.key)

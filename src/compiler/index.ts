@@ -6,15 +6,16 @@ import {resolve as resolveProjectRoot} from '../utils/project-root'
 import generateClientScriptTrees from './client-script'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import collectAssetsFilePaths from './assets'
-import bundleVirtualFiles from './bundler'
+import bundleVirtualFiles, {outputPath} from './bundler'
 import extractTemplates from './template'
 import {getRenderer} from '../renderer/renderer'
+import {addMarker} from './profiler'
 
-export default function compile(entry: string): { outputPath: string, fs: Volume, render: () => string } {
+export default function compile(entry: string): { outputPath: string, fs: Promise<Volume>, render: () => string } {
     let resolveVolumeAndPathPromise
-    const volumeAndPathPromise = new Promise<ReturnType<typeof bundleVirtualFiles>>(resolve => resolveVolumeAndPathPromise = resolve)
-    const templatePromise = extractTemplates(entry, volumeAndPathPromise)
-    const render = getRenderer(templatePromise)
+    const volumeAndPathPromise = new Promise<{ outputPath: string, fs: Volume }>(resolve => resolveVolumeAndPathPromise = resolve)
+    extractTemplates(entry, volumeAndPathPromise)
+    const render = getRenderer()
     const parser = new Parser()
     const parseFileAndAllImportedFiles = filePath => {
         parser.parseFile(filePath)
@@ -27,10 +28,12 @@ export default function compile(entry: string): { outputPath: string, fs: Volume
             }))
         return filePaths.map(parseFileAndAllImportedFiles)
     }
+    addMarker('parser', 'start')
     parseFileAndAllImportedFiles(entry)
+    addMarker('parser', 'end')
     const clientScriptTrees = generateClientScriptTrees(parser)
     const assetsFilePaths = collectAssetsFilePaths(parser)
-    const volumeAndPath = bundleVirtualFiles(clientScriptTrees, assetsFilePaths, templatePromise)
-    resolveVolumeAndPathPromise(volumeAndPath)
-    return {...volumeAndPath, render}
+    const volumePromise = bundleVirtualFiles(clientScriptTrees, assetsFilePaths)
+    volumePromise.then(volume => resolveVolumeAndPathPromise({outputPath, fs: volume}))
+    return {outputPath, fs: volumePromise, render}
 }
