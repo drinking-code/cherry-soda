@@ -13,7 +13,7 @@ import {getVolume, outputPath} from './client-script/generate-data-files'
 
 export default function compile(entry: string): { outputPath: string, fs: Volume } {
     extractTemplates(entry)
-    const parser = new Parser()
+    /*const parser = new Parser()
     const parseFileAndAllImportedFiles = filePath => {
         parser.parseFile(filePath)
         const imports = parser.getImports(filePath)
@@ -27,9 +27,9 @@ export default function compile(entry: string): { outputPath: string, fs: Volume
     }
     addMarker('parser', 'start')
     parseFileAndAllImportedFiles(entry)
-    addMarker('parser', 'end')
-    generateClientScriptTrees(parser)
-    collectAssetsFilePaths(parser)
+    addMarker('parser', 'end')*/
+    // generateClientScriptTrees(parser)
+    collectAssetsFilePaths(entry)
     bundleVirtualFiles()
     return {outputPath, fs: getVolume()}
 }

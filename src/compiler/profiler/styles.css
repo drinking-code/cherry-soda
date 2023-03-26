@@ -23,13 +23,25 @@ h1 {
 .time-wrapper {
     position: relative;
     height: 100%;
+
+    background: #fff;
+}
+
+.time-wrapper:after {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+
+    background: #2693ff;
+    mix-blend-mode: screen;
 }
 
 .time-main {
     position: absolute;
     height: 100%;
 
-    background: #2693ff;
+    background: #000;
 
     display: flex;
     align-items: center;
@@ -40,6 +52,7 @@ h1 {
     left: .5rem;
 
     color: #fff;
+    mix-blend-mode: difference;
 }
 
 .time-marker {

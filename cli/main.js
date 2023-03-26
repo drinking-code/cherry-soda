@@ -8,9 +8,11 @@ import build from './build.js'
 import start from './start.js'
 import dev from './dev.js'
 
-import {resolve as resolveProjectRoot} from '../src/utils/project-root.js'
+import projectRoot, {resolve as resolveProjectRoot} from '../src/utils/project-root.js'
+import moduleRoot from '../src/utils/module-root.js'
 
 process.env.NODE_NO_WARNINGS = '1'
+process.env.INTERNAL_DEV = projectRoot === moduleRoot ? 'true' : 'false'
 
 const packageJson = JSON.parse(
     fs.readFileSync(
