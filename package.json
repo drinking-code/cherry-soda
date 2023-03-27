@@ -52,6 +52,7 @@
     "escape-html": "^1.0.3",
     "express": "^4.18.1",
     "glob": "^9.2.1",
+    "html-tags": "^3.2.0",
     "hybridfs": "drinking-code/hybridfs",
     "ipos": "^0.2.6",
     "lodash": "^4.17.21",
