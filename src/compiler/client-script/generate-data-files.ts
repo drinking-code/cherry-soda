@@ -38,39 +38,7 @@ export function getVolume(): Volume {
 
 const newLine = "\n"
 
-export async function generateClientScriptFile(moduleToFileNameMap: Map<string, string>) {
-    /*const clientScriptsResolved = await Promise.allSettled(
-        mapObjectToArray(clientScriptTrees, async ([filePath, fileResult]) => {
-            const virtualFileName = randomBytes(16).toString('base64url') + '.js'
-            const virtualFilePath = path.join(virtualFilesPath, virtualFileName)
-            // transform sources to show up correctly and relative to project root after esbuild
-            fileResult.map.sources = fileResult.map.sources.map(filePath => filePath.replace(projectRoot, '..'))
-            const sourceMap = JSON.stringify(fileResult.map)
-            moduleToFileNameMap.set(
-                virtualFilePath,
-                // @ts-ignore
-                fileResult.options.sourceFileName.replace(projectRoot, '.')
-            )
-            const code = await replaceAsync(
-                fileResult.code,
-                new RegExp(`['"]${stateIdPlaceholderPrefix}([a-zA-Z0-9]+)['"]`, 'g'),
-                async (match, id) => {
-                    addRange('bundler', `await-state-${id}`, 'start')
-                    const string = `"${await getStateFromPlaceholderId(id)}"`
-                    addRange('bundler', `await-state-${id}`, 'end')
-                    return string
-                })
-            const fileContents = code + newLine +
-                `//# sourceMappingURL=data:application/json;charset=utf-8;base64,${new Buffer(sourceMap).toString('base64')}`
-            hfs.writeFileSync(virtualFilePath, fileContents)
-            return virtualFilePath
-        })
-    )*/
-    /*const clientScripts = clientScriptsResolved.map(settled => {
-        if (settled.status === 'fulfilled')
-            return settled.value
-        else return null
-    }).filter(v => v)*/
+export async function generateClientScriptFile() {
     let inputFile = ''
     inputFile += getAssetsFilePaths().map(path => `import '${path}'`).join(newLine)
     inputFile += newLine

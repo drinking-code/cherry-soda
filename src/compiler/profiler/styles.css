@@ -61,6 +61,8 @@ h1 {
     width: 1px;
 
     background: #fff;
+
+    z-index: 1;
 }
 
 .time-marker span, .time-range span {
@@ -80,6 +82,8 @@ h1 {
     height: 100%;
 
     background: #444;
+
+    z-index: 1;
 }
 
 .time-range span {
@@ -111,7 +115,6 @@ h1 {
 
     .time-marker {
         background: #000;
-        z-index: 1;
     }
 
     .time-marker span, .time-range span {

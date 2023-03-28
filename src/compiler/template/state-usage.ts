@@ -62,7 +62,7 @@ export function getStateUsagesAsCode() {
             .map(ctx => stringifyContext(makeContext(ctx, usage)))
             .join(',') + ']'
         code += `${stateUsagesContextsName}.set('${key}', ${stateUsageContexts});` + newLine // todo: minify
-        code += '}'
+        code += '}' + newLine
     })
     code += `export {${stateUsagesName}};` + newLine
     code += `export {${stateUsagesParametersName}};` + newLine

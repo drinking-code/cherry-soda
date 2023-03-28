@@ -14,6 +14,8 @@ export default function stringifyValue(value: StringifiableType): string {
         return JSON.stringify(value.map(stringifyValue))
     else if (isObject(value))
         return JSON.stringify(mapObject(value, ([key, value]) => [key, stringifyValue(value)]))
+    else if (value === undefined)
+        return typeof undefined
     else
         return value.toString()
 }

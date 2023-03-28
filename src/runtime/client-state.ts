@@ -14,7 +14,7 @@ function cloneStateValue<V>(value: V): V {
     }
 }
 
-type StateChangeHandlerType = (...args: ([any, (value: any) => void] | HTMLElement)[]) => (() => void) | void
+export type StateChangeHandlerType = (...args: ([any, (value: any) => void] | HTMLElement)[]) => (() => void) | void
 type ClientContextType<T extends 'child' | 'prop'> = ContextType<T> & { makeString: (value: string) => string }
 
 declare const stateUsages: Map<HashType, (...values: any[]) => string>
@@ -100,24 +100,4 @@ export function getClientState(id: HashType, value?: any) {
         states.get(id).updateValueSilently(value)
     }
     return states.get(id)
-}
-
-function prepStatesAndRefs(statesAndRefs: (State | Ref<any>)[]): ([any, (value: any) => void] | HTMLElement)[] {
-    return statesAndRefs.map(stateOrRef => {
-        if (stateOrRef instanceof State)
-            return [stateOrRef.valueOf(), stateOrRef.updateValue.bind(stateOrRef)]
-        else
-            return stateOrRef.valueOf()
-    })
-}
-
-export function registerStateChangeHandler(
-    callback: StateChangeHandlerType,
-    statesAndRefs: (State | Ref<any>)[]
-) {
-    statesAndRefs.forEach(state => {
-        if (!(state instanceof State)) return
-        state.listen(() => callback(...prepStatesAndRefs(statesAndRefs)))
-        state.update()
-    })
 }

@@ -22,6 +22,7 @@ import {
 } from './client-script/generate-data-files'
 
 export const isProduction = process.env.BUN_ENV === 'production'
+export const inputFilePath = '/input.js'
 let moduleToFileNameMap
 
 export default async function bundleVirtualFiles(): Promise<Volume> {
@@ -30,9 +31,12 @@ export default async function bundleVirtualFiles(): Promise<Volume> {
     moduleToFileNameMap = new Map()
     moduleToFileNameMap.set(stateListenersFilePath, 'state listeners')
     moduleToFileNameMap.set(refsAndTemplatesFilePath, 'refs and states')
-    generateClientScriptFile(moduleToFileNameMap)
+    hfs.writeFileSync(inputFilePath, '')
+    generateClientScriptFile()
     generateRefsAndTemplatesFile()
+    addMarker('bundler', 'wait-for-context-start')
     const esCtx = await esCtxPromise
+    addMarker('bundler', 'wait-for-context-end')
     addMarker('bundler', 'start-esbuild')
     await esCtx.watch()
     return hfs
@@ -50,9 +54,9 @@ const browserslistEsbuildMap = {
 
 addMarker('bundler', 'start')
 const packageJson = JSON.parse(fs.readFileSync(resolveModuleRoot('package.json'), 'utf8'))
-const esCtxPromise = esbuild.context({
-    entryPoints: [stateListenersFilePath],
-    inject: [path.join('/', 'runtime', 'index.ts'), refsAndTemplatesFilePath],
+let esCtxPromise = esbuild.context({
+    entryPoints: [inputFilePath],
+    inject: [path.join('/', 'runtime', 'index.ts'), stateListenersFilePath, refsAndTemplatesFilePath],
     outfile: path.join(outputPath, 'main.js'),
     target: browserslist('> 1%, not dead') // todo: make a changeable option
         .map(browser => {
@@ -92,8 +96,10 @@ const esCtxPromise = esbuild.context({
         },
     ]
 })
+addMarker('bundler', 'context')
 
 let measuredEnd = false
+
 function handleResult(result: BuildResult) {
     const hfs = getVolume()
     const virtualFilesDirName = virtualFilesPath.replace(/\//g, '')
