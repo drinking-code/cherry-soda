@@ -8,6 +8,7 @@ import {callComponentRenderFunctions} from '../state/side-effect'
 
 export function getRenderer(hash?: HashType) {
     return () => {
+        // todo: create copy of everything to handle simultaneous requests properly
         const serverTemplates: ServerTemplatesMapType = getServerTemplates()
         const entry: HashType = hash ?? getEntryHash()
 

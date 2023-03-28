@@ -36,17 +36,18 @@ export function getStateUsagesAsCode() {
     const stateUsagesContextsName = 'stateUsagesContexts'
     const stateStateUsagesMapName = 'stateStateUsagesMap'
     let code = ''
-    code += `import {${getClientState.name}} from '/runtime/client-state';`
-    code += `const ${stateUsagesName} = new Map();`
-    code += `const ${stateUsagesParametersName} = new Map();`
-    code += `const ${stateUsagesContextsName} = new Map();`
+    const newLine = "\n"
+    code += `import {${getClientState.name}} from '/runtime/client-state';` + newLine
+    code += `const ${stateUsagesName} = new Map();` + newLine
+    code += `const ${stateUsagesParametersName} = new Map();` + newLine
+    code += `const ${stateUsagesContextsName} = new Map();` + newLine
     const stateStateUsagesMap = {}
     stateUsages.forEach((usage: StateUsage<any>, key: string) => {
         if (!usage.states.some(stateIsListenedTo)) return
-        code += '{'
+        code += '{' + newLine
         // todo: put lexical stuff here
         if (usage.transform)
-            code += `${stateUsagesName}.set('${key}', ${usage.transform.toString()});`
+            code += `${stateUsagesName}.set('${key}', ${usage.transform.toString()});` + newLine
         let functionArray = '['
         for (const state of usage.states) {
             functionArray += `${getClientState.name}('${state.id}')`
@@ -56,16 +57,16 @@ export function getStateUsagesAsCode() {
             stateStateUsagesMap[state.id].push(usage.id)
         }
         functionArray += ']'
-        code += `${stateUsagesParametersName}.set('${key}', ${functionArray});`
+        code += `${stateUsagesParametersName}.set('${key}', ${functionArray});` + newLine
         const stateUsageContexts = '[' + stateUsageProtoContexts.get(key)
             .map(ctx => stringifyContext(makeContext(ctx, usage)))
             .join(',') + ']'
-        code += `${stateUsagesContextsName}.set('${key}', ${stateUsageContexts});` // todo: minify
+        code += `${stateUsagesContextsName}.set('${key}', ${stateUsageContexts});` + newLine // todo: minify
         code += '}'
     })
-    code += `export {${stateUsagesName}};`
-    code += `export {${stateUsagesParametersName}};`
-    code += `export {${stateUsagesContextsName}};`
+    code += `export {${stateUsagesName}};` + newLine
+    code += `export {${stateUsagesParametersName}};` + newLine
+    code += `export {${stateUsagesContextsName}};` + newLine
     code += `export const ${stateStateUsagesMapName} = ${JSON.stringify(stateStateUsagesMap)};`
     return code
 }

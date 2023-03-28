@@ -16,7 +16,7 @@ import {AcceptedPlugin} from 'postcss'
 import {
     generateClientScriptFile, generateRefsAndTemplatesFile,
     getVolume,
-    inputFilePath,
+    stateListenersFilePath,
     outputPath, refsAndTemplatesFilePath,
     virtualFilesPath
 } from './client-script/generate-data-files'
@@ -25,9 +25,10 @@ export const isProduction = process.env.BUN_ENV === 'production'
 let moduleToFileNameMap
 
 export default async function bundleVirtualFiles(): Promise<Volume> {
-    addMarker('bundler', 'start')
+    addMarker('bundler', 'generate-files')
     const hfs = getVolume()
     moduleToFileNameMap = new Map()
+    moduleToFileNameMap.set(stateListenersFilePath, 'state listeners')
     moduleToFileNameMap.set(refsAndTemplatesFilePath, 'refs and states')
     generateClientScriptFile(moduleToFileNameMap)
     generateRefsAndTemplatesFile()
@@ -47,9 +48,10 @@ const browserslistEsbuildMap = {
     'safari': 'safari',
 }
 
+addMarker('bundler', 'start')
 const packageJson = JSON.parse(fs.readFileSync(resolveModuleRoot('package.json'), 'utf8'))
 const esCtxPromise = esbuild.context({
-    entryPoints: [inputFilePath],
+    entryPoints: [stateListenersFilePath],
     inject: [path.join('/', 'runtime', 'index.ts'), refsAndTemplatesFilePath],
     outfile: path.join(outputPath, 'main.js'),
     target: browserslist('> 1%, not dead') // todo: make a changeable option

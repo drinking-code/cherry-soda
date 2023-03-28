@@ -7,8 +7,7 @@ import generateClientScriptTrees from './client-script'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import collectAssetsFilePaths from './assets'
 import bundleVirtualFiles from './bundler'
-import extractTemplates from './template'
-import {addMarker} from './profiler'
+import extractTemplates, {waitForTemplates} from './template'
 import {getVolume, outputPath} from './client-script/generate-data-files'
 
 export default function compile(entry: string): { outputPath: string, fs: Volume } {
@@ -30,6 +29,6 @@ export default function compile(entry: string): { outputPath: string, fs: Volume
     addMarker('parser', 'end')*/
     // generateClientScriptTrees(parser)
     collectAssetsFilePaths(entry)
-    bundleVirtualFiles()
+    waitForTemplates().then(bundleVirtualFiles)
     return {outputPath, fs: getVolume()}
 }

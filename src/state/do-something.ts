@@ -51,16 +51,17 @@ export function getStateListenersAsCode() {
     // const stateUsagesContextsName = 'stateUsagesContexts'
     // const stateStateUsagesMapName = 'stateStateUsagesMap'
     let code = ''
+    const newLine = "\n"
     // code += `import {${getClientState.name}} from '/runtime/client-state';`
-    code += `const ${stateListenersName} = new Map();`
+    code += `const ${stateListenersName} = new Map();` + newLine
     // code += `const ${stateUsagesParametersName} = new Map();`
     // code += `const ${stateUsagesContextsName} = new Map();`
     // const stateStateUsagesMap = {}
     stateListeners.forEach((callback, id) => {
         const statesAndRefs = stateListenersParameters.get(id)
-        code += '{'
+        code += '{' + newLine
         // todo: put lexical stuff here
-        code += `${stateListenersName}.set('${id}', ${callback.toString()});`
+        code += `${stateListenersName}.set('${id}', ${callback.toString()});` + newLine
         // let functionArray = '['
         // for (const state of usage.states) {
         //     functionArray += `${getClientState.name}('${state.id}')`
