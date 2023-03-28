@@ -85,3 +85,37 @@ h1 {
 .time-range span {
     left: 50%;
 }
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #222;
+        color: #fff;
+    }
+
+    .time-wrapper {
+        background: #222;
+    }
+
+    .time-wrapper:after {
+        mix-blend-mode: darken;
+    }
+
+    .time-main {
+        background: #fff;
+    }
+
+    .time-main-label {
+        color: #fff;
+        mix-blend-mode: difference;
+    }
+
+    .time-marker {
+        background: #000;
+        z-index: 1;
+    }
+
+    .time-marker span, .time-range span {
+        background: rgba(34, 34, 34, 0.7);
+        color: #aaa;
+    }
+}
