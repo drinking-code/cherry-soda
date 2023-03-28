@@ -1,10 +1,6 @@
-import PrettyError from 'pretty-error'
-
 import compile from '../compiler'
 import serveStatic from './serve-static'
 import {getRenderer} from '../renderer/renderer'
-
-const pe = new PrettyError()
 
 /**
  * @param entry Absolute path to entry file
