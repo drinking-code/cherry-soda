@@ -74,8 +74,8 @@ Then, add the cherry-soda JSX runtime to your `tsconfig.json`:
 
 Run `cherry-soda dev src/index.js` to start the dev server. Then, visit `localhost:3000`.
 
-Alternatively, you can use the [`cherrySoda()`](#cherrysodaentry-string) function in your own server to render the app.
-This also automatically serves the asset files (JavaScript, CSS, images, etc.).  
+Alternatively, you can use the [`cherrySoda()`](#cherrysoda) function in your own server to render the app. This also
+automatically serves the asset files (JavaScript, CSS, images, etc.).  
 For Bun.serve:
 
 ```javascript
@@ -109,18 +109,17 @@ For usage with a custom server use the `dynamicCodeSynchronisation&#40;&#41;` fu
 ### Add client-side code
 
 In a function component typically all code is executed on the server. To execute code on the client you can use
-the [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
-function. The callback provided will only be executed on the client. You can provide states and/or refs to listen to in
-an array as the second parameter. If given, the callback will be called every time a state or ref changes. To clean up,
-the callback may return a function, which will be called before the callback is called immediately before a state
-change.
+the [`doSomething()`](#dosomething) function. The callback provided will only be executed on the client. You can provide
+states and/or refs to listen to in an array as the second parameter. If given, the callback will be called every time a
+state or ref changes. To clean up, the callback may return a function, which will be called before the callback is
+called immediately before a state change.
 
 [//]: # (todo: ref changing ??? wtf)
-To refer to an element that the component returns you can use a ref with [`createRef()`](#createref-ref), which you will
+To refer to an element that the component returns you can use a ref with [`createRef()`](#createref), which you will
 also need to pass in the array.
-Inside [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
-a ref will be the actual node of the DOM. States can also be passed in the dependency array. A state will be passed to
-the function as an array of the state value and a function to change the state.  
+Inside [`doSomething()`](#dosomething) a ref will be the actual node of the DOM. States can also be passed in the
+dependency array. A state will be passed to the function as an array of the state value and a function to change the
+state.  
 Here is an [example](/example/counter/App.jsx) to illustrate all those features:
 
 ```javascript
@@ -175,7 +174,13 @@ export default function Counter() {
 
 #### Rendering
 
-##### `cherrySoda(entry: string)`
+<h5 id="cherrysoda">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/cherry-soda-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/cherry-soda-light.svg">
+    <img alt="cherrySoda(entry: string)" width="262.5" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/cherry-soda-light.svg">
+  </picture>
+</h5>
 
 To render an app, you can use the `cherrySoda()` function. It returns a request handler for `Bun.serve()` and handles
 compiling / building and watching all the files belonging to your app.
@@ -204,15 +209,27 @@ Apps are built with stateful function components. Each component is a function t
 return JSX element/s. All code in a function component gets executed on the server.  
 Internally, function components are called once on startup in production mode, and immediately after they are changed in
 development mode. This can cause unexpected effects for example when a function component writes to a database. This is
-why you should use [`sideEffect()`](#sideeffectcallback-args-any--void) any non-deterministic server-side code.    
+why you should use [`sideEffect()`](#sideeffect) any non-deterministic server-side code.    
 If you want to execute code for a component in the browser, use
-[`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref).
+[`doSomething()`](#dosomething).
 Cherry-soda collects the code given as the callback to `doSomething()` at build time and bundles it into a single file
 together with code from other `doSomething()`s and cherry-soda's runtime.
 
-##### `sideEffect(callback: (...args: any[]) => void)`
+<h5 id="sideeffect">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/side-effect-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/side-effect-light.svg">
+    <img alt="sideEffect(callback: (...args: any[]) => void)" width="437.5" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/side-effect-light.svg">
+  </picture>
+</h5>
 
-##### `doSomething(callback: (...args: ([any, (value: any) => void] | HTMLElement))[]) => void | Function, recallOn: (State | Ref)[])`
+<h5 id="dosomething">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/do-something-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/do-something-light.svg">
+    <img alt="doSomething(callback: (...args: ([any, (value: any) => void] | HTMLElement))[]) => void | Function, recallOn: (State | Ref)[])" width="586.25" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/do-something-light.svg">
+  </picture>
+</h5>
 
 This function lets you execute code in the browser. The function `callback` and its lexical scope get extracted by
 cherry-soda's compiler and bundled into the frontend JavaScript. All [refs](#refs) and [states](#states) that are used
@@ -234,15 +251,19 @@ value (after calling the function to change the state value). You can use this f
 ### Refs
 
 Refs are a way to work with the DOM nodes that your function components return. To use, get a reference instance by
-calling the [`createRef()`](#createref-ref) function, and pass it to the desired element with the `ref` parameter. When
-you pass the ref object in the `recallOn` array
-of [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
-cherry-soda will pass the actual DOM element to the callback on the client. You can also pass one ref to multiple
-elements.
-If you do that, cherry-soda will pass a `HTMLCollection` containing the respective DOM elements inside of
-the [`doSomething()`](#dosomethingcallback-args-any--void--function-dependencies-any) callback.
+calling the [`createRef()`](#createref) function, and pass it to the desired element with the `ref` parameter. When you
+pass the ref object in the `recallOn` array of [`doSomething()`](#dosomething) cherry-soda will pass the actual DOM
+element to the callback on the client. You can also pass one ref to multiple elements.
+If you do that, cherry-soda will pass a `HTMLCollection` containing the respective DOM elements inside
+the [`doSomething()`](#dosomething) callback.
 
-#### `createRef(): Ref`
+<h4 id="createref">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-ref-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-ref-light.svg">
+    <img alt="createRef(): Ref" width="175" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-ref-light.svg">
+  </picture>
+</h4>
 
 Returns a new `Ref`. Pass this to an element like so:
 
@@ -262,14 +283,17 @@ function Component() {
 
 ### States
 
-You can create states with [`createState()`](#createstateinitialvalue-any-state). This will return a `State` object that
-holds a value. Passing this state
-into [`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
-or
-[`sideEffect()`](#sideeffectcallback-args-any--void) will convert it into an array in which the first entry in the
-state object and the second entry is a function for changing the value of the state.
+You can create states with [`createState()`](#createstate). This will return a `State` object that holds a value.
+Passing this state into [`doSomething()`](#dosomething) or [`sideEffect()`](#sideeffect) will convert it into an array
+in which the first entry in the state object and the second entry is a function for changing the value of the state.
 
-#### `createState(initialValue: any): State`
+<h4 id="createstate">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-state-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-state-light.svg">
+    <img alt="createState(initialValue: any): State" width="367.5" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-state-light.svg">
+  </picture>
+</h4>
 
 Creates a `State` object with the given value.
 
@@ -283,9 +307,8 @@ Creates a `State` object with the given value.
 
 #### `State` (Server-Side)
 
-The `State` object holds the initial value of the state and can be passed into
-[`doSomething()`](#dosomethingcallback-args-any-value-any--void--htmlelement--void--function-recallon-state--ref)
-or [`sideEffect()`](#sideeffectcallback-args-any--void) or used in the DOM by using it like a value:
+The `State` object holds the initial value of the state and can be passed into [`doSomething()`](#dosomething)
+or [`sideEffect()`](#sideeffect) or used in the DOM by using it like a value:
 
 ```javascript
 import {createState} from 'cherry-soda'

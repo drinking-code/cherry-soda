@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 27.2">
+    <style xmlns="http://www.w3.org/2000/svg" type="text/css">
+        text {
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+            font-size: 16px;
+            font-weight: 700;
+            fill: #1f2328;
+        }
+        rect {fill: #f6f8fa}
+        .purple {fill: #8250df}
+        .blue {fill: #0550ae}
+        .red {fill: #cf222e}
+        .orange {fill: #953800}
+    </style>
+    <rect width="200" height="27.2" rx="6"/>
+    <text transform="translate(8 4)">
+        <tspan x="0" dy="15px">
+            <tspan class="purple">createRef</tspan>(): <tspan class="orange">Ref</tspan>
+        </tspan>
+    </text>
+</svg>

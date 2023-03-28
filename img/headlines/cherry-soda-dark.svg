@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 27.2">
+    <style xmlns="http://www.w3.org/2000/svg" type="text/css">
+        text {
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+            font-size: 16px;
+            font-weight: 700;
+            fill: #adbac7;
+        }
+        rect {fill: #2d333b}
+        .purple {fill: #dcbdfb}
+        .blue {fill: #6cb6ff}
+        .red {fill: #f47067}
+        .orange {fill: #f69d50}
+    </style>
+    <rect width="300" height="27.2" rx="6"/>
+    <text transform="translate(8 4)">
+        <tspan x="0" dy="15px">
+            <tspan class="purple">cherrySoda</tspan>(entry: <tspan class="red">string</tspan>)
+        </tspan>
+    </text>
+</svg>
