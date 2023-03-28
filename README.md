@@ -176,9 +176,9 @@ export default function Counter() {
 
 <h5 id="cherrysoda">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/cherry-soda-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/cherry-soda-light.svg">
-    <img alt="cherrySoda(entry: string)" width="262.5" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/cherry-soda-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/cherry-soda-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/cherry-soda-light.svg">
+    <img alt="cherrySoda(entry: string)" width="262.5" height="23.8" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/cherry-soda-light.svg">
   </picture>
 </h5>
 
@@ -217,17 +217,17 @@ together with code from other `doSomething()`s and cherry-soda's runtime.
 
 <h5 id="sideeffect">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/side-effect-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/side-effect-light.svg">
-    <img alt="sideEffect(callback: (...args: any[]) => void)" width="437.5" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/side-effect-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-light.svg">
+    <img alt="sideEffect(callback: (...args: any[]) => void)" width="437.5" height="23.8" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-light.svg">
   </picture>
 </h5>
 
 <h5 id="dosomething">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/do-something-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/do-something-light.svg">
-    <img alt="doSomething(callback: (...args: ([any, (value: any) => void] | HTMLElement))[]) => void | Function, recallOn: (State | Ref)[])" width="586.25" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/do-something-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/do-something-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/do-something-light.svg">
+    <img alt="doSomething(callback: (...args: ([any, (value: any) => void] | HTMLElement))[]) => void | Function, recallOn: (State | Ref)[])" width="586.25" height="23.8" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/do-something-light.svg">
   </picture>
 </h5>
 
@@ -259,9 +259,9 @@ the [`doSomething()`](#dosomething) callback.
 
 <h4 id="createref">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-ref-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-ref-light.svg">
-    <img alt="createRef(): Ref" width="175" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-ref-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-ref-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-ref-light.svg">
+    <img alt="createRef(): Ref" width="175" height="23.8" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-ref-light.svg">
   </picture>
 </h4>
 
@@ -289,9 +289,9 @@ in which the first entry in the state object and the second entry is a function 
 
 <h4 id="createstate">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-state-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-state-light.svg">
-    <img alt="createState(initialValue: any): State" width="367.5" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/create-state-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-light.svg">
+    <img alt="createState(initialValue: any): State" width="367.5" height="23.8" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-light.svg">
   </picture>
 </h4>
 
