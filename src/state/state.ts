@@ -11,6 +11,14 @@ export default class State<V = any> extends AbstractState {
     }
 
     /**
+     * @internal Use `sideEffect()` to change state value on the server.
+     * @ignore
+     */
+    setValue(value: V) {
+        this._value = value
+    }
+
+    /**
      * @internal Use {@link use|`.use()`} instead
      */
     valueOf(): V {

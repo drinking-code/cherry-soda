@@ -1,7 +1,13 @@
+import {createState, sideEffect} from '#cherry-soda'
+import {getVolume, outputPath} from '../../../compiler/client-script/generate-data-files'
+
 export default function Bundle() {
     // todo: implement with sideEffect
-    /*const assets = clientAssets.use(volumeAndPath => {
-        const assetFiles = volumeAndPath.fs.readdirSync(volumeAndPath.outputPath) as string[]
+    const assets = createState<string[]>([])
+    sideEffect(([assets, setAssets]) => {
+        setAssets(getVolume().readdirSync(outputPath) as string[])
+    }, [assets])
+    return assets.use(assetFiles => {
         return assetFiles
             .filter(asset => ['.css', '.js']
                 .map(suffix => asset.endsWith(suffix))
@@ -15,6 +21,5 @@ export default function Bundle() {
                 else if (asset.endsWith('.js')) // todo: don't include if file empty
                     return <script src={asset} defer/>
             })
-    })*/
-    return /*assets*/<></>
+    })
 }

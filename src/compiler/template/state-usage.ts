@@ -31,7 +31,6 @@ export function includeStateUsage(stateUsage: StateUsage, context: ProtoContextT
 }
 
 export function getStateUsagesAsCode() {
-    // todo: only include if has listener (or rather the setState function is called client-side)
     const stateUsagesName = 'stateUsages'
     const stateUsagesParametersName = 'stateUsagesParameters'
     const stateUsagesContextsName = 'stateUsagesContexts'

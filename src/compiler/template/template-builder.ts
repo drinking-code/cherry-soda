@@ -16,6 +16,11 @@ import {setAutoComponent} from '../states-collector'
 import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import {includeStateUsage, makeContext} from './state-usage'
 
+let currentComponentHash
+export function getCurrentComponentHash() {
+    return currentComponentHash
+}
+
 export default class TemplateBuilder {
     private readonly clientTemplates: ClientTemplatesMapType
     private readonly serverTemplates: ServerTemplatesMapType
@@ -36,6 +41,7 @@ export default class TemplateBuilder {
             component.generatePreliminaryId(parent as VirtualElement)
         }
         if (!this.clientTemplates.has(hash)) {
+            currentComponentHash = hash
             const returnValue = constructor({
                 children: component.children,
                 ...component.props,

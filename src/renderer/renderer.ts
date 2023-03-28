@@ -4,6 +4,7 @@ import {ensureArray} from '../utils/array'
 import {mapObjectToArray} from '../utils/iterate-object'
 import {ServerTemplateNodeType, ServerTemplatesMapType} from '../compiler/template/types'
 import {HashType} from '../jsx/VirtualElement'
+import {callComponentRenderFunctions} from '../state/side-effect'
 
 export function getRenderer(hash?: HashType) {
     return () => {
@@ -17,6 +18,7 @@ export function getRenderer(hash?: HashType) {
                 return nodes.map((node): string => {
                     switch (node.type) {
                         case 'component':
+                            callComponentRenderFunctions(node.key)
                             return renderTemplate(node.key)
                         case 'dom-element':
                             const isVoidElement = ((tagName): tagName is typeof voidElements[number] =>
