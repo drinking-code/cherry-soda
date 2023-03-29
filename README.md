@@ -209,19 +209,12 @@ Apps are built with stateful function components. Each component is a function t
 return JSX element/s. All code in a function component gets executed on the server.  
 Internally, function components are called once on startup in production mode, and immediately after they are changed in
 development mode. This can cause unexpected effects for example when a function component writes to a database. This is
-why you should use [`sideEffect()`](#sideeffect) any non-deterministic server-side code.    
+why you should use [`sideEffect()`](#sideeffect) for any non-deterministic server-side code and code that must be
+executed during the render.    
 If you want to execute code for a component in the browser, use
 [`doSomething()`](#dosomething).
 Cherry-soda collects the code given as the callback to `doSomething()` at build time and bundles it into a single file
 together with code from other `doSomething()`s and cherry-soda's runtime.
-
-<h5 id="sideeffect">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-light.svg">
-    <img src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-light.svg" alt="sideEffect(callback: (...args: any[]) => void)" width="437.5" height="24">
-  </picture>
-</h5>
 
 <h5 id="dosomething">
   <picture>
@@ -237,16 +230,37 @@ in the `callback` should be passed in the `recallOn` array.
 The values you passed in the array will be passed in the same order into the `callback` function on the client. If a ref
 is passed into the array, the passed value for the function will be the matching HTML element. If a state is passed into
 the array, the passed value for the function will be an array with the value as the first entry and a function for
-changing the value as the second entry.  
+changing the state value as the second entry.  
 The callback function may return another function. This (returned) function will be called before a state changes
 value (after calling the function to change the state value). You can use this function to clean up if you need to.
 
 **Parameters:**
 
-- `callback: (...args: any[]) => void | Function` A function with the code that you want to execute on the client. The
-  function may return another function. The returned function will be called anytime the component's elements are
-  removed from the DOM.
-- `recallOn: (State | Ref)[]` An array with all dependencies for the callback function
+- `callback: (...args: any[]) => void | Function` A function that is executed on the client. The function may return
+  another function. The returned function will be called anytime the component's elements are removed from the DOM.
+- `recallOn: (State | Ref)[]` An array of states, whose values are listened to and trigger the callback when they
+  change.
+
+<h5 id="sideeffect">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-light.svg">
+    <img src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-light.svg" alt="sideEffect(callback: (...args: any[]) => void)" width="455" height="108">
+  </picture>
+</h5>
+
+This function lets you execute code on render-time. On startup, or when a file is changed in development, cherry-soda
+compiles the app's components into templates, which are used for rendering. This essentially bakes any dynamic content
+into the template. Use states to include dynamic content into your app. You can set the value of the state
+with [`doSomething()`](#dosomething) on the client, or with `sideEffect()` on the server.
+For setting state values inside the callback function, `sideEffect()` accepts an array of states that are updated by the
+callback as its second argument. These states are passed as arrays with the value as the first entry and a function for
+changing the state to the callback, similarly to [`doSomething()`](#dosomething).
+
+**Parameters:**
+
+- `callback: (...args: any[]) => void` A function with the code that is executed everytime the app is rendered.
+- `recallOn: State[]` An array of states that should be passed to callback (as `[value, setValue()]` pairs).
 
 ### Refs
 

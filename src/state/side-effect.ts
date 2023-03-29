@@ -6,14 +6,14 @@ import State from './state'
 const renderFunctions: Map<HashType, StateListenerType<any>[]> = new Map()
 const renderParameters: Map<HashType, State[][]> = new Map()
 
-export default function sideEffect<States extends State[]>(callback: StateListenerType<States>, statesAndRefs?: States) {
+export default function sideEffect<States extends State[]>(callback: StateListenerType<States>, states?: States) {
     const id = getCurrentComponentHash()
     if (!renderFunctions.has(id))
         renderFunctions.set(id, [])
     if (!renderParameters.has(id))
         renderParameters.set(id, [])
     renderFunctions.get(id).push(callback)
-    renderParameters.get(id).push(statesAndRefs)
+    renderParameters.get(id).push(states)
 }
 
 export function callComponentRenderFunctions(id: HashType) {
