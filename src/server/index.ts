@@ -2,7 +2,7 @@ import '../imports'
 import chalk from 'chalk'
 import open from 'open'
 
-import cherrySoda from '#server/bun'
+import cherrySoda from './bun'
 
 Bun.serve({
     fetch: cherrySoda(process.env.CHERRY_COLA_ENTRY),

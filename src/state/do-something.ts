@@ -5,6 +5,8 @@ import {autoSetState} from '../compiler/states-collector'
 import {HashType, VirtualElement} from '../jsx/VirtualElement'
 import {getCurrentComponentHash} from '../compiler/template/template-builder'
 import {findNode} from '../runtime'
+import {getCallerPosition} from '../utils/get-caller-position'
+import {extractFunction} from '../compiler/client-script/extract-function'
 
 export type StateOrRefType = State | Ref
 type StateType = State
@@ -30,10 +32,9 @@ type MappedStateOrRefType<States extends StateOrRefType[]> = {
 export type StateListenerType<S extends StateOrRefType[]> = (...args: MappedStateOrRefType<S>) => void | Function
 
 export default function doSomething<States extends StateOrRefType[]>(callback: StateListenerType<States>, statesAndRefs: States) {
-    // const err = new Error()
-    // console.log(err.stack)
     autoSetState(statesAndRefs as Ref<VirtualElement>[])
     includeStateListener(callback, statesAndRefs)
+    extractFunction(getCallerPosition(2))
 }
 
 const stateListeners: Map<HashType, StateListenerType<any>[]> = new Map()

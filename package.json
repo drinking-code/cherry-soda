@@ -11,7 +11,6 @@
   },
   "imports": {
     "#cherry-soda": "./src/index.ts",
-    "#server/bun": "./src/server/bun.ts",
     "#messages/colors": {
       "bun": "./src/messages/colors.bun.ts",
       "default": "./src/messages/colors.browser.ts"
@@ -49,7 +48,6 @@
     "browserslist": "^4.21.4",
     "chalk": "^5.1.2",
     "esbuild": "^0.17.12",
-    "escape-html": "^1.0.3",
     "glob": "^9.2.1",
     "html-tags": "^3.2.0",
     "hybridfs": "drinking-code/hybridfs",

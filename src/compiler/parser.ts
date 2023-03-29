@@ -4,7 +4,7 @@ import path from 'path'
 import chalk from 'chalk'
 import babelParser from '@babel/parser'
 import traverse, {NodePath, TraverseOptions} from '@babel/traverse'
-import {cloneNode, File, FunctionDeclaration} from '@babel/types'
+import {cloneNode, File, FunctionDeclaration, traverseFast, Node} from '@babel/types'
 
 import resolveImportFileSpecifier from './helpers/resolve-import-file-specifier'
 
@@ -23,8 +23,8 @@ export default class Parser {
         return Object.fromEntries(this.originalFileContents.entries())
     }
 
-    parseFile(filePath: string) {
-        const fileContents = fs.readFileSync(filePath, {encoding: 'utf8'})
+    parseFile(filePath: string, fileContents?: string) {
+        fileContents ??= fs.readFileSync(filePath, {encoding: 'utf8'})
         this.originalFileContents.set(filePath, fileContents)
         const ast = babelParser.parse(fileContents, {
             sourceType: 'module',
@@ -37,21 +37,20 @@ export default class Parser {
     getImports(filePath: string): FileToImportsMapType {
         const ast = this.trees.get(filePath)
         const imports: FileToImportsMapType = {}
-        traverse(ast, {
-            ImportDeclaration(nodePath) {
-                const nameMappings = Object.fromEntries(
-                    nodePath.node.specifiers.map(specifier => {
-                        if (specifier.type === 'ImportNamespaceSpecifier') return [] // todo
-                        const importedName = specifier.type === 'ImportDefaultSpecifier'
-                            ? 'default'
-                            : (specifier.imported.type === 'Identifier' ? specifier.imported.name : specifier.imported.value)
-                        return [specifier.local.name, importedName]
-                    })
-                )
-                const fileName = resolveImportFileSpecifier(path.dirname(filePath), nodePath.node.source.value)
-                if (!imports.hasOwnProperty(fileName)) imports[fileName] = {}
-                imports[fileName] = {...imports[fileName], ...nameMappings}
-            },
+        traverseFast(ast, (node) => {
+            if (node.type !== 'ImportDeclaration') return
+            const nameMappings = Object.fromEntries(
+                node.specifiers.map(specifier => {
+                    if (specifier.type === 'ImportNamespaceSpecifier') return [] // todo
+                    const importedName = specifier.type === 'ImportDefaultSpecifier'
+                        ? 'default'
+                        : (specifier.imported.type === 'Identifier' ? specifier.imported.name : specifier.imported.value)
+                    return [specifier.local.name, importedName]
+                })
+            )
+            const fileName = resolveImportFileSpecifier(path.dirname(filePath), node.source.value)
+            if (!imports.hasOwnProperty(fileName)) imports[fileName] = {}
+            imports[fileName] = {...imports[fileName], ...nameMappings}
         })
         return imports
     }
@@ -59,6 +58,11 @@ export default class Parser {
     traverseFile(filePath: string, options: TraverseOptions) {
         const ast = this.trees.get(filePath)
         traverse(ast, options)
+    }
+
+    traverseFileFast(filePath: string, enter: (node: Node) => void) {
+        const ast = this.trees.get(filePath)
+        traverseFast(ast, enter)
     }
 
     traverseClonedFile(filePath: string, options: TraverseOptions): File {

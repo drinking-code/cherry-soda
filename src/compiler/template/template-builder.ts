@@ -15,6 +15,7 @@ import stringifyValue, {StringifiableType} from '../../utils/stringify'
 import {setAutoComponent} from '../states-collector'
 import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import {includeStateUsage, makeContext} from './state-usage'
+import {escapeHTML} from 'bun'
 
 let currentComponentHash
 export function getCurrentComponentHash() {
@@ -140,9 +141,9 @@ export default class TemplateBuilder {
     }
 
     private stringifyTextNode(value: StringifiableType): [string, ServerTemplateTextNodeType] {
-        const string = stringifyValue(value)
+        const string = escapeHTML(stringifyValue(value))
         return [
-            `[0${JSON.stringify(string)}]`, // stringify again to escape »"«
+            `[0"${string}"]`,
             {type: 'text', content: string}
         ]
     }
