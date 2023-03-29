@@ -1,7 +1,8 @@
 {
   "name": "cherry-soda",
-  "module": "src/index.ts",
+  "description": "Just another (super cool) JavaScript web framework.",
   "version": "0.1.0-experimental",
+  "module": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
     "./bun": "./src/server/bun.ts",
@@ -32,9 +33,9 @@
   "devDependencies": {
     "@babel/types": "^7.19.3",
     "@types/babel__core": "^7.20.0",
-    "@types/babel__traverse": "^7.18.3",
     "@types/jest": "^29.2.0",
     "bun-types": "^0.1.11",
+    "lodash": "^4.17.21",
     "typescript": "^4.9.5",
     "ws": "^8.9.0"
   },
@@ -49,21 +50,18 @@
     "chalk": "^5.1.2",
     "esbuild": "^0.17.12",
     "escape-html": "^1.0.3",
-    "express": "^4.18.1",
     "glob": "^9.2.1",
     "html-tags": "^3.2.0",
     "hybridfs": "drinking-code/hybridfs",
-    "ipos": "^0.2.6",
-    "lodash": "^4.17.21",
     "mime": "^3.0.0",
     "open": "^8.4.2",
-    "ora": "^6.1.2",
     "postcss": "^8.4.21",
     "postcss-modules": "^6.0.0",
     "sass": "^1.55.0",
     "shrink-ray-current": "^4.1.3",
-    "stylus": "^0.59.0",
-    "uuid": "^9.0.0",
     "yargs": "^17.6.0"
+  },
+  "optionalDependencies": {
+    "stylus": "^0.59.0"
   }
 }
