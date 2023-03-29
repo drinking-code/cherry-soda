@@ -305,7 +305,7 @@ in which the first entry in the state object and the second entry is a function 
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-light.svg">
-    <img alt="createState(initialValue: any): State" height="23.8" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-light.svg">
+    <img alt="createState(initialValue: any): State" height="24" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-light.svg">
   </picture>
 </h4>
 
