@@ -2,6 +2,13 @@
   "name": "cherry-soda",
   "description": "Just another (super cool) JavaScript web framework.",
   "version": "0.1.0-experimental",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drinking-code/cherry-soda.git"
+  },
+  "bugs": {
+    "url": "https://github.com/drinking-code/cherry-soda/issues"
+  },
   "module": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
