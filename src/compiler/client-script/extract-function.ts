@@ -5,16 +5,9 @@ import {traverseFast, FunctionExpression, ArrowFunctionExpression, Statement} fr
 import {HashType} from '../../jsx/VirtualElement'
 import {Scope} from './scope'
 import {getCurrentComponentHash} from '../template/template-builder'
-import {resolve as resolveModuleRoot} from '../../utils/module-root'
+import {transpiler} from '../../imports/jsx-patch-plugin'
 
 let parser: Parser
-const tsconfig = fs.readFileSync(resolveModuleRoot('./tsconfig.json'), 'utf8')
-const transpiler = new Bun.Transpiler({
-    loader: 'tsx',
-    autoImportJSX: true,
-    platform: 'node',
-    tsconfig
-})
 
 const scopes = {}
 export type ImportDataType = { importName: string | typeof Scope.importAll | typeof Scope.defaultImport, localName: string, filePath: string }

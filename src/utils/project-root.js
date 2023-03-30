@@ -1,7 +1,7 @@
 import path from 'path'
-import findDirWith from './find-dir-with.js'
+import findDirWithAndNot from './find-dir-with.js'
 
-process.env.PROJECT_ROOT_PATH = findDirWith('node_modules')
+process.env.PROJECT_ROOT_PATH = findDirWithAndNot('node_modules', '.dev-marker-cs')
 export default process.env.PROJECT_ROOT_PATH
 
 export function resolve(...filePath) {

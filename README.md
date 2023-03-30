@@ -61,7 +61,7 @@ export default function App() {
 `index.js` is the main entry point for cherry-soda. It will look for an exported function `main()` and will
 use the returned value to render HTML. `App.js` is an example component.
 
-Then, add the cherry-soda JSX runtime to your `tsconfig.json`:
+Then, add the cherry-soda JSX runtime to your `tsconfig.json` / `jsconfig.json`:
 
 ```json
 {

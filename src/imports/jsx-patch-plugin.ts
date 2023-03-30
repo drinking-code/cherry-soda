@@ -1,7 +1,7 @@
 import {BunPlugin} from 'bun'
 import fs from 'fs'
 
-import {resolve as resolveModuleRoot} from '../utils/module-root'
+import {resolve as resolveProjectRoot} from '../utils/project-root'
 
 export default function jsxPatchPlugin(): Parameters<BunPlugin>[0] {
     return {
@@ -22,8 +22,10 @@ export default function jsxPatchPlugin(): Parameters<BunPlugin>[0] {
     }
 }
 
-const tsconfig = fs.readFileSync(resolveModuleRoot('./tsconfig.json'), 'utf8')
-const transpiler = new Bun.Transpiler({
+const tsconfig = fs.existsSync(resolveProjectRoot('./tsconfig.json'))
+    ? fs.readFileSync(resolveProjectRoot('./tsconfig.json'), 'utf8')
+    : fs.readFileSync(resolveProjectRoot('./jsconfig.json'), 'utf8')
+export const transpiler = new Bun.Transpiler({
     loader: 'tsx',
     autoImportJSX: true,
     platform: 'node',

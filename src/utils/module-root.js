@@ -1,7 +1,7 @@
 import path from 'path'
-import findDirWith from './find-dir-with.js'
+import findDirWithAndNot from './find-dir-with.js'
 
-process.env.APP_MODULE_PATH = findDirWith('package.json')
+process.env.APP_MODULE_PATH = findDirWithAndNot('package.json')
 export default process.env.APP_MODULE_PATH
 
 export function resolve(...filePath) {
