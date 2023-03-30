@@ -31,6 +31,13 @@ export default function bunStylePlugin(): Parameters<BunPlugin>[0] {
                     loader: 'js'
                 }
             })
+
+            builder.onLoad({filter: /\.s?[ac]ss$/}, async args => {
+                return {
+                    contents: '',
+                    loader: 'js'
+                }
+            })
         }
     }
 }
