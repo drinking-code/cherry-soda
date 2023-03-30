@@ -1,7 +1,7 @@
 import fs from 'fs'
 
 import Parser from '../parser'
-import {traverseFast, FunctionExpression, ArrowFunctionExpression} from '@babel/types'
+import {traverseFast, FunctionExpression, ArrowFunctionExpression, Statement} from '@babel/types'
 import {HashType} from '../../jsx/VirtualElement'
 import {Scope} from './scope'
 import {getCurrentComponentHash} from '../template/template-builder'
@@ -16,7 +16,12 @@ const transpiler = new Bun.Transpiler({
 })
 
 const scopes = {}
-const lexicalScopes: { [id: HashType]: Array<Node | { importName: string, localName: string, filePath: string }> } = {}
+export type ImportDataType = { importName: string | typeof Scope.importAll | typeof Scope.defaultImport, localName: string, filePath: string }
+const lexicalScopes: { [id: HashType]: Array<Statement | ImportDataType>[] } = {}
+
+export function getLexicalScope(id: HashType, index: number) {
+    return lexicalScopes[id][index]
+}
 
 export async function extractFunction(
     {functionName, filePath, line, column}: { functionName: string, filePath: string, line: number, column: number }
@@ -27,21 +32,21 @@ export async function extractFunction(
     if (!parser.fileNames.includes(filePath)) {
         const fileContents = fs.readFileSync(filePath, {encoding: 'utf8'})
         const transformedFileContents = transpiler.transformSync(fileContents, 'tsx')
-        console.log(transformedFileContents.split("\n")[line - 1])
-        console.log(Array(column - 1).fill(' ').join('') + '^')
         parser.parseFile(filePath, transformedFileContents)
     }
 
-    const scope = scopes[filePath] ?? new Scope()
+    const scope: Scope = scopes[filePath] ?? new Scope()
     const thingsInUse = []
     parser.traverseFileFast(filePath, (node) => {
         if (!(filePath in scope)) {
             // declarations
             if (node.type === 'FunctionDeclaration') {
                 scope.add(node.id, node)
-            } else if (node.type === 'VariableDeclarator') {
-                if (node.id.type === 'Identifier')
-                    scope.add(node.id, node)
+            } else if (node.type === 'VariableDeclaration') {
+                node.declarations.forEach(declaration => {
+                    if (declaration.id.type === 'Identifier')
+                        scope.add(declaration.id, node)
+                })
             } else if (node.type === 'ImportDeclaration') {
                 node.specifiers.forEach(importSpecifier => {
                     let importName: string | typeof Scope.importAll | typeof Scope.defaultImport
@@ -89,18 +94,24 @@ export async function extractFunction(
             }
         })
     })
-    lexicalScopes[getCurrentComponentHash()] = thingsInUse
-        .map(thing => {
-            if (scope.has(scope.getId(thing))) {
-                return [
-                    scope.getOrder(scope.getId(thing)),
-                    scope.get(scope.getId(thing))
-                ]
-            } else if (scope.hasImport(thing)) {
-                return [0, scope.getImport(thing)]
-            }
-        })
-        .sort((a, b) => a[0] - b[0])
-        .map(a => a[1])
+    const id = getCurrentComponentHash()
+    if (!lexicalScopes[id])
+        lexicalScopes[id] = []
+    lexicalScopes[id].push(
+        thingsInUse
+            .map((thing): [number, Statement[] | ImportDataType] => {
+                if (scope.has(scope.getId(thing))) {
+                    return [
+                        scope.getOrder(scope.getId(thing)),
+                        scope.get(scope.getId(thing))
+                    ]
+                } else if (scope.hasImport(thing)) {
+                    return [0, scope.getImport(thing)]
+                }
+            })
+            .sort((a, b) => a[0] - b[0])
+            .map(<V>(a: [number, V]): V => a[1])
+            .flat()
+    )
     scopes[filePath] = scope
 }

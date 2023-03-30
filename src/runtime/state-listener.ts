@@ -15,7 +15,7 @@ function prepStatesAndRefs(statesAndRefs: (State | Ref<any>)[]): ([any, (value: 
 }
 
 export function registerStateListeners() {
-    // todo only execute currently used state listeners
+    // todo only execute state listeners of currently used components
     stateListeners.forEach((listeners, id) => {
         const parametersArray = stateListenersParameters.get(id)
         listeners.forEach((listener, index) => {

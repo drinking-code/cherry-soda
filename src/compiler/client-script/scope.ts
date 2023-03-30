@@ -1,12 +1,13 @@
-import {Identifier} from '@babel/types'
+import {Identifier, Statement} from '@babel/types'
+import {ImportDataType} from './extract-function'
 
 export class Scope {
-    data: Map<Identifier, Array<Node>> = new Map()
-    imports: { [filePath: string]: { [localName: string]: string } } = {}
+    data: Map<Identifier, Array<Statement>> = new Map()
+    imports: { [filePath: string]: { [localName: string]: string | typeof Scope.importAll | typeof Scope.defaultImport } } = {}
     order: [Identifier, number][] = []
 
     static idMatch(idA: Identifier, idB: Identifier) {
-        return idA.name === idB.name
+        return idA?.name === idB?.name
     }
 
     static defaultImport = Symbol.for('defaultImport')
@@ -33,7 +34,7 @@ export class Scope {
         return false
     }
 
-    add(id: Identifier, value) {
+    add(id: Identifier, value: Statement) {
         this.ensureKey(id)
         this.order.push([id, this.data.get(id).length])
         this.data.get(id).push(value)
@@ -42,7 +43,7 @@ export class Scope {
     addImport(localName: string, importName: string | typeof Scope.importAll | typeof Scope.defaultImport, fileName) {
         if (!this.imports[fileName])
             this.imports[fileName] = {}
-        this.imports[fileName][localName] = localName
+        this.imports[fileName][localName] = importName
     }
 
     get(id: Identifier) {
@@ -61,8 +62,8 @@ export class Scope {
         return index * 1e3 + this.order[index][1]
     }
 
-    getImport(localName: string) {
-        for (const filePath in Object.values(this.imports)) {
+    getImport(localName: string): ImportDataType {
+        for (const filePath of Object.keys(this.imports)) {
             if (localName in this.imports[filePath])
                 return {
                     importName: this.imports[filePath][localName],

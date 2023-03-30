@@ -7,6 +7,9 @@ import {getCurrentComponentHash} from '../compiler/template/template-builder'
 import {findNode} from '../runtime'
 import {getCallerPosition} from '../utils/get-caller-position'
 import {extractFunction} from '../compiler/client-script/extract-function'
+import {getStringifiedLexicalScope} from '../compiler/client-script/stringify-scope'
+import {entryDir, hfsEntryDir, stateListenersFileName} from '../compiler/client-script/generate-data-files'
+import path from 'path'
 
 export type StateOrRefType = State | Ref
 type StateType = State
@@ -41,7 +44,6 @@ const stateListeners: Map<HashType, StateListenerType<any>[]> = new Map()
 const stateListenersParameters: Map<HashType, StateOrRefType[][]> = new Map()
 
 function includeStateListener(callback: StateListenerType<any>, statesAndRefs: StateOrRefType[]) {
-    // todo: extract lexical scope of function
     const id = getCurrentComponentHash()
     if (!stateListeners.has(id))
         stateListeners.set(id, [])
@@ -51,44 +53,59 @@ function includeStateListener(callback: StateListenerType<any>, statesAndRefs: S
     stateListenersParameters.get(id).push(statesAndRefs)
 }
 
-export function getStateListenersAsCode() {
+export function getStateListenersAsCode(): { [fileName: string]: string } {
     const stateListenersName = 'stateListeners'
     const stateListenersParametersName = 'stateListenersParameters'
-    let code = ''
+    let mainFile = ''
     const newLine = "\n"
-    code += `import {${getClientState.name}} from '/runtime/client-state';` + newLine
-    code += `import {${findNode.name}} from '/runtime/dom';` + newLine
-    code += `const ${stateListenersName} = new Map();` + newLine
-    code += `const ${stateListenersParametersName} = new Map();` + newLine
+    mainFile += `import {${getClientState.name}} from '/runtime/client-state';` + newLine
+    mainFile += `import {${findNode.name}} from '/runtime/dom';` + newLine
+    mainFile += `const ${stateListenersName} = new Map();` + newLine
+    mainFile += `const ${stateListenersParametersName} = new Map();` + newLine
+    const files: { [fileName: string]: string } = {}
     stateListeners.forEach((callbacks, id) => {
+        const componentFileName = `${id}.js`
+        let componentFile = ''
         const statesAndRefArrays = stateListenersParameters.get(id)
-        code += '{' + newLine
-        // todo: put lexical stuff here
         let stringifiedCallbacks = '['
-        for (const callback of callbacks) {
-            stringifiedCallbacks += callback.toString()
+        for (const index in callbacks) {
+            // todo: put lexical stuff here
+            componentFile += getStringifiedLexicalScope(
+                id, Number(index),
+                importPath => path.join(entryDir, importPath)
+            ) + newLine
+            stringifiedCallbacks += callbacks[index].toString()
             stringifiedCallbacks += ','
         }
         stringifiedCallbacks += ']'
-        code += `${stateListenersName}.set('${id}', ${stringifiedCallbacks});` + newLine
-        let stateArrays = '['
+        componentFile += 'export const callbacks = ' + stringifiedCallbacks + newLine
+        mainFile += `import {callbacks as callbacks_${id}} from './${componentFileName}'` + newLine
+        mainFile += `${stateListenersName}.set('${id}', callbacks_${id});` + newLine
+        componentFile += 'export const states = ['
         for (const statesAndRefs of statesAndRefArrays) {
-            stateArrays += '['
+            componentFile += '['
             for (const stateOrRef of statesAndRefs) {
                 if (isRef(stateOrRef)) {
-                    stateArrays += `${findNode.name}('${stateOrRef.id}')`
+                    componentFile += `${findNode.name}('${stateOrRef.id}')`
                 } else {
-                    stateArrays += `${getClientState.name}('${stateOrRef.id}', ${JSON.stringify(stateOrRef.valueOf())})` // todo: use value from ast
+                    componentFile += `${getClientState.name}('${stateOrRef.id}', ${JSON.stringify(stateOrRef.valueOf())})` // todo: use value from ast
                 }
-                stateArrays += ', '
+                componentFile += ', '
             }
-            stateArrays += '],'
+            componentFile += '],'
         }
-        stateArrays += ']'
-        code += `${stateListenersParametersName}.set('${id}', ${stateArrays});` + newLine
-        code += '}' + newLine
+        componentFile += '];'
+        mainFile += `import {states as states_${id}} from './${componentFileName}'` + newLine
+        mainFile += `${stateListenersParametersName}.set('${id}', states_${id});` + newLine
+        files[componentFileName] = componentFile
+        // console.log()
+        // console.log(componentFile)
     })
-    code += `export {${stateListenersName}};` + newLine
-    code += `export {${stateListenersParametersName}};`
-    return code
+    mainFile += `export {${stateListenersName}};` + newLine
+    mainFile += `export {${stateListenersParametersName}};`
+    // return code
+    files[stateListenersFileName] = mainFile
+    // console.log()
+    // console.log(mainFile)
+    return files
 }
