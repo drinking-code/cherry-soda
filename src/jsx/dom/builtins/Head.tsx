@@ -1,6 +1,4 @@
-import State from '../../../state/state'
-import {Volume} from 'memfs/lib/volume'
-import Bundle from './Bundle'
+import {Bundle} from '#cherry-soda'
 
 export default function Head({children, ...props}: JSX.IntrinsicElements['head']) {
     const charset = children.find(<meta charSet/>) ?? <meta charSet={'utf-8'}/>

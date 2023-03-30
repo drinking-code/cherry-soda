@@ -413,4 +413,9 @@ function App() {
 
 Renders a `<body>` element.
 
+#### `<Bundle>`
+
+Renders the necessary `<link>` / `<style>`, and `<script>` elements to import generated JavaScript and CSS. Use this if
+you do not want to manage them yourself and also do not want to use [`<Head>`](#head).
+
 ### Islands
