@@ -2,6 +2,7 @@ test
 img
 jest.config.js
 example
+.unimportedrc.json
 
 .idea
 *.tgz
