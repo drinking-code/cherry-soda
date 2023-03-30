@@ -5,9 +5,10 @@ import {traverseFast, FunctionExpression, ArrowFunctionExpression, Statement} fr
 import {HashType} from '../../jsx/VirtualElement'
 import {Scope} from './scope'
 import {getCurrentComponentHash} from '../template/template-builder'
+import {resolve as resolveModuleRoot} from '../../utils/module-root'
 
 let parser: Parser
-const tsconfig = fs.readFileSync('./tsconfig.json', 'utf8')
+const tsconfig = fs.readFileSync(resolveModuleRoot('./tsconfig.json'), 'utf8')
 const transpiler = new Bun.Transpiler({
     loader: 'tsx',
     autoImportJSX: true,
