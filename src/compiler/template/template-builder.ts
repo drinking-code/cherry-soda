@@ -16,8 +16,10 @@ import {setAutoComponent} from '../states-collector'
 import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import {includeStateUsage, makeContext} from './state-usage'
 import {escapeHTML} from 'bun'
+import {UnsafeHTML} from 'src/jsx/insert-html'
 
 let currentComponentHash
+
 export function getCurrentComponentHash() {
     return currentComponentHash
 }
@@ -141,7 +143,11 @@ export default class TemplateBuilder {
     }
 
     private stringifyTextNode(value: StringifiableType): [string, ServerTemplateTextNodeType] {
-        const string = escapeHTML(stringifyValue(value))
+        let string
+        if (value instanceof UnsafeHTML)
+            string = value.valueOf()
+        else
+            string = escapeHTML(stringifyValue(value))
         return [
             `[0"${string}"]`,
             {type: 'text', content: string}
