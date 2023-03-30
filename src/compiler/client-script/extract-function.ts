@@ -1,7 +1,10 @@
 import fs from 'fs'
 
 import Parser from '../parser'
-import {Identifier, traverseFast, Node, identifier, FunctionExpression, ArrowFunctionExpression} from '@babel/types'
+import {traverseFast, FunctionExpression, ArrowFunctionExpression} from '@babel/types'
+import {HashType} from '../../jsx/VirtualElement'
+import {Scope} from './scope'
+import {getCurrentComponentHash} from '../template/template-builder'
 
 let parser: Parser
 const tsconfig = fs.readFileSync('./tsconfig.json', 'utf8')
@@ -13,6 +16,7 @@ const transpiler = new Bun.Transpiler({
 })
 
 const scopes = {}
+const lexicalScopes: { [id: HashType]: Array<Node | { importName: string, localName: string, filePath: string }> } = {}
 
 export async function extractFunction(
     {functionName, filePath, line, column}: { functionName: string, filePath: string, line: number, column: number }
@@ -27,7 +31,7 @@ export async function extractFunction(
         console.log(Array(column - 1).fill(' ').join('') + '^')
         parser.parseFile(filePath, transformedFileContents)
     }
-    // parser.printFileTree(filePath)
+
     const scope = scopes[filePath] ?? new Scope()
     const thingsInUse = []
     parser.traverseFileFast(filePath, (node) => {
@@ -85,52 +89,18 @@ export async function extractFunction(
             }
         })
     })
-    console.log(thingsInUse)
+    lexicalScopes[getCurrentComponentHash()] = thingsInUse
+        .map(thing => {
+            if (scope.has(scope.getId(thing))) {
+                return [
+                    scope.getOrder(scope.getId(thing)),
+                    scope.get(scope.getId(thing))
+                ]
+            } else if (scope.hasImport(thing)) {
+                return [0, scope.getImport(thing)]
+            }
+        })
+        .sort((a, b) => a[0] - b[0])
+        .map(a => a[1])
     scopes[filePath] = scope
-}
-
-class Scope {
-    data: Map<Identifier, Array<Node>> = new Map()
-    imports: { [filePath: string]: { [localName: string]: string } } = {}
-    order: [Identifier, number][] = []
-
-    static idMatch(idA: Identifier, idB: Identifier) {
-        return idA.name === idB.name
-    }
-
-    static defaultImport = Symbol.for('defaultImport')
-    static importAll = Symbol.for('namespace')
-
-    ensureKey(id: Identifier) {
-        if (this.has(id)) return
-        this.data.set(id, [])
-    }
-
-    has(id: Identifier) {
-        let hasId = false
-        for (const currentId of this.data.keys()) {
-            hasId ||= Scope.idMatch(id, currentId)
-        }
-        return hasId
-    }
-
-    hasImport(identifier: string) {
-        let hasId = false
-        for (const iDontKnowWhatToNameThis of Object.values(this.imports)) {
-            hasId ||= Array.from(Object.keys(iDontKnowWhatToNameThis)).includes(identifier)
-        }
-        return hasId
-    }
-
-    add(id: Identifier, value) {
-        this.ensureKey(id)
-        this.order.push([id, this.data.get(id).length])
-        this.data.get(id).push(value)
-    }
-
-    addImport(localName: string, importName: string | typeof Scope.importAll | typeof Scope.defaultImport, fileName) {
-        if (!this.imports[fileName])
-            this.imports[fileName] = {}
-        this.imports[fileName][localName] = localName
-    }
 }
