@@ -7,7 +7,8 @@ import {OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild} f
 import CssModulesOptions from './style-plugin-css-modules-options'
 // import './modules' // keep this import for enabling modules types declaration ex: import styles from 'styles.module.sass'
 import {getPostCSSWatchFiles, importPostcssConfigFile, RenderOptions, renderStyle} from './style-plugin-render'
-import projectRoot from '../../utils/project-root'
+import projectRoot, {resolve as resolveProjectRoot} from '../../utils/project-root'
+import resolveImportFileSpecifier from '../helpers/resolve-import-file-specifier'
 
 interface PostCSS extends ProcessOptions {
     plugins: AcceptedPlugin[]
@@ -92,6 +93,15 @@ const onStyleLoad = (options: PluginOptions) => async (args: OnLoadArgs): Promis
     const isCSSModule = args.path.match(cssModulesMatch)
     const cssModulesOptions = options.cssModulesOptions || {}
     const renderOptions = options.renderOptions
+    if (!renderOptions.sassOptions.importers)
+        renderOptions.sassOptions.importers = []
+    renderOptions.sassOptions.importers.push({
+        // An importer that redirects relative URLs starting with "~" to `node_modules`.
+        findFileUrl(url) {
+            if (!url.startsWith('~')) return null
+            return new URL(resolveImportFileSpecifier(null, url.substring(1)), 'file://')
+        }
+    })
 
     const makePathRelative = filePath => {
         filePath = filePath.replace(/^file:\/\//, '')

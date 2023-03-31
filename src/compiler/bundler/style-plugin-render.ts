@@ -57,10 +57,15 @@ export const renderStyle = async (filePath, options: RenderOptions = {}): Promis
     if (ext === '.sass' || ext === '.scss') {
         const sassOptions = options.sassOptions || {}
         const sass = await getModule('sass')
-        const result: CompileResult = sass.compile(filePath, {...sassOptions})
+        let result: CompileResult
+        try {
+            result = sass.compile(filePath, {...sassOptions})
+        } catch (e) {
+            console.log(e)
+        }
         return {
-            css: result.css,
-            map: result.sourceMap,
+            css: result?.css ?? '',
+            map: result?.sourceMap,
         }
     }
 
