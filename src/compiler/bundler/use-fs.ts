@@ -1,8 +1,8 @@
 import path from 'path'
-import {Plugin} from 'esbuild'
+import fs from 'fs'
+import {OnResolveArgs, Plugin} from 'esbuild'
 import resolveFile from '../helpers/resolve-file'
 import {isObject} from '../../utils/object'
-import moduleRoot from '../../utils/module-root'
 
 type ImportSubPath = {
     bun?: string,
@@ -15,7 +15,10 @@ export interface UseFsOptions {
     defaultImports?: { [importPath: string]: string | ImportSubPath }
 }
 
+let optionsStorage: UseFsOptions
+
 export function useFs(options: UseFsOptions): Plugin {
+    optionsStorage = options
     const resolveFileExt = filePath => resolveFile(path.dirname(filePath), path.basename(filePath), options.fs)
     return {
         name: 'image-loader',
@@ -62,13 +65,18 @@ export function useFs(options: UseFsOptions): Plugin {
                 const resolvedPath = packageDir ? path.join(packageDir, importPath) : importPath.replace(/^\.\/src/, '')
                 return {path: resolvedPath}
             })
-            builder.onLoad({filter: /./}, args => {
-                const contents = options.fs.readFileSync(args.path, 'utf8')
-                return {
-                    contents: contents,
-                    loader: 'default',
-                }
-            })
+            builder.onLoad({filter: /./}, loadFs.bind(loadFs, options))
         }
+    }
+}
+
+export function loadFs(options: UseFsOptions, args: OnResolveArgs, readOptions: Parameters<typeof fs.readFileSync>[1]) {
+    options ??= optionsStorage
+    const contents = options.fs.existsSync(args.path)
+        ? options.fs.readFileSync(args.path, readOptions)
+        : fs.readFileSync(args.path, readOptions)
+    return {
+        contents: contents,
+        loader: 'default',
     }
 }

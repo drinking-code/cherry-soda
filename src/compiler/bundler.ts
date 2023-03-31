@@ -8,6 +8,7 @@ import {Volume} from 'memfs/lib/volume'
 
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './bundler/use-fs'
+import {assetLoader} from './bundler/asset-loader'
 import imageLoader from '../imports/images'
 import stylePlugin from './bundler/style-plugin'
 import generateClassName from '../utils/generate-css-class-name'
@@ -86,7 +87,7 @@ let esCtxPromise = esbuild.context({
                 generateScopedName: (name, filename) => generateClassName(name, filename),
             },
         }),
-        imageLoader({fs: getVolume(), emit: true, path: outputPath}) as Plugin,
+        assetLoader(),
         useFs({fs: getVolume(), defaultImports: packageJson.imports}),
         {
             name: 'result-handler',
@@ -105,10 +106,12 @@ function handleResult(result: BuildResult) {
     const virtualFilesDirName = virtualFilesPath.replace(/\//g, '')
     const matchFileComment = new RegExp(`^( *// ).+?(/${virtualFilesDirName}/.+)$`, 'gm')
     result.outputFiles?.forEach(({path, contents}) => {
-        hfs.writeFileSync(path, new TextDecoder().decode(contents)
-            .replace(matchFileComment, (match, insetComment, module) => {
-                return insetComment + moduleToFileNameMap.get(module)
-            }))
+        hfs.writeFileSync(path, path.endsWith('.js')
+            ? new TextDecoder().decode(contents)
+                .replace(matchFileComment, (match, insetComment, module) => {
+                    return insetComment + moduleToFileNameMap.get(module)
+                })
+            : contents)
     })
     if (!measuredEnd) {
         addMarker('bundler', 'end')
