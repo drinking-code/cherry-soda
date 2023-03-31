@@ -35,9 +35,10 @@ export default async function collectAssetsFilePaths(entry: string): Promise<str
         // import all js (ts, jsx, tsx) files
         resolvedImports
             .filter(({kind, path: filePath}) =>
+                filePath &&
                 possibleExtensions.some(extension => filePath.endsWith(extension)) &&
                 !filePath.startsWith(resolveProjectRoot('node_module')) &&
-                (process.env.INTERNAL_DEV === 'true' && !filePath.startsWith(resolveModuleRoot('src'))) // only needed during development on cc
+                (process.env.INTERNAL_DEV !== 'true' || !filePath.startsWith(resolveModuleRoot('src'))) // only needed during development on cc
             )
             .map(({kind, path: filePath}) => filePath)
             .map(recursiveGetAllImports)

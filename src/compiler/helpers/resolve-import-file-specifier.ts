@@ -23,7 +23,7 @@ export default function resolveImportFileSpecifier(base: string, fileSpecifier: 
         if (!fileSpecifier.includes('/')) {
             const modulePath = resolveProjectRoot('node_modules', fileSpecifier)
             const modulePackageJson = JSON.parse(fs.readFileSync(path.join(modulePath, 'package.json'), 'utf8'))
-            const mainPath = modulePackageJson.main ?? 'index'
+            const mainPath = modulePackageJson.main ?? modulePackageJson.module ?? 'index'
             fileSpecifier = resolveFile(modulePath, mainPath)
         } else {
             fileSpecifier = resolveFile(resolveProjectRoot('node_modules'), fileSpecifier)
