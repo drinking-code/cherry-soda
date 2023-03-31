@@ -6,7 +6,12 @@ export function checkProps(props: { [propName: string]: any }) { // todo
             propName = 'class'
         return [propName.toLowerCase(), propValue]
     })
-    return filterObject(mapped, ([propName]) => {
+    const transformed = mapObject(mapped, ([propName, propValue]) => {
+        if (['class', 'id'].includes(propName) && Array.isArray(propValue))
+            propValue = propValue.filter(v => v).join(' ')
+        return [propName.toLowerCase(), propValue]
+    })
+    return filterObject(transformed, ([propName]) => {
         return !['ref'].includes(propName)
     })
 }
