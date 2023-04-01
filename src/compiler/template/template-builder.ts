@@ -11,7 +11,7 @@ import {ensureArray} from '../../utils/array'
 import State, {isState, StateConcatenation} from '../../state/state'
 import StateUsage, {isStateUsage} from '../../state/state-usage'
 import {filterObject, mapObject, mapObjectToArray} from '../../utils/iterate-object'
-import stringifyValue, {StringifiableType} from '../../utils/stringify'
+import stringifyValue, {StringifiableType, stringifyProps} from '../../utils/stringify'
 import {setAutoComponent} from '../states-collector'
 import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
 import {includeStateUsage, makeContext} from './state-usage'
@@ -38,7 +38,7 @@ export default class TemplateBuilder {
 
     makeTemplate(component: VirtualElementInterface<'component'>, parent?: VirtualElementInterface) {
         const constructor = component.function
-        const hash: HashType = isVirtualElement(component) && 'hash' in component && component.hash()
+        const hash: HashType = isVirtualElement(component) && 'hash' in component && component.hash(component.props)
         setAutoComponent(hash)
         if (isVirtualElement(component)) {
             component.generatePreliminaryId(parent as VirtualElement)
@@ -104,23 +104,16 @@ export default class TemplateBuilder {
 
     private stringifyComponent(component: VirtualElementInterface<'component'>, parent?: VirtualElementInterface): [string, ServerTemplateComponentType] {
         const hash = this.makeTemplate(component, parent)
-        const statesOnlyProps = filterObject(
-            component.props as { [p: string]: any },
+        const props = component.props as { [p: string]: any }
+        /*const statesOnlyProps = filterObject(props,
             (entry): entry is [string, State | StateConcatenation | StateUsage] =>
                 isState(entry[1]) || isStateUsage(entry[1])
-        )
-        const ensuredStateUsageProps = mapObject(
-            statesOnlyProps,
-            ([key, value]) => [key, isStateUsage(value) ? value : value.use()]
-        )
-        const stringifiedProps = mapObjectToArray(ensuredStateUsageProps, ([key, value]) => {
-            const [clientStringifiedStateNode] = this.stringifyStateNode(value) // context is given by usages inside component
-            return `[${key}${clientStringifiedStateNode}]`
-        })
+        )*/
+        const stringifiedProps = stringifyProps(props)
         const wrappedProps = stringifiedProps.length === 1 ? stringifiedProps : `[${stringifiedProps}]`
         return [
-            `[${hash}${wrappedProps}]`,
-            {type: 'component', key: hash, props: ensuredStateUsageProps}
+            `[${hash}[${stringifiedProps.join('')}]]`,
+            {type: 'component', key: hash, props: props}
         ]
     }
 
@@ -129,11 +122,7 @@ export default class TemplateBuilder {
             element.props.ref.populate(element)
         }
         const props = checkProps(element.props)
-        const stringifiedProps = mapObjectToArray(props, ([key, value]) =>
-            isState(value) || isStateUsage(value)
-                ? '' // todo
-                : key + JSON.stringify(stringifyValue(value))
-        )
+        const stringifiedProps = stringifyProps(props)
         const [stringifiedChildren, serverChildren] = this.stringifyNodes(element.children.flat(), element)
         const wrappedChildren = stringifiedChildren.length === 1 ? stringifiedChildren : `[${stringifiedChildren.join('')}]`
         return [

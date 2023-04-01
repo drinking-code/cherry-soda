@@ -30,13 +30,13 @@ export class VirtualElement implements VirtualElementInterface {
         this.children = children
     }
 
-    hash(): HashType {
-        // seed to generate different hash when using `stringifyNode()`
+    hash(props?: { [p: string]: any }): HashType {
+        props ??= {}
+        const propsString = Array.from(Object.entries(props)).map(entry => JSON.stringify(entry)).join('')
+        // generate different hash when using `stringifyNode()` (which always has the same this._originalFunction)
+        const seed = this._originalFunction?.name === '' && randomNumber(2)
         return numberToAlphanumeric(
-            Bun.hash(
-                this._originalFunction?.toString(),
-                this._originalFunction?.name === '' && randomNumber(2)
-            ) as number
+            Bun.hash(this._originalFunction?.toString() + propsString, seed) as number
         )
     }
 

@@ -1,6 +1,8 @@
 import {isObject} from './object'
 import {isArray} from './array'
-import {mapObject} from './iterate-object'
+import {mapObject, mapObjectToArray} from './iterate-object'
+import {isState} from '../state/state'
+import {isStateUsage} from '../state/state-usage'
 
 interface HasToStringInterface {
     toString: () => string
@@ -18,4 +20,12 @@ export default function stringifyValue(value: StringifiableType): string {
         return typeof undefined
     else
         return value.toString()
+}
+
+export function stringifyProps(props: { [p: string]: any }) {
+    return mapObjectToArray(props, ([key, value]) =>
+        isState(value) || isStateUsage(value)
+            ? '' // todo
+            : key + JSON.stringify(stringifyValue(value))
+    )
 }
