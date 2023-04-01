@@ -3,6 +3,7 @@ import path from 'path'
 import {Plugin} from 'esbuild'
 import {BunPlugin} from 'bun'
 import {numberToHex} from '../utils/number-to-string'
+import {getVolume, outputPath} from '../compiler/client-script/volume'
 
 interface ImageLoaderOptions {
     emit?: boolean
@@ -21,6 +22,12 @@ export default function imageLoader(options?: ImageLoaderOptions): Plugin | Para
         fs: fs,
         bunPlugin: false,
         ...options
+    }
+    // putting options in the plugins file results in segfault @ bun v0.5.8
+    options = {
+        fs: getVolume(),
+        path: outputPath,
+        emit: true,
     }
     return {
         name: 'image-loader',
