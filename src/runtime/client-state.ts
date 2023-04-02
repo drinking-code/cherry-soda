@@ -2,6 +2,7 @@ import {findElementByPath, Ref} from './dom'
 import {HashType} from '../jsx/VirtualElement'
 import {ContextType} from '../compiler/template/state-usage'
 import {AbstractState} from './abstract-state'
+import {getStateListenerCleanupMap} from './state-listener'
 
 function cloneStateValue<V>(value: V): V {
     if (['string', 'number', 'boolean'].includes(typeof value) || [null, undefined].includes(value)) {
@@ -23,7 +24,6 @@ declare const stateUsagesContexts: Map<HashType, ClientContextType<any>[]>
 
 export class State<V = any> extends AbstractState<V> {
     private _listeners: (StateChangeHandlerType)[] = []
-    private _listenersCleanup: (ReturnType<StateChangeHandlerType>)[]
     private readonly _id: HashType
 
     constructor(id: HashType, value: V) {
@@ -43,10 +43,12 @@ export class State<V = any> extends AbstractState<V> {
         this._value = cloneStateValue(value)
     }
 
-    private _updateValueInternal(value: V, forceUpdate: boolean = false) {
+    private _updateValueInternal(value: V, forceUpdate: boolean = false, executeListeners: boolean = true) {
         if (!forceUpdate && value === this._value) return
-        if (this._listenersCleanup)
-            this._listenersCleanup.forEach(cleanup => cleanup && cleanup())
+        const stateListenerCleanupMap = getStateListenerCleanupMap()
+        this._listeners.forEach(listener =>
+            stateListenerCleanupMap.has(listener) && stateListenerCleanupMap.get(listener)()
+        )
         this._value = cloneStateValue(value)
         stateStateUsagesMap[this._id]?.forEach(stateUsageId => {
             const contexts = stateUsagesContexts.get(stateUsageId)
@@ -78,11 +80,17 @@ export class State<V = any> extends AbstractState<V> {
                 }
             })
         })
-        this._listenersCleanup = this._listeners.map(listener => listener())
+        if (executeListeners) {
+            this._listeners.forEach(listener => stateListenerCleanupMap.set(listener, listener()))
+        }
     }
 
     update() {
         this._updateValueInternal(this._value, true)
+    }
+
+    updateSilently() {
+        this._updateValueInternal(this._value, true, false)
     }
 
     listen(listener: () => void) {

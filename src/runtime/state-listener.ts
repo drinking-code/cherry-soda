@@ -24,16 +24,25 @@ export function registerStateListeners() {
     })
 }
 
+const stateListenerCleanupMap = new Map()
+const rawListenerPreppedListenerMap = new Map()
+
+export function getStateListenerCleanupMap() {
+    return stateListenerCleanupMap
+}
+
 export function registerStateChangeHandler(
     callback: StateChangeHandlerType,
     statesAndRefs: (State | Ref<any>)[]
 ) {
+    rawListenerPreppedListenerMap.set(callback, () => callback(...prepStatesAndRefs(statesAndRefs)))
     statesAndRefs.forEach(state => {
         if (!(state instanceof State)) return
-        state.listen(() => callback(...prepStatesAndRefs(statesAndRefs)))
-        state.update()
+        state.listen(rawListenerPreppedListenerMap.get(callback))
+        state.updateSilently()
     })
+    rawListenerPreppedListenerMap.get(callback)()
 }
 
 if (typeof window !== 'undefined')
-    registerStateListeners()
+    setTimeout(registerStateListeners)
