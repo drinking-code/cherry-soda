@@ -5,6 +5,9 @@ import {mapObjectToArray} from '../utils/iterate-object'
 import {ServerTemplateNodeType, ServerTemplatesMapType} from '../compiler/template/types'
 import {HashType} from '../jsx/VirtualElement'
 import {callComponentRenderFunctions} from '../state/side-effect'
+import {isStateUsage} from '../state/state-usage'
+import {ifError} from 'assert'
+import {transformProps} from '../compiler/template/check-props'
 
 export function getRenderer(hash?: HashType) {
     return () => {
@@ -26,8 +29,15 @@ export function getRenderer(hash?: HashType) {
                                     voidElements.some(tag => tag === node.tagName)
                             )(node.tagName)
                             const stringifiedPropsArray = mapObjectToArray(node.props,
-                                ([propKey, propValue]) => `${propKey}="${propValue}"`
-                            )
+                                ([propKey, propValue]) => {
+                                    if (isStateUsage(propValue))
+                                        propValue = propValue.preRender()
+                                    if (propKey === 'style' && Array.isArray(propValue))
+                                        propValue = Object.assign(propValue.shift(), ...propValue)
+                                    const object = transformProps({[propKey]: propValue})
+                                    ;[[propKey, propValue]] = Array.from(Object.entries(object))
+                                    return `${propKey}="${propValue}"`
+                                })
                             const stringifiedProps = stringifiedPropsArray.length > 0 ? ' ' + stringifiedPropsArray.join(' ') : ''
                             if (isVoidElement) {
                                 return `<${node.tagName}${stringifiedProps}/>`

@@ -25,9 +25,9 @@ export default class StateUsage<V = any> extends AbstractState {
      * @internal
      * */
     render(): string {
-        let transformResult = (this.transform ?? StateUsage.defaultTransform)(...this.states.map(state => state.valueOf()))
-        if (transformResult instanceof VirtualElement)
-            transformResult = [transformResult]
+        let transformResult = this.preRender()
+        if (!this.transform)
+            transformResult = StateUsage.defaultTransform(...transformResult)
         if (Array.isArray(transformResult))
             transformResult = transformResult.map(element => {
                 if (!(element instanceof VirtualElement)) return transformResult
@@ -35,6 +35,13 @@ export default class StateUsage<V = any> extends AbstractState {
                 return getRenderer(hash)()
             }).join('')
         return stringifyValue(transformResult)
+    }
+
+    /**
+     * @internal
+     * */
+    preRender(): any {
+        return (this.transform ?? (v => v))(...this.states.map(state => state.valueOf()))
     }
 }
 

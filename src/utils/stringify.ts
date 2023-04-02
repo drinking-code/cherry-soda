@@ -25,7 +25,7 @@ export default function stringifyValue(value: StringifiableType): string {
 export function stringifyProps(props: { [p: string]: any }) {
     return mapObjectToArray(props, ([key, value]) =>
         isState(value) || isStateUsage(value)
-            ? '' // todo
+            ? '#' + ((!isStateUsage(value) ? value.use() : value).$$stateId.serialize()) // todo
             : key + JSON.stringify(stringifyValue(value))
     )
 }
