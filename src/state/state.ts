@@ -25,28 +25,28 @@ export default class State<V = any> extends AbstractState {
         return this._value
     }
 
-    use<U extends StringifiableType = StringifiableType>(transform?: (value: V) => U) {
+    use<U extends StringifiableType = StringifiableType>(transform?: (value: V) => U): StateUsage<V> {
         return new StateUsage(this, transform)
     }
 
-    and(state: State) {
+    and(state: State): StateConcatenation<V> {
         return (new StateConcatenation(this)).and(state)
     }
 }
 
 export class StateConcatenation<V = any> {
-    states: State<V>[] = []
+    states: State<V>[]
 
-    constructor(state: State) {
-        this.and(state)
+    constructor(...states: State[]) {
+        this.states = states
     }
 
-    use<U extends StringifiableType = StringifiableType>(transform?: (...values: V[]) => U) {
+    use<U extends StringifiableType = StringifiableType>(transform?: (...values: V[]) => U): StateUsage<V> {
         return new StateUsage(this.states, transform)
     }
 
-    and(state: State) {
-        this.states.push(state)
+    and(state: State): StateConcatenation<V> {
+        return new StateConcatenation(...this.states, state)
     }
 }
 

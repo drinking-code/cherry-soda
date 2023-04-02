@@ -2,10 +2,8 @@ import State from './state'
 import stringifyValue, {StringifiableType} from '../utils/stringify'
 import {VirtualElement} from '../jsx/VirtualElement'
 import {getRenderer} from '../renderer/renderer'
-import {ClientTemplatesMapType, ServerTemplatesMapType} from '../compiler/template/types'
 import stringifyNode from '../compiler/template/stringify-node'
 import AbstractState from './abstract-state'
-import {getClientTemplates} from '../compiler/template'
 
 export type StateUsageFunctionType<V, U extends StringifiableType = StringifiableType> = (...values: V[]) => U
 
