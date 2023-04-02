@@ -48,7 +48,7 @@ export class State<V = any> extends AbstractState<V> {
         if (this._listenersCleanup)
             this._listenersCleanup.forEach(cleanup => cleanup && cleanup())
         this._value = cloneStateValue(value)
-        stateStateUsagesMap[this._id].forEach(stateUsageId => {
+        stateStateUsagesMap[this._id]?.forEach(stateUsageId => {
             const contexts = stateUsagesContexts.get(stateUsageId)
             contexts.forEach(context => {
                 let transform

@@ -1,7 +1,14 @@
 import fs from 'fs'
 
 import Parser from '../parser'
-import {traverseFast, FunctionExpression, ArrowFunctionExpression, Statement} from '@babel/types'
+import {
+    traverseFast,
+    FunctionExpression,
+    ArrowFunctionExpression,
+    Statement,
+    FunctionDeclaration,
+    ClassDeclaration, VariableDeclarator
+} from '@babel/types'
 import {HashType} from '../../jsx/VirtualElement'
 import {Scope} from './scope'
 import {getCurrentComponentHash} from '../template/template-builder'
@@ -30,7 +37,7 @@ export async function extractFunction(
     }
 
     const scope: Scope = scopes[filePath] ?? new Scope()
-    const thingsInUse = []
+    const thingsInUse: Set<string> = new Set()
     parser.traverseFileFast(filePath, (node) => {
         if (!(filePath in scope)) {
             // declarations
@@ -83,8 +90,17 @@ export async function extractFunction(
             })
         })
         traverseFast(func.body, (node) => {
+            if (((node): node is (FunctionDeclaration | ClassDeclaration | VariableDeclarator) =>
+                ['FunctionDeclaration', 'ClassDeclaration', 'VariableDeclarator'].includes(node.type))(node)
+            ) {
+                if (node.id.type !== 'Identifier') {
+                    // todo
+                } else {
+                    exclude.push(node.id.name)
+                }
+            }
             if (node.type === 'Identifier' && !exclude.includes(node.name) && (scope.has(node) || scope.hasImport(node.name))) {
-                thingsInUse.push(node.name)
+                thingsInUse.add(node.name)
             }
         })
     })
@@ -92,7 +108,7 @@ export async function extractFunction(
     if (!lexicalScopes[id])
         lexicalScopes[id] = []
     lexicalScopes[id].push(
-        thingsInUse
+        Array.from(thingsInUse.keys())
             .map((thing): [number, Statement[] | ImportDataType] => {
                 if (scope.has(scope.getId(thing))) {
                     return [
