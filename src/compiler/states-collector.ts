@@ -1,7 +1,7 @@
 import State, {isState} from '../state/state'
 import {isRef, Ref} from '../state/create-ref'
 import {generateId} from '../utils/random'
-import {filterObject, mapSet, mapSetToObject} from '../utils/iterate-object'
+import {filterObject, mapSetToObject} from '../utils/iterate-object'
 import {ElementId, HashType, VirtualElement} from '../jsx/VirtualElement'
 import {addMarker} from './profiler'
 

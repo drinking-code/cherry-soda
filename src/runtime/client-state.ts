@@ -1,4 +1,4 @@
-import {findElementByPath, Ref} from './dom'
+import {findElementByPath} from './dom'
 import {HashType} from '../jsx/VirtualElement'
 import {ContextType} from '../compiler/template/state-usage'
 import {AbstractState} from './abstract-state'

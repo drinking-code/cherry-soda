@@ -10,11 +10,10 @@ import {ElementChild} from '../../jsx/ElementChildren'
 import {ensureArray} from '../../utils/array'
 import State, {isState, StateConcatenation} from '../../state/state'
 import StateUsage, {isStateUsage} from '../../state/state-usage'
-import {filterObject, mapObject, mapObjectToArray} from '../../utils/iterate-object'
 import stringifyValue, {StringifiableType, stringifyProps} from '../../utils/stringify'
 import {setAutoComponent} from '../states-collector'
 import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
-import {includeStateUsage, makeContext} from './state-usage'
+import {includeStateUsage} from './state-usage'
 import {escapeHTML} from 'bun'
 import {UnsafeHTML} from 'src/jsx/insert-html'
 
@@ -63,7 +62,7 @@ export default class TemplateBuilder {
         const nodesArray = ensureArray(nodes)
         const clientTemplate: (string | false)[] = []
         const serverTemplate: (ServerTemplateNodeType | false)[] = []
-        nodesArray.forEach((node, index) => {
+        nodesArray.forEach((node) => {
             let clientTemplatePart: string | false, serverTemplatePart: ServerTemplateNodeType | false
             const isVirtualElementInterface = ((node): node is VirtualElementInterface =>
                     typeof node === 'object' && 'type' in node && 'props' in node
@@ -110,7 +109,7 @@ export default class TemplateBuilder {
                 isState(entry[1]) || isStateUsage(entry[1])
         )*/
         const stringifiedProps = stringifyProps(props)
-        const wrappedProps = stringifiedProps.length === 1 ? stringifiedProps : `[${stringifiedProps}]`
+        // const wrappedProps = stringifiedProps.length === 1 ? stringifiedProps : `[${stringifiedProps}]`
         return [
             `[${hash}[${stringifiedProps.join('')}]]`,
             {type: 'component', key: hash, props: props}

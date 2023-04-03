@@ -6,7 +6,6 @@ import {ServerTemplateNodeType, ServerTemplatesMapType} from '../compiler/templa
 import {HashType} from '../jsx/VirtualElement'
 import {callComponentRenderFunctions} from '../state/side-effect'
 import {isStateUsage} from '../state/state-usage'
-import {ifError} from 'assert'
 import {transformProps} from '../compiler/template/check-props'
 
 export function getRenderer(hash?: HashType) {

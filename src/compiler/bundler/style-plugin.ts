@@ -7,7 +7,7 @@ import {OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild} f
 import CssModulesOptions from './style-plugin-css-modules-options'
 // import './modules' // keep this import for enabling modules types declaration ex: import styles from 'styles.module.sass'
 import {getPostCSSWatchFiles, importPostcssConfigFile, RenderOptions, renderStyle} from './style-plugin-render'
-import projectRoot, {resolve as resolveProjectRoot} from '../../utils/project-root'
+import projectRoot from '../../utils/project-root'
 import resolveImportFileSpecifier from '../helpers/resolve-import-file-specifier'
 
 interface PostCSS extends ProcessOptions {

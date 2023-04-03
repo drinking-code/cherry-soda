@@ -2,7 +2,6 @@ import {validTags, voidElements} from './dom/html-props'
 import {ElementChildren} from './ElementChildren'
 import {Fragment} from '#cherry-soda'
 import {Ref} from '../state/create-ref'
-import JSX_DOM from './jsx-dom'
 
 export = CherrySoda;
 export as namespace CherrySoda;

@@ -1,5 +1,5 @@
 import {isVirtualElement, VirtualElement} from '../../jsx/VirtualElement'
-import State, {isState} from '../../state/state'
+import {isState} from '../../state/state'
 import StateUsage, {isStateUsage} from '../../state/state-usage'
 import {getClientState} from '../../runtime'
 import {stateIsListenedTo} from '../states-collector'

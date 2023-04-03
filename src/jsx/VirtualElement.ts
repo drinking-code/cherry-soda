@@ -1,7 +1,6 @@
 import {VirtualElementInterface} from './cherry-soda'
 import {numberToAlphanumeric} from '../utils/number-to-string'
 import {randomNumber} from '../utils/random'
-import chalk from 'chalk'
 
 export type HashType = string
 

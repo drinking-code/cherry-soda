@@ -8,7 +8,7 @@ import {findNode} from '../runtime'
 import {getCallerPosition} from '../utils/get-caller-position'
 import {extractFunction} from '../compiler/client-script/extract-function'
 import {getStringifiedLexicalScope} from '../compiler/client-script/stringify-scope'
-import {entryDir, hfsEntryDir, stateListenersFileName} from '../compiler/client-script/generate-data-files'
+import {entryDir, stateListenersFileName} from '../compiler/client-script/generate-data-files'
 import path from 'path'
 
 export type StateOrRefType = State | Ref

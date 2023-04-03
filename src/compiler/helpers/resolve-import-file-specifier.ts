@@ -2,8 +2,8 @@ import fs from 'fs'
 import path from 'path'
 
 import resolveFile from './resolve-file'
-import projectRoot, {resolve as resolveProjectRoot} from '../../utils/project-root'
-import moduleRoot, {resolve as resolveModuleRoot} from '../../utils/module-root'
+import {resolve as resolveProjectRoot} from '../../utils/project-root'
+import {resolve as resolveModuleRoot} from '../../utils/module-root'
 import {printWarning, messages as warningMessages} from '../../messages/warnings'
 
 const projectPackageJson = JSON.parse(fs.readFileSync(resolveProjectRoot('package.json'), 'utf8'))
