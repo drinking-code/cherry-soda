@@ -46,9 +46,12 @@ export class State<V = any> extends AbstractState<V> {
     private _updateValueInternal(value: V, forceUpdate: boolean = false, executeListeners: boolean = true) {
         if (!forceUpdate && value === this._value) return
         const stateListenerCleanupMap = getStateListenerCleanupMap()
-        this._listeners.forEach(listener =>
-            stateListenerCleanupMap.has(listener) && stateListenerCleanupMap.get(listener)()
-        )
+        this._listeners.forEach(listener => {
+            if (!stateListenerCleanupMap.has(listener)) return
+            const cleanup = stateListenerCleanupMap.get(listener)
+            if (typeof cleanup !== 'function') return
+            cleanup()
+        })
         this._value = cloneStateValue(value)
         stateStateUsagesMap[this._id]?.forEach(stateUsageId => {
             const contexts = stateUsagesContexts.get(stateUsageId)
