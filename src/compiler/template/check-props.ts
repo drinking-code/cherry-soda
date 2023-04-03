@@ -21,7 +21,7 @@ export function transformProps(props: { [propName: string]: any }) {
         if (!isStateUsage(propValue)) {
             if (['class', 'id'].includes(propName) && Array.isArray(propValue))
                 propValue = propValue.filter(v => v).join(' ').trim()
-            if (propName === 'style')
+            if (propName === 'style' && typeof propValue === 'object')
                 propValue = Object.entries(propValue)
                     .filter(([name, value]) => value && value !== 0)
                     .map(([name, value]) => `${name}:${value}`)

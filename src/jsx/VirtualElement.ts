@@ -83,7 +83,7 @@ export class VirtualElement implements VirtualElementInterface {
 
 export function isVirtualElement(item): item is VirtualElement {
     // instanceof VirtualElement won't work in node because esbuild generates multiple files with the same class
-    return item.constructor?.name === VirtualElement.name
+    return item?.constructor?.name === VirtualElement.name
 }
 
 

@@ -19,7 +19,7 @@ export function getRenderer(hash?: HashType) {
             const template = serverTemplates.get(key)
 
             function stringifyNodes(nodes: ServerTemplateNodeType[]): string {
-                return nodes.map((node): string => {
+                return nodes?.map((node): string => {
                     switch (node.type) {
                         case 'component':
                             callComponentRenderFunctions(node.key)
@@ -36,7 +36,7 @@ export function getRenderer(hash?: HashType) {
                                         propValue = Object.assign(propValue.shift(), ...propValue)
                                     const object = transformProps({[propKey]: propValue})
                                     ;[[propKey, propValue]] = Array.from(Object.entries(object))
-                                    return `${propKey}="${propValue}"`
+                                    return `${propKey}="${String(propValue)?.replace(/"/g, '&quot;')}"`
                                 })
                             const stringifiedProps = stringifiedPropsArray.length > 0 ? ' ' + stringifiedPropsArray.join(' ') : ''
                             if (isVoidElement) {
