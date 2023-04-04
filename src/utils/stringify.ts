@@ -3,6 +3,9 @@ import {isArray} from './array'
 import {mapObject, mapObjectToArray} from './iterate-object'
 import {isState} from '../state/state'
 import {isStateUsage} from '../state/state-usage'
+import {includeStateUsage} from '../compiler/template/state-usage'
+import {type VirtualElementInterface} from '../jsx/cherry-soda'
+import {type VirtualElement} from '../jsx/VirtualElement'
 
 interface HasToStringInterface {
     toString: () => string
@@ -22,10 +25,18 @@ export default function stringifyValue(value: StringifiableType): string {
         return value.toString()
 }
 
-export function stringifyProps(props: { [p: string]: any }) {
-    return mapObjectToArray(props, ([key, value]) =>
-        isState(value) || isStateUsage(value)
-            ? '#' + ((!isStateUsage(value) ? value.use() : value).$$stateId.serialize()) // todo
-            : key + JSON.stringify(stringifyValue(value))
-    )
+export function stringifyProps(props: { [p: string]: any }, contextElement?: VirtualElementInterface<any>) {
+    return mapObjectToArray(props, ([key, value]) => {
+        if (isState(value) || isStateUsage(value)) {
+            const stateUsage = !isStateUsage(value) ? value.use() : value
+            includeStateUsage(stateUsage, {
+                type: 'prop',
+                contextElement: contextElement as VirtualElement,
+                prop: key
+            })
+            return '#' + stateUsage.$$stateId.serialize() // todo
+        } else {
+            return key + JSON.stringify(stringifyValue(value))
+        }
+    })
 }

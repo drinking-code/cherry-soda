@@ -121,7 +121,7 @@ export default class TemplateBuilder {
             element.props.ref.populate(element)
         }
         const props = checkProps(element.props)
-        const stringifiedProps = stringifyProps(props)
+        const stringifiedProps = stringifyProps(props, element)
         const [stringifiedChildren, serverChildren] = this.stringifyNodes(element.children.flat(), element)
         const wrappedChildren = stringifiedChildren.length === 1 ? stringifiedChildren : `[${stringifiedChildren.join('')}]`
         return [

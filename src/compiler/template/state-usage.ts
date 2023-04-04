@@ -4,14 +4,6 @@ import StateUsage, {isStateUsage} from '../../state/state-usage'
 import {getClientState} from '../../runtime'
 import {stateIsListenedTo} from '../states-collector'
 
-export type ContextType<T extends 'child' | 'prop'> = {
-    type: T,
-    contextElement: VirtualElement['_id']['fullPath']
-    prop: T extends 'prop' ? string : never,
-    beforeChild: T extends 'child' ? number : never,
-    makeString: string // (stateValue: string) => string
-}
-
 export type ProtoContextType<T extends 'child' | 'prop'> = {
     type: T,
     contextElement?: VirtualElement,
@@ -50,7 +42,7 @@ export function getStateUsagesAsCode() {
             code += `${stateUsagesName}.set('${key}', ${usage.transform.toString()});` + newLine
         let functionArray = '['
         for (const state of usage.states) {
-            functionArray += `${getClientState.name}('${state.id}')`
+            functionArray += `${getClientState.name}('${state.id}'),`
             if (!stateStateUsagesMap[state.id]) {
                 stateStateUsagesMap[state.id] = []
             }
@@ -83,6 +75,14 @@ function stringifyContext(context: ContextType<any>): string {
         contextString += `makeString:${context.makeString},`
     contextString += '}'
     return contextString
+}
+
+export type ContextType<T extends 'child' | 'prop'> = {
+    type: T,
+    contextElement: VirtualElement['_id']['fullPath']
+    prop: T extends 'prop' ? string : never,
+    beforeChild: T extends 'child' ? number : never,
+    makeString: string // (stateValue: string) => string
 }
 
 export function makeContext<T extends 'child' | 'prop'>(
@@ -118,7 +118,11 @@ export function makeContext<T extends 'child' | 'prop'>(
         context.makeString = functionString
     } else {
         context.prop = prop
-        // todo
+        /*if (['style', 'class', 'id'].includes(prop)) {
+            context.makeString = 'value => value'
+        } else {
+            context.makeString = 'value => String(value)'
+        }*/
     }
     return context as ContextType<T>
 }

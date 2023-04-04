@@ -1,8 +1,8 @@
-import {findElementByPath} from './dom'
 import {HashType} from '../jsx/VirtualElement'
 import {ContextType} from '../compiler/template/state-usage'
 import {AbstractState} from './abstract-state'
 import {getStateListenerCleanupMap} from './state-listener'
+import {updateStateUsages} from './state-usage'
 
 function cloneStateValue<V>(value: V): V {
     if (['string', 'number', 'boolean'].includes(typeof value) || [null, undefined].includes(value)) {
@@ -16,11 +16,6 @@ function cloneStateValue<V>(value: V): V {
 }
 
 export type StateChangeHandlerType = (...args: ([any, (value: any) => void] | HTMLElement)[]) => (() => void) | void
-type ClientContextType<T extends 'child' | 'prop'> = ContextType<T> & { makeString: (value: string) => string }
-
-declare const stateUsages: Map<HashType, (...values: any[]) => string>
-declare const stateUsagesParameters: Map<HashType, State[]>
-declare const stateUsagesContexts: Map<HashType, ClientContextType<any>[]>
 
 export class State<V = any> extends AbstractState<V> {
     private _listeners: (StateChangeHandlerType)[] = []
@@ -53,36 +48,7 @@ export class State<V = any> extends AbstractState<V> {
             cleanup()
         })
         this._value = cloneStateValue(value)
-        stateStateUsagesMap[this._id]?.forEach(stateUsageId => {
-            const contexts = stateUsagesContexts.get(stateUsageId)
-            contexts.forEach(context => {
-                let transform
-                if (stateUsages.has(stateUsageId)) {
-                    transform = stateUsages.get(stateUsageId)
-                    transform = stateUsages.get(stateUsageId)
-                } else {
-                    transform = value => String(value)
-                }
-                const transformParameters = stateUsagesParameters.get(stateUsageId)
-                const target = findElementByPath(context.contextElement)
-                const newString = context.makeString(
-                    transform(
-                        ...transformParameters.map(state => state.valueOf())
-                    )
-                )
-                if (context.type === 'child') {
-                    if (target.childElementCount == 0) {
-                        target.innerText = newString
-                    } else {
-                        target.children[context.beforeChild].previousSibling.replaceWith(
-                            document.createTextNode(newString)
-                        )
-                    }
-                } else if (context.type === 'prop') {
-                    // todo
-                }
-            })
-        })
+        updateStateUsages(this._id)
         if (executeListeners) {
             this._listeners.forEach(listener => stateListenerCleanupMap.set(listener, listener()))
         }
@@ -102,7 +68,6 @@ export class State<V = any> extends AbstractState<V> {
 }
 
 const states = new Map()
-declare const stateStateUsagesMap: { [key: HashType]: HashType[] }
 
 export function getClientState(id: HashType, value?: any) {
     if (!states.has(id))
