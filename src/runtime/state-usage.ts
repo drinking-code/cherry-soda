@@ -31,7 +31,7 @@ export function updateStateUsages(id: HashType) {
                 transform = stateUsages.get(stateUsageId)
                 transform = stateUsages.get(stateUsageId)
             } else {
-                transform = value => String(value)
+                transform = value => value
             }
             const transformParameters = stateUsagesParameters.get(stateUsageId)
             const target = findElementByPath(context.contextElement)
@@ -39,7 +39,7 @@ export function updateStateUsages(id: HashType) {
                 ...transformParameters.map(state => state.valueOf())
             )
             if (context.type === 'child') {
-                const newString = context.makeString(transformed)
+                const newString = context.makeString(String(transformed))
                 if (target.childElementCount == 0) {
                     target.innerText = newString
                 } else {
@@ -52,9 +52,9 @@ export function updateStateUsages(id: HashType) {
                 if (context.prop === 'style' && typeof transformed === 'object') {
                     newString = stringifyStyleObject(transformed)
                 } else if (['class', 'id'].includes(context.prop) && Array.isArray(transformed)) {
-                    newString = stringifyDomTokenList(transform)
+                    newString = stringifyDomTokenList(transformed)
                 } else {
-                    newString = String(transform)
+                    newString = String(transformed)
                 }
                 target.setAttribute(context.prop, newString)
             }
