@@ -40,7 +40,7 @@ export default class TemplateBuilder {
         const hash: HashType = isVirtualElement(component) && 'hash' in component && component.hash(component.props)
         setAutoComponent(hash)
         if (isVirtualElement(component)) {
-            component.generatePreliminaryId(parent as VirtualElement)
+            component.createPreliminaryId(parent as VirtualElement)
         }
         if (!this.clientTemplates.has(hash)) {
             currentComponentHash = hash
@@ -75,7 +75,7 @@ export default class TemplateBuilder {
 
 
                 if (isVirtualElement(node))
-                    node.generatePreliminaryId(parent as VirtualElement)
+                    node.createPreliminaryId(parent as VirtualElement)
 
                 if (isComponent(node)) {
                     [clientTemplatePart, serverTemplatePart] = this.stringifyComponent(node, parent)
@@ -122,7 +122,7 @@ export default class TemplateBuilder {
         }
         const props = checkProps(element.props)
         const stringifiedProps = stringifyProps(props, element)
-        const [stringifiedChildren, serverChildren] = this.stringifyNodes(element.children.flat(), element)
+        const [stringifiedChildren, serverChildren] = this.stringifyNodes(element.children, element)
         const wrappedChildren = stringifiedChildren.length === 1 ? stringifiedChildren : `[${stringifiedChildren.join('')}]`
         return [
             `[${element.type}[${stringifiedProps.join('')}]${wrappedChildren}]`,

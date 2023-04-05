@@ -26,7 +26,7 @@ export class VirtualElement implements VirtualElementInterface {
             this.type = type
         }
         this.props = props
-        this.children = children
+        this.children = children?.flat() as VirtualElement['children']
     }
 
     hash(props?: { [p: string]: any }): HashType {
@@ -67,7 +67,7 @@ export class VirtualElement implements VirtualElementInterface {
         return this.countChildren()
     }
 
-    generatePreliminaryId(parent: VirtualElement | null) {
+    createPreliminaryId(parent: VirtualElement | null) {
         this._id = new ElementId(parent, this)
     }
 
