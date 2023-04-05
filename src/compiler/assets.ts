@@ -32,23 +32,19 @@ export default async function collectAssetsFilePaths(entry: string): Promise<str
             const resolvedPath = resolveImportFileSpecifier(path.dirname(entry), filePath)
             return {kind, path: resolvedPath}
         })
-        styleFiles.push(
-            ...resolvedImports
-                .filter(({kind, path: filePath}) =>
-                    filePath.match(styleFilter) || filePath.match(imageFilter)
-                )
-                .map(({path: filePath}) => filePath)
-        )
-        // import all js (ts, jsx, tsx) files
         resolvedImports
-            .filter(({kind, path: filePath}) =>
-                filePath &&
-                possibleExtensions.some(extension => filePath.endsWith(extension)) &&
-                !filePath.startsWith(resolveProjectRoot('node_module')) &&
-                (process.env.INTERNAL_DEV !== 'true' || !filePath.startsWith(resolveModuleRoot('src'))) // only needed during development on cc
-            )
-            .map(({path: filePath}) => filePath)
-            .map(recursiveGetAllImports)
+            .forEach(({kind, path: filePath}) => {
+                if (filePath.match(styleFilter) || filePath.match(imageFilter)){
+                    styleFiles.push(filePath)
+                } else if (
+                    filePath &&
+                    possibleExtensions.some(extension => filePath.endsWith(extension)) &&
+                    !filePath.startsWith(resolveProjectRoot('node_module')) &&
+                    (process.env.INTERNAL_DEV !== 'true' || !filePath.startsWith(resolveModuleRoot('src'))) // only needed during development on cc
+                ) {
+                    recursiveGetAllImports(filePath)
+                }
+            })
     }
     recursiveGetAllImports(entry)
     addMarker('asset-collector', 'end')
