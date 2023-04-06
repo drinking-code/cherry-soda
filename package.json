@@ -1,7 +1,7 @@
 {
   "name": "cherry-soda",
   "description": "Just another (super cool) JavaScript web framework.",
-  "version": "0.1.1-experimental",
+  "version": "0.1.2-experimental",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/drinking-code/cherry-soda.git"
