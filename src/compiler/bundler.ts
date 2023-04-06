@@ -20,6 +20,7 @@ import {
     outputPath, refsAndTemplatesFilePath,
     virtualFilesPath
 } from './client-script/generate-data-files'
+import {resolveBundlerReadyPromise} from './bundler/bundler-ready-promise'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const inputFilePath = '/input.js'
@@ -113,6 +114,7 @@ function handleResult(result: BuildResult) {
             : contents)
     })
     if (!measuredEnd) {
+        resolveBundlerReadyPromise()
         addMarker('bundler', 'end')
         measuredEnd = true
     }

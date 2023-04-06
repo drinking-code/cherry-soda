@@ -9,11 +9,11 @@ export default function cherrySoda(entry): (req: Request) => Promise<Response> {
     process.env.CHERRY_COLA_ENTRY = entry
     const {fs, outputPath} = compile(entry)
     const render = getRenderer()
-    let serveStaticListener: (req: Request) => Response = serveStatic(outputPath, fs)
+    let serveStaticListener: (req: Request) => Promise<Response> = serveStatic(outputPath, fs)
 
     return async (req) => {
         // todo: routing; next if request should not be handled
-        const res: Response = serveStaticListener(req)
+        const res: Response = await serveStaticListener(req)
         if (res.status < 400) return res
         // try {
             return new Response(render(), {

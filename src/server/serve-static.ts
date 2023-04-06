@@ -3,8 +3,11 @@ import * as nfs from 'fs'
 
 import mime from 'mime'
 
-export default function serveStatic(outputPath: string, fs: { existsSync: Function, readFileSync: Function } = nfs): (req: Request) => Response {
-    return (req) => {
+import {getBundlerReadyPromise} from '../compiler/bundler/bundler-ready-promise'
+
+export default function serveStatic(outputPath: string, fs: { existsSync: Function, readFileSync: Function } = nfs): (req: Request) => Promise<Response> {
+    return async (req) => {
+        await getBundlerReadyPromise()
         const url = new URL(req.url)
         const filePath = path.join(outputPath, url.pathname)
         if (url.pathname === '/' || !fs.existsSync(filePath))

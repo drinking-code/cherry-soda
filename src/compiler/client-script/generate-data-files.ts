@@ -25,7 +25,6 @@ export async function generateClientScriptFile() {
     let inputFile = ''
     const hfs = getVolume()
     inputFile += getAssetsFilePaths().map(path => `import '${path}'`).join(newLine)
-    console.log(inputFile)
     inputFile += newLine
     iterateObject(getStateListenersAsCode(), ([fileName, fileContents]) => {
         if (fileName === stateListenersFileName) {

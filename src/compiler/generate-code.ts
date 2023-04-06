@@ -33,7 +33,7 @@ export function clientTemplatesToJs(): string {
     mapMapToArray(getClientTemplates(), ([componentId, template]) => {
         code += wrapQuoteIfStartsWithNumber(componentId)
         code += ':'
-        code += `'${template.replace(/'/, '\\\'')}'`
+        code += `'${template.replace(/(['"])/g, '\\$1')}'`
         code += ','
     })
     code += '},'
