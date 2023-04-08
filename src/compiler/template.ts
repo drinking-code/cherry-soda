@@ -47,9 +47,6 @@ export default async function extractTemplates(entry: string) {
     if (!firstElementHtml) {
         addMarker('template', 'document_start')
         const Document = (await import('../jsx/dom/default-document')).default
-        addRange('template', 'volume-path', 'start')
-        // await // todo
-        addRange('template', 'volume-path', 'end')
         const documentComponent = jsx(Document, {
             children: new ElementChildren(mainComponent)
         }) as VirtualElement

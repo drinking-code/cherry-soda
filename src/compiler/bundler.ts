@@ -24,14 +24,13 @@ import {resolveBundlerReadyPromise} from './bundler/bundler-ready-promise'
 
 export const isProduction = process.env.BUN_ENV === 'production'
 export const inputFilePath = '/input.js'
-let moduleToFileNameMap
+const moduleToFileNameMap = new Map()
+moduleToFileNameMap.set(stateListenersFilePath, 'state listeners')
+moduleToFileNameMap.set(refsAndTemplatesFilePath, 'refs and states')
 
 export default async function bundleVirtualFiles(): Promise<Volume> {
     addMarker('bundler', 'generate-files')
     const hfs = getVolume()
-    moduleToFileNameMap = new Map()
-    moduleToFileNameMap.set(stateListenersFilePath, 'state listeners')
-    moduleToFileNameMap.set(refsAndTemplatesFilePath, 'refs and states')
     hfs.writeFileSync(inputFilePath, '')
     generateClientScriptFile()
     generateRefsAndTemplatesFile()

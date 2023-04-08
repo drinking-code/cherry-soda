@@ -11,7 +11,9 @@ import {addMarker} from './profiler'
 import fs from 'fs'
 import resolveImportFileSpecifier from './helpers/resolve-import-file-specifier'
 
-let styleFiles: string[] = []
+let mappedStyleFiles: { [fileName: string]: string[] } = {}
+const fileContents: { [fileName: string]: string } = {}
+let changedFiles: string[]
 
 export default async function collectAssetsFilePaths(entry: string): Promise<string[]> {
     // todo: separate critical from non critical styles
@@ -22,20 +24,28 @@ export default async function collectAssetsFilePaths(entry: string): Promise<str
     * 3: out-of-scope css  - not used on the current page / view (i.e. in another or not at all)
     *  */
 
+    changedFiles = []
+    const seenFiles: string[] = []
     addMarker('asset-collector', 'start')
     const transpiler = new Bun.Transpiler({loader: 'tsx'})
     addMarker('asset-collector', 'create-transpiler')
     const recursiveGetAllImports = entry => {
-        const {imports} = transpiler.scan(fs.readFileSync(entry, 'utf8'))
+        seenFiles.push(entry)
+        const newFileContents = fs.readFileSync(entry, 'utf8')
+        if (newFileContents !== fileContents[entry])
+            changedFiles.push(entry)
+        fileContents[entry] = newFileContents
+        const {imports} = transpiler.scan(fileContents[entry])
         // resolve file paths
         const resolvedImports = imports.map(({kind, path: filePath}) => {
             const resolvedPath = resolveImportFileSpecifier(path.dirname(entry), filePath)
             return {kind, path: resolvedPath}
         })
+        mappedStyleFiles[entry] = []
         resolvedImports
-            .forEach(({kind, path: filePath}) => {
-                if (filePath.match(styleFilter) || filePath.match(imageFilter)){
-                    styleFiles.push(filePath)
+            .forEach(({path: filePath}) => {
+                if (filePath.match(styleFilter) || filePath.match(imageFilter)) {
+                    mappedStyleFiles[entry].push(filePath)
                 } else if (
                     filePath &&
                     possibleExtensions.some(extension => filePath.endsWith(extension)) &&
@@ -47,10 +57,16 @@ export default async function collectAssetsFilePaths(entry: string): Promise<str
             })
     }
     recursiveGetAllImports(entry)
+
+    for (const importerFile in mappedStyleFiles) {
+        if (!seenFiles.includes(importerFile))
+            delete mappedStyleFiles[importerFile]
+    }
+
     addMarker('asset-collector', 'end')
-    return Promise.resolve(styleFiles)
+    return Promise.resolve(getAssetsFilePaths())
 }
 
 export function getAssetsFilePaths(): string[] {
-    return styleFiles
+    return Array.from(Object.values(mappedStyleFiles)).flat()
 }
