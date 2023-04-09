@@ -70,3 +70,7 @@ export default async function collectAssetsFilePaths(entry: string): Promise<str
 export function getAssetsFilePaths(): string[] {
     return Array.from(Object.values(mappedStyleFiles)).flat()
 }
+
+export function getAllCurrentFiles(): string[] {
+    return Array.from(Object.keys(fileContents)).flat()
+}

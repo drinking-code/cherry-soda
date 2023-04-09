@@ -28,6 +28,12 @@ const moduleToFileNameMap = new Map()
 moduleToFileNameMap.set(stateListenersFilePath, 'state listeners')
 moduleToFileNameMap.set(refsAndTemplatesFilePath, 'refs and states')
 
+if (!global.cherrySoda)
+    global.cherrySoda = {}
+
+if (!global.cherrySoda.compiler)
+    global.cherrySoda.compiler = {}
+
 export default async function bundleVirtualFiles(): Promise<Volume> {
     addMarker('bundler', 'generate-files')
     const hfs = getVolume()
@@ -35,10 +41,13 @@ export default async function bundleVirtualFiles(): Promise<Volume> {
     generateClientScriptFile()
     generateRefsAndTemplatesFile()
     addMarker('bundler', 'wait-for-context-start')
-    const esCtx = await esCtxPromise
+    const esCtx = await global.cherrySoda.compiler.esCtxPromise
     addMarker('bundler', 'wait-for-context-end')
     addMarker('bundler', 'start-esbuild')
-    await esCtx.watch()
+    if (!global.cherrySoda.compiler.esWatching) {
+        await esCtx.watch()
+        global.cherrySoda.compiler.esWatching = true
+    }
     return hfs
 }
 
@@ -54,7 +63,8 @@ const browserslistEsbuildMap = {
 
 addMarker('bundler', 'start')
 const packageJson = JSON.parse(fs.readFileSync(resolveModuleRoot('package.json'), 'utf8'))
-let esCtxPromise = esbuild.context({
+global.cherrySoda.compiler.esWatching ??= false
+global.cherrySoda.compiler.esCtxPromise ??= esbuild.context({
     entryPoints: [inputFilePath],
     inject: [path.join('/', 'runtime', 'index.ts'), stateListenersFilePath, refsAndTemplatesFilePath],
     outfile: path.join(outputPath, 'main.js'),

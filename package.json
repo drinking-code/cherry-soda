@@ -27,7 +27,8 @@
   "scripts": {
     "test": "cd test && bun run test",
     "test:node": "cd test && npm run test:jest",
-    "example": "node --enable-source-maps src/server/server.node.js"
+    "example": "cli/index dev example/cherry-soda-template/index.jsx",
+    "example-counter": "cli/index dev example/counter/index.jsx"
   },
   "bin": {
     "cherry-soda": "cli/index"
