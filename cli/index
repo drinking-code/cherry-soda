@@ -1,20 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bun
 
-CC_MAIN_SCRIPT_PARTIAL="cherry-soda/cli/main.js"
-DIRNAME=$(dirname "$0")
+import path from 'path'
 
-if [[ $DIRNAME == *node_modules/.bin ]]; then
-  CC_MAIN_SCRIPT="${DIRNAME//.bin/$CC_MAIN_SCRIPT_PARTIAL}"
-else
-  CC_MAIN_SCRIPT="${DIRNAME}/main.js"
-fi
+const mainScriptPartial = 'cherry-soda/cli/main.js'
+const dirname = path.dirname((new URL(import.meta.url ?? 'file://' + __filename)).pathname)
 
-/usr/bin/env bun --hot "$CC_MAIN_SCRIPT" -- "$@"
+const mainScriptPath = dirname.endsWith('node_modules/.bin')
+    ? dirname.replace('.bin', mainScriptPartial)
+    : `${dirname}/main.js`
 
-#if [[ "$*" == *"--node"* ]]; then
-#  /usr/bin/env node "$CC_MAIN_SCRIPT" -- "$@"
-#elif command /usr/bin/env bun &>/dev/null; then
-#  /usr/bin/env bun "$CC_MAIN_SCRIPT" -- "$@"
-#elif command /usr/bin/env node &>/dev/null; then
-#  /usr/bin/env node "$CC_MAIN_SCRIPT" -- "$@"
-#fi
+await import(mainScriptPath)
