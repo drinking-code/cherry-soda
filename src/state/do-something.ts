@@ -1,4 +1,4 @@
-import {getClientState, State as ClientState} from '../runtime/client-state'
+import {getClientState, type State as ClientState} from '../runtime/client-state'
 import State from './state'
 import {isRef, Ref} from './create-ref'
 import {autoSetState} from '../compiler/states-collector'

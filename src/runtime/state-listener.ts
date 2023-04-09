@@ -41,7 +41,8 @@ export function registerStateChangeHandler(
         state.listen(rawListenerPreppedListenerMap.get(callback))
         state.updateSilently()
     })
-    rawListenerPreppedListenerMap.get(callback)()
+    const listener = rawListenerPreppedListenerMap.get(callback)
+    stateListenerCleanupMap.set(listener, listener())
 }
 
 if (typeof window !== 'undefined')
