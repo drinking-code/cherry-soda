@@ -53,6 +53,12 @@ function includeStateListener(callback: StateListenerType<any>, statesAndRefs: S
     stateListenersParameters.get(id).push(statesAndRefs)
 }
 
+export function clearComponentStateListeners() {
+    const id = getCurrentComponentHash()
+    stateListeners.set(id, [])
+    stateListenersParameters.set(id, [])
+}
+
 export function getStateListenersAsCode(): { [fileName: string]: string } {
     const stateListenersName = 'stateListeners'
     const stateListenersParametersName = 'stateListenersParameters'

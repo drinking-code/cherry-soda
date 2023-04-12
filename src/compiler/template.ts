@@ -10,6 +10,7 @@ import TemplateBuilder from './template/template-builder'
 import {jsx} from '../jsx-runtime'
 import {HashType, VirtualElement} from '../jsx/VirtualElement'
 import {addMarker, addRange} from './profiler'
+import {randomNumber} from '../utils/random'
 
 const clientTemplates: ClientTemplatesMapType = new Map()
 const serverTemplates: ServerTemplatesMapType = new Map()

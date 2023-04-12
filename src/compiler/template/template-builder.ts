@@ -16,6 +16,7 @@ import {HashType, isVirtualElement, VirtualElement} from '../../jsx/VirtualEleme
 import {includeStateUsage} from './state-usage'
 import {escapeHTML} from 'bun'
 import {UnsafeHTML} from 'src/jsx/insert-html'
+import {clearComponentStateListeners} from '../../state/do-something'
 
 let currentComponentHash
 
@@ -44,6 +45,7 @@ export default class TemplateBuilder {
         }
         if (!this.clientTemplates.has(hash)) {
             currentComponentHash = hash
+            clearComponentStateListeners()
             const returnValue = constructor({
                 children: component.children,
                 ...component.props,
