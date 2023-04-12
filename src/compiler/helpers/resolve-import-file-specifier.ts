@@ -20,7 +20,7 @@ export default function resolveImportFileSpecifier(base: string, fileSpecifier: 
     } else if (fileSpecifier.startsWith('.')) {
         fileSpecifier = resolveFile(base, fileSpecifier)
     } else {
-        if (!fileSpecifier.includes('/')) {
+        if ((fileSpecifier.startsWith('@') && fileSpecifier.split('/').length === 2) || !fileSpecifier.includes('/')) {
             const modulePath = resolveProjectRoot('node_modules', fileSpecifier)
             const modulePackageJson = JSON.parse(fs.readFileSync(path.join(modulePath, 'package.json'), 'utf8'))
             const mainPath = modulePackageJson.main ?? modulePackageJson.module ?? 'index'
