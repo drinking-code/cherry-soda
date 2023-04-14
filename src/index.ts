@@ -8,3 +8,6 @@ export {default as Html} from './jsx/dom/builtins/Html'
 export {default as Head} from './jsx/dom/builtins/Head'
 export {default as Body} from './jsx/dom/builtins/Body'
 export {default as Bundle} from './jsx/dom/builtins/Bundle'
+
+import {getOriginalFileContents} from './compiler/client-script/volume'
+export const files = {getOriginalFileContents}

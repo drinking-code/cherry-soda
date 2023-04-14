@@ -26,3 +26,23 @@ hfs.mkdirSync(virtualFilesPath)
 export function getVolume(): Volume {
     return hfs
 }
+
+const associatedFiles: Map<string, string> = new Map()
+const cachedFileContents: Map<string, Buffer | string> = new Map()
+
+export function cacheFileContent(fileName: string, contents: Buffer | string): void {
+    cachedFileContents.set(fileName, contents)
+}
+
+export function associateFile(fileName: string, originalFileName: string): void {
+    associatedFiles.set(fileName, originalFileName)
+}
+
+export function getOriginalFileContents(fileName: string): Buffer | string {
+    return cachedFileContents.get(associatedFiles.get(fileName))
+}
+
+export function addFile(fileName: string, contents: Buffer | string, originalFileName?: string): void {
+    if (originalFileName)
+        associateFile(fileName, originalFileName)
+}

@@ -3,7 +3,7 @@ import path from 'path'
 import {Plugin} from 'esbuild'
 import {BunPlugin} from 'bun'
 import {numberToHex} from '../utils/number-to-string'
-import {getVolume, outputPath} from '../compiler/client-script/volume'
+import {associateFile, cacheFileContent, getVolume, outputPath} from '../compiler/client-script/volume'
 
 interface ImageLoaderOptions {
     emit?: boolean
@@ -37,8 +37,10 @@ export default function imageLoader(options?: ImageLoaderOptions): Plugin | Para
                 // also emits the image (only for the asset compilation)
                 const originalFileName = (args.path.match(/\/[^/]+$/) ?? [])[0]
                 const fileContents = fs.readFileSync(args.path)
+                cacheFileContent(originalFileName, fileContents)
                 const contentHash = numberToHex(Bun.hash(fileContents) as number).substring(0, 8)
                 const newFileName = originalFileName.replace(/\.([^.]+)$/, `-${contentHash}.$1`)
+                associateFile(newFileName, originalFileName)
                 if (options.emit !== false && options.path) {
                     options.fs.mkdirSync(options.path, {recursive: true})
                     options.fs.writeFileSync(path.join(options.path, newFileName), fileContents)
