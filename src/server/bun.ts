@@ -6,7 +6,7 @@ import {getRenderer} from '../renderer/renderer'
  * @param entry Absolute path to entry file
  * */
 export default function cherrySoda(entry): (req: Request) => Promise<Response> {
-    process.env.CHERRY_COLA_ENTRY = entry
+    process.env.CHERRY_SODA_ENTRY = entry
     const {fs, outputPath} = compile(entry, process.env.BUN_ENV === 'development')
     const render = getRenderer()
     let serveStaticListener: (req: Request) => Promise<Response> = serveStatic(outputPath, fs)

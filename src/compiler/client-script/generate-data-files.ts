@@ -9,7 +9,7 @@ import {clientTemplatesToJs, refsToJs} from '../generate-code'
 import {getStateUsagesAsCode} from '../template/state-usage'
 import {getStateListenersAsCode} from '../../state/do-something'
 
-const entryPoint = process.env.CHERRY_COLA_ENTRY
+const entryPoint = process.env.CHERRY_SODA_ENTRY
 export const entryDir = path.dirname(entryPoint)
 import {getVolume, virtualFilesPath} from './volume'
 export {outputPath, getVolume, virtualFilesPath} from './volume'

@@ -6,7 +6,7 @@ import {Volume} from 'memfs/lib/volume'
 import projectRoot, {resolve as resolveProjectRoot} from '../../utils/project-root'
 import {resolve as resolveModuleRoot} from '../../utils/module-root'
 
-const entryPoint = process.env.CHERRY_COLA_ENTRY
+const entryPoint = process.env.CHERRY_SODA_ENTRY
 export const entryDir = path.dirname(entryPoint)
 const mountFromSrc = ['runtime', 'messages', 'utils']
 export const outputPath = '/dist'

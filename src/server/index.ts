@@ -10,7 +10,7 @@ global.count = global.count ?? -1
 global.count++
 
 const serverOptions: Serve = {
-    fetch: cherrySoda(process.env.CHERRY_COLA_ENTRY),
+    fetch: cherrySoda(process.env.CHERRY_SODA_ENTRY),
     port: Number(process.env.PORT),
 }
 
