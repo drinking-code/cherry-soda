@@ -1,6 +1,4 @@
-import fs from 'fs'
-
-import {Volume} from 'memfs/lib/volume'
+import {type Volume} from 'memfs/lib/volume'
 
 import collectAssetsFilePaths, {getAllCurrentFiles} from './assets'
 import bundleVirtualFiles from './bundler'
@@ -31,12 +29,12 @@ async function startWatch(entry: string) {
     global.cherrySoda.compiler.watching = true
     runCompiler(entry)
     getAllCurrentFiles().forEach(filename =>
-        fsPoly.watch(filename, () => runCompiler(entry))
+        fsPoly.watch(filename, runCompiler.bind(null, entry, true))
     )
 }
 
-function runCompiler(entry: string) {
+function runCompiler(entry: string, watch: boolean = false) {
     extractTemplates(entry)
     collectAssetsFilePaths(entry)
-    waitForTemplates().then(bundleVirtualFiles)
+    waitForTemplates().then(bundleVirtualFiles.bind(null, watch))
 }

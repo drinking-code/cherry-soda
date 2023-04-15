@@ -1,10 +1,9 @@
 import path from 'path'
 import fs from 'fs'
 
-import esbuild, {BuildResult} from 'esbuild'
+import esbuild, {type BuildOptions, type BuildResult} from 'esbuild'
 import browserslist from 'browserslist'
 import autoprefixer from 'autoprefixer'
-import {Volume} from 'memfs/lib/volume'
 
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './bundler/use-fs'
@@ -34,21 +33,23 @@ if (!global.cherrySoda)
 if (!global.cherrySoda.compiler)
     global.cherrySoda.compiler = {}
 
-export default async function bundleVirtualFiles(): Promise<Volume> {
+export default async function bundleVirtualFiles(watch: boolean = false): typeof watch extends true ? Promise<void> : Promise<BuildResult> {
+    addMarker('bundler', 'start')
     addMarker('bundler', 'generate-files')
     const hfs = getVolume()
     hfs.writeFileSync(inputFilePath, '')
     generateClientScriptFile()
     generateRefsAndTemplatesFile()
-    addMarker('bundler', 'wait-for-context-start')
-    const esCtx = await global.cherrySoda.compiler.esCtxPromise
-    addMarker('bundler', 'wait-for-context-end')
     addMarker('bundler', 'start-esbuild')
-    if (!global.cherrySoda.compiler.esWatching) {
-        await esCtx.watch()
-        global.cherrySoda.compiler.esWatching = true
+    if (watch) {
+        if (!global.cherrySoda.compiler.esWatching) {
+            global.cherrySoda.compiler.esWatching = true
+            global.cherrySoda.compiler.esCtxPromise ??= esbuild.context(getEsbuildOptions())
+                .then(ctx => ctx.watch())
+        }
+    } else {
+        return esbuild.build(getEsbuildOptions())
     }
-    return hfs
 }
 
 const browserslistEsbuildMap = {
@@ -61,52 +62,53 @@ const browserslistEsbuildMap = {
     'safari': 'safari',
 }
 
-addMarker('bundler', 'start')
 const packageJson = JSON.parse(fs.readFileSync(resolveModuleRoot('package.json'), 'utf8'))
 global.cherrySoda.compiler.esWatching ??= false
-global.cherrySoda.compiler.esCtxPromise ??= esbuild.context({
-    entryPoints: [inputFilePath],
-    inject: [path.join('/', 'runtime', 'index.ts'), stateListenersFilePath, refsAndTemplatesFilePath],
-    outfile: path.join(outputPath, 'main.js'),
-    target: browserslist('> 1%, not dead') // todo: make a changeable option
-        .map(browser => {
-            const browserArray = browser.split(' ')
-            const browserName = browserslistEsbuildMap[browserArray[0]]
-            if (!browserName) return false
-            const browserVersion = browserArray[1].match(/^\d+(\.\d+)?/)[0]
-            return [browserName, browserVersion].join('')
-        })
-        .filter(v => v) as string[],
-    sourcemap: (!isProduction && 'linked') as 'linked' | false,
-    bundle: true,
-    write: false,
-    plugins: [
-        stylePlugin({
-            renderOptions: {
-                sassOptions: {
-                    sourceMap: true,
-                    sourceMapIncludeSources: true,
+
+function getEsbuildOptions(): BuildOptions {
+    return {
+        entryPoints: [inputFilePath],
+        inject: [path.join('/', 'runtime', 'index.ts'), stateListenersFilePath, refsAndTemplatesFilePath],
+        outfile: path.join(outputPath, 'main.js'),
+        target: browserslist('> 1%, not dead') // todo: make a changeable option
+            .map(browser => {
+                const browserArray = browser.split(' ')
+                const browserName = browserslistEsbuildMap[browserArray[0]]
+                if (!browserName) return false
+                const browserVersion = browserArray[1].match(/^\d+(\.\d+)?/)[0]
+                return [browserName, browserVersion].join('')
+            })
+            .filter(v => v) as string[],
+        sourcemap: (!isProduction && 'linked') as 'linked' | false,
+        bundle: true,
+        write: false,
+        plugins: [
+            stylePlugin({
+                renderOptions: {
+                    sassOptions: {
+                        sourceMap: true,
+                        sourceMapIncludeSources: true,
+                    },
                 },
+                postcss: {
+                    plugins: [autoprefixer as AcceptedPlugin]
+                },
+                cssModulesOptions: {
+                    scopeBehaviour: 'local',
+                    generateScopedName: (name, filename) => generateClassName(name, filename),
+                },
+            }),
+            assetLoader(),
+            useFs({fs: getVolume(), defaultImports: packageJson.imports}),
+            {
+                name: 'result-handler',
+                setup(build) {
+                    build.onEnd(handleResult)
+                }
             },
-            postcss: {
-                plugins: [autoprefixer as AcceptedPlugin]
-            },
-            cssModulesOptions: {
-                scopeBehaviour: 'local',
-                generateScopedName: (name, filename) => generateClassName(name, filename),
-            },
-        }),
-        assetLoader(),
-        useFs({fs: getVolume(), defaultImports: packageJson.imports}),
-        {
-            name: 'result-handler',
-            setup(build) {
-                build.onEnd(handleResult)
-            }
-        },
-    ]
-})
-addMarker('bundler', 'context')
+        ]
+    }
+}
 
 let measuredEnd = false
 
