@@ -13,6 +13,7 @@ export default function serveStatic(outputPath: string, fs: { existsSync: Functi
         if (url.pathname === '/' || !fs.existsSync(filePath))
             return new Response('', {status: 404})
 
+        // return new Response(Bun.file(filePath))
         const mimeType = mime.getType(path.extname(url.pathname).substring(1))
         return new Response(fs.readFileSync(filePath), {
             headers: {

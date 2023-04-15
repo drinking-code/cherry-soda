@@ -29,8 +29,8 @@ if (process.env.INTERNAL_DEV === 'true') {
     const serveStaticListener = serveStatic(path.resolve('src', 'compiler', 'profiler'))
     Bun.serve({
         port: 3001,
-        fetch(req) {
-            const res: Response = serveStaticListener(req)
+        async fetch(req) {
+            const res: Response = await serveStaticListener(req)
             if (res.status < 400) return res
             const measurementValues = mapObjectToArray(measurements, ([label, measurementsOfCategory]) => {
                 return mapObjectToArray(measurementsOfCategory, ([marker, measurement]) => measurement)
