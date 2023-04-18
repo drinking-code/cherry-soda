@@ -22,7 +22,7 @@ export function formatMessage<A>(
     message += messageData.makeMessage(...args)
     if (messageData.type.noUserError) {
         message += "\n"
-        message += Array(typeLabel.length + 1).fill(' ').join('')
+        message += ' '.repeat(typeLabel.length + 1)
         message += noUserError
     }
     return message

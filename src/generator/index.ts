@@ -21,4 +21,3 @@ getBundlerReadyPromise()
         })
         // todo: print stats
     })
-

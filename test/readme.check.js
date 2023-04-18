@@ -66,11 +66,11 @@ file.messages.forEach(message => {
 const separatorTotalLength = 32 + 16
 const fillWithSeparator = text => {
     const length = (separatorTotalLength - 2 - text.length) / 2
-    return Array(Math.floor(length)).fill('=').join('') +
+    return '='.repeat(Math.floor(length)) +
         ' ' +
         text +
         ' ' +
-        Array(Math.ceil(length)).fill('=').join('')
+        '='.repeat(Math.ceil(length))
 }
 const fullFilename = path.resolve(filename)
 const fileContentsLines = fileContents.split("\n")
