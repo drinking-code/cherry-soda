@@ -1,9 +1,8 @@
 import {BunPlugin} from 'bun'
 import path from 'path'
 
-import sass from 'sass'
-import postcss from 'postcss'
-import PostcssModulesPlugin from 'postcss-modules'
+import getNames from 'css-modules-extractor'
+
 import generateClassName from '../utils/generate-css-class-name'
 import {addMarker} from '../compiler/profiler'
 
@@ -13,22 +12,15 @@ export default function bunStylePlugin(): Parameters<BunPlugin>[0] {
         setup(builder) {
             builder.onLoad({filter: /\.module\.s?[ac]ss$/}, async args => {
                 addMarker('template', `parse-style-${path.basename(args.path)}-start`)
-                const sassResult = sass.compile(args.path) // todo: this right here tanks startup performance
-                let cssModulesJson
-                await postcss([
-                    PostcssModulesPlugin({
-                        getJSON: (cssFileName, json) => cssModulesJson = json,
-                        scopeBehaviour: 'local',
-                        generateScopedName: (name, filename) =>
-                            generateClassName(name, filename),
-                    })
-                ])
-                    .process(sassResult.css, {from: args.path, to: undefined})
-                    .then()
+                const cssModulesJson = getNames(args.path, {
+                    // scopeBehaviour: 'local',
+                    generateScopedName: (name, filename) =>
+                        generateClassName(name, filename),
+                })
                 addMarker('template', `parse-style-${path.basename(args.path)}-end`)
                 return {
-                    contents: `export default ${JSON.stringify(cssModulesJson)}`,
-                    loader: 'js'
+                    exports: {default: cssModulesJson},
+                    loader: 'object'
                 }
             })
 
