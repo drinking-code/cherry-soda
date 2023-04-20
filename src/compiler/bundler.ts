@@ -3,7 +3,6 @@ import fs from 'fs'
 
 import esbuild, {type BuildOptions, type BuildResult} from 'esbuild'
 import browserslist from 'browserslist'
-import autoprefixer from 'autoprefixer'
 
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './bundler/use-fs'
@@ -90,11 +89,7 @@ function getEsbuildOptions(): BuildOptions {
                         sourceMapIncludeSources: true,
                     },
                 },
-                postcss: {
-                    plugins: [autoprefixer as AcceptedPlugin]
-                },
                 cssModulesOptions: {
-                    scopeBehaviour: 'local',
                     generateScopedName: (name, filename) => generateClassName(name, filename),
                 },
             }),

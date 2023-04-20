@@ -115,6 +115,7 @@ h1 {
     margin-left: .2rem;
 
     color: #ccc;
+    white-space: nowrap;
 
     display: flex;
     align-items: center;

@@ -1,12 +1,10 @@
-import {TextDecoder} from 'util'
 import path from 'path'
 import fs from 'fs'
-import glob from 'glob'
-import {CompileResult, Options as SassOptions} from 'sass'
-import {RenderOptions as StylusOptions} from 'stylus'
-import {AcceptedPlugin, Result} from 'postcss'
-import sass from 'sass'
-import sourceMap, {RawSourceMap} from 'source-map-js'
+
+import sass, {type CompileResult, type Options as SassOptions} from 'sass'
+import {type RenderOptions as StylusOptions} from 'stylus'
+import {type AcceptedPlugin, type Result} from 'postcss'
+import sourceMap, {type RawSourceMap} from 'source-map-js'
 
 export interface RenderOptions {
     sassOptions?: SassOptions<'sync'>
@@ -17,30 +15,33 @@ export interface RenderOptions {
 
 export const getModule = async (moduleName: string) => {
     try {
-        if (moduleName === 'sass') {
-            return sass
-        }
+        if (moduleName === 'sass') return sass
         return (await import(moduleName)).default
     } catch {
         throw new Error(`Missing module. Please install '${moduleName}' package.`)
     }
 }
 
-const renderStylus = async (css: string, options: StylusOptions): Promise<string> => {
-    const stylus = await getModule('stylus')
-    return new Promise((resolve, reject) => {
-        stylus.render(css, options, (err, css) => {
-            if (err) reject(err)
-            resolve(css)
+const renderStylus = (css: string, options: StylusOptions): Promise<string> => {
+    return getModule('stylus')
+        .then((stylus: { render: Function }) => {
+            return new Promise((resolve, reject) => {
+                stylus.render(css, options, (err, css) => {
+                    if (err) reject(err)
+                    resolve(css)
+                })
+            })
         })
-    })
 }
 
-export const renderStyle = async (filePath, options: RenderOptions = {}): Promise<{ css: string, map?: RawSourceMap }> => {
+export function renderStyle(filePath, options: RenderOptions = {}): { css: string, map?: RawSourceMap } | Promise<{
+    css: string,
+    map?: RawSourceMap
+}> {
     const {ext} = path.parse(filePath)
 
     if (ext === '.css') {
-        const contents = (await fs.promises.readFile(filePath)).toString()
+        const contents = fs.readFileSync(filePath, 'utf8')
         const sourceMapGenerator = new sourceMap.SourceMapGenerator({file: filePath})
         sourceMapGenerator.addMapping({
             source: filePath,
@@ -52,44 +53,41 @@ export const renderStyle = async (filePath, options: RenderOptions = {}): Promis
             css: contents,
             map: JSON.parse(sourceMapGenerator.toString())
         }
-    }
-
-    if (ext === '.sass' || ext === '.scss') {
+    } else if (ext === '.sass' || ext === '.scss') {
         const sassOptions = options.sassOptions || {}
-        const sass = await getModule('sass')
-        let result: CompileResult
-        try {
-            result = sass.compile(filePath, {...sassOptions})
-        } catch (e) {
-            console.log(e)
-        }
-        return {
-            css: result?.css ?? '',
-            map: result?.sourceMap,
-        }
-    }
-
-    if (ext === '.styl') {
+        return getModule('sass')
+            .then((sass: { compile: Function }) => {
+                const result: CompileResult = sass.compile(filePath, sassOptions)
+                return {
+                    css: result?.css ?? '',
+                    map: result?.sourceMap,
+                }
+            })
+            .catch(e => {
+                console.error(e)
+                return {css: ''}
+            })
+    } else if (ext === '.styl') {
         const stylusOptions = options.stylusOptions || {}
-        const source = await fs.promises.readFile(filePath)
-        return {
-            css: await renderStylus(new TextDecoder().decode(source), {...stylusOptions, filename: filePath})
-        }
-    }
-
-    if (ext === '.less') {
+        stylusOptions.filename = filePath
+        const source = fs.readFileSync(filePath, 'utf8')
+        return renderStylus(source, stylusOptions)
+            .then(css => ({css}))
+    } else if (ext === '.less') {
         const lestOptions = options.lessOptions || {}
-        const source = await fs.promises.readFile(filePath)
-        const less = await getModule('less')
-        return {
-            css: (await less.render(new TextDecoder().decode(source), {...lestOptions, filename: filePath})).css
-        }
+        lestOptions.filename = filePath
+        const source = fs.readFileSync(filePath, 'utf8')
+        return getModule('less')
+            .then((less: {render: Function}) => less.render(source, lestOptions))
+            .then(result => ({css: result.css}))
     }
 
     throw new Error(`Can't render this style '${ext}'.`)
 }
 
-export const importPostcssConfigFile = async (configFilePath: string | boolean): Promise<{ plugins: AcceptedPlugin[] }> => {
+export const importPostcssConfigFile = async (configFilePath: string | boolean): Promise<{
+    plugins: AcceptedPlugin[]
+}> => {
     let _configFilePath = configFilePath === true ? path.resolve(process.cwd(), 'postcss.config.js') : configFilePath as string
 
     try {
@@ -104,25 +102,27 @@ export const importPostcssConfigFile = async (configFilePath: string | boolean):
     }
 }
 
-export const getPostCSSWatchFiles = (result: Result) => {
-    let watchFiles = [] as string[]
+export const addPostCSSWatchFiles = (fileArray: string[], result: Result) => {
     const {messages} = result
     for (const message of messages) {
-        const {type} = message
-        if (type === 'dependency') {
-            watchFiles.push(message.file)
-        } else if (type === 'dir-dependency') {
+        if (message.type === 'dependency') {
+            fileArray.push(message.file)
+        } else if (message.type === 'dir-dependency') {
             if (!message.dir) continue
-
-            // Can be translated to const globString = message.glob ?? `**/*` but we will use code bellow to support node12
-            // https://node.green/#ES2020-features--nullish-coalescing-operator-----
-            let globString = `**/*`
-            if (message.glob && message.glob !== '') globString = message.glob
-
-            const globPath = path.join(message.dir, globString)
-            const files = glob.globSync(globPath)
-            watchFiles = [...watchFiles, ...files]
+            addFilesRecursive(fileArray, message.dir)
         }
     }
-    return watchFiles
+    return fileArray
+}
+
+function addFilesRecursive(fileArray: string[], dir: string) {
+    const files = fs.readdirSync(dir)
+    for (const file of files) {
+        const fullFilePath = path.join(dir, file)
+        const stat = fs.statSync(fullFilePath)
+        if (stat.isFile())
+            fileArray.push(fullFilePath)
+        else if (stat.isDirectory())
+            addFilesRecursive(fileArray, fullFilePath)
+    }
 }
