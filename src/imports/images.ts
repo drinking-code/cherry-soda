@@ -38,7 +38,7 @@ export default function imageLoader(options?: ImageLoaderOptions): Plugin | Para
                 const originalFileName = (args.path.match(/\/[^/]+$/) ?? [])[0]
                 const fileContents = fs.readFileSync(args.path)
                 cacheFileContent(originalFileName, fileContents)
-                const contentHash = numberToHex(Bun.hash(fileContents) as number).substring(0, 8)
+                const contentHash = numberToHex(Bun.hash(fileContents) as number, 8)
                 const newFileName = originalFileName.replace(/\.([^.]+)$/, `-${contentHash}.$1`)
                 associateFile(newFileName, originalFileName)
                 if (options.emit !== false && options.path) {

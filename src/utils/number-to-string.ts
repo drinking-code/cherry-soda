@@ -7,25 +7,26 @@ const numbers: string = Array(10).fill('')
     .map((v, i) => i.toString())
     .join('')
 
-export function numberToAlphanumeric(number: number): string {
-    const alphabet = numbers + smallLetters + smallLetters.toUpperCase()
-    return numberToString(number, alphabet)
+
+const alphaNumeric = numbers + smallLetters + smallLetters.toUpperCase()
+export function numberToAlphanumeric(number: number, maxLength?: number): string {
+    return numberToString(number, alphaNumeric, maxLength)
 }
 
-export function numberToAlphabetic(number: number): string {
-    const alphabet = smallLetters + smallLetters.toUpperCase()
-    return numberToString(number, alphabet)
+const alphabetic = smallLetters + smallLetters.toUpperCase()
+export function numberToAlphabetic(number: number, maxLength?: number): string {
+    return numberToString(number, alphabetic, maxLength)
 }
 
-export function numberToHex(number: number): string {
-    const alphabet = numbers + smallLetters.slice(0, 6)
-    return numberToString(number, alphabet)
+const hex = numbers + smallLetters.slice(0, 6)
+export function numberToHex(number: number, maxLength?: number): string {
+    return numberToString(number, hex, maxLength)
 }
 
-function numberToString(number: number, alphabet: string): string {
+function numberToString(number: number, alphabet: string, maxLength?: number): string {
     const base = alphabet.length
     let result = ''
-    while (number > 0) {
+    while (number > 0 && (!maxLength || result.length < maxLength)) {
         result += alphabet[number % base]
         number = Math.floor(number / base)
     }
