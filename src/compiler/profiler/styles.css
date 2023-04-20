@@ -77,12 +77,18 @@ h1 {
     transform: translate(-50%);
 }
 
-.time-range {
+.time-ranges {
     position: absolute;
     height: 100%;
+    width: 100%;
 
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 2px;
+}
+
+.time-range {
     background: #444;
-
     z-index: 1;
 }
 

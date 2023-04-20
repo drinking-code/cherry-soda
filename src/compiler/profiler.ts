@@ -73,11 +73,14 @@ if (process.env.INTERNAL_DEV === 'true') {
                 return [`<span>${label}</span>`,
                     `<div class="time-wrapper">
                     <div class="time-main" style="left:${startPercentage}%;right:${100 - endPercentage}%">
-                        ${mapObjectToArray(concatenatedRanges, ([marker, [start, end]]) =>
-                            `<div class="time-range" style="left:${getLocalPercentage(start) * 100}%;right:${100 - getLocalPercentage(end) * 100}%">
-                                <span>${marker}</span>
-                            </div>`
-                        ).join('')}
+                        <div class="time-ranges">
+                            ${mapObjectToArray(concatenatedRanges, ([marker, [start, end]]) =>
+                                `<div class="time-range" style="margin-left:${getLocalPercentage(start) * 100}%;margin-right:${100 - getLocalPercentage(end) * 100}%">
+                                    <span>${marker}</span>
+                                    <span class="time-range-label">${roundToDecimal(end - start, 2)} ms</span>
+                                </div>`
+                            ).join('')}
+                        </div>
                         <span class="time-main-label">${roundToDecimal(measurementDelta, 2)}ms</span>
                         ${mapObjectToArray(additionalMarkers, ([marker, measurement]) =>
                             `<div class="time-marker" style="left:${getLocalPercentage(measurement) * 100}%">
