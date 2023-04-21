@@ -10,7 +10,6 @@ import {assetLoader} from './bundler/asset-loader'
 import stylePlugin from './bundler/style-plugin'
 import generateClassName from '../utils/generate-css-class-name'
 import {addMarker} from './profiler'
-import {AcceptedPlugin} from 'postcss'
 import {
     generateClientScriptFile, generateRefsAndTemplatesFile,
     getVolume,
@@ -93,7 +92,7 @@ function getEsbuildOptions(): BuildOptions {
                     generateScopedName: (name, filename) => generateClassName(name, filename),
                 },
             }),
-            assetLoader(),
+            assetLoader,
             useFs({fs: getVolume(), defaultImports: packageJson.imports}),
             {
                 name: 'result-handler',

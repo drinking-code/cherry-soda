@@ -5,6 +5,7 @@ import chalk from 'chalk'
 import open from 'open'
 
 import cherrySoda from './bun'
+import {waitForTemplates} from '../compiler/template.js'
 
 global.count = global.count ?? -1
 global.count++
@@ -22,6 +23,8 @@ if (!global.server) {
 
 const url = `http://localhost:${process.env.PORT}`
 if (global.count === 0) {
-    console.log(chalk.magenta('dev server: ') + `listening at ${url}`)
-    setTimeout(() => open(url), 200) // todo: execute this after compiler is done (dont have to wait for bundler, serveStatic does this)
+    waitForTemplates().then(() => {
+        console.log(chalk.magenta('dev server: ') + `listening at ${url}`)
+        open(url)
+    })
 }

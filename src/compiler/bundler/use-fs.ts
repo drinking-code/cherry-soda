@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
-import {OnResolveArgs, Plugin} from 'esbuild'
+
+import type {OnResolveArgs, Plugin} from 'esbuild'
 import resolveFile from '../helpers/resolve-file'
 import {isObject} from '../../utils/object'
 

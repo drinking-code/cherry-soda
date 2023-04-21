@@ -55,7 +55,7 @@ async function onStyleResolve(build: PluginBuild, args: OnResolveArgs): Promise<
     if (result.errors.length > 0) return {errors: result.errors}
     const fullPath = result.path
     // Check for pre compiled JS files like file.css.js
-    if (!fullPath.endsWith('.js')) return
+    if (fullPath.endsWith('.js')) return
 
     return {
         path: fullPath,
