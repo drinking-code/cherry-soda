@@ -1,2 +1,2 @@
-export default function (argv) {
+export default function (entry, options) {
 }

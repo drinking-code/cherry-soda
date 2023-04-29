@@ -11,7 +11,7 @@ import dev from './dev.js'
 import projectRoot from '../src/utils/project-root.js'
 import moduleRoot from '../src/utils/module-root.js'
 
-const packageJson = JSON.parse(
+global.cherrySodaPackageJson ??= JSON.parse(
     fs.readFileSync(
         path.join(
             path.dirname((new URL(import.meta.url)).pathname),
@@ -29,8 +29,8 @@ if (!process.env.PORT)
 const program = new Command()
 
 program
-    .name(packageJson.name)
-    .version(packageJson.version)
+    .name(cherrySodaPackageJson.name)
+    .version(cherrySodaPackageJson.version)
 
 program.command('build')
     .description('Build assets for client')
