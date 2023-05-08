@@ -2,7 +2,7 @@ import State, {isState} from '../state/state'
 import {isRef, Ref} from '../state/create-ref'
 import {generateId} from '../utils/random'
 import {filterObject, mapSetToObject} from '../utils/iterate-object'
-import {ElementId, HashType, VirtualElement} from '../jsx/VirtualElement'
+import {type ElementId, type HashType, type VirtualElement} from '../jsx/VirtualElement'
 import {addMarker} from './profiler'
 
 const componentStates: Map<HashType, Array<(State | Ref | Promise<string>)[]>> = new Map()

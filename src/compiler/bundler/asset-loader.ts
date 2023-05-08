@@ -1,6 +1,4 @@
 import {loadFs} from './use-fs'
-import {addMarker} from '../profiler.js'
-import path from 'path'
 
 export const assetLoader = {
     name: 'asset-loader',

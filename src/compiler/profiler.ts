@@ -8,6 +8,7 @@ export type MarkerKeyType = 'parser' | 'asset-collector' | 'template' | 'client-
 export type StartEndType = 'start' | 'end'
 
 const measurements: { [key: MarkerKeyType | string]: { [marker: StartEndType | string]: number } } = {}
+process.env.INTERNAL_DEV = 'false'
 
 export function addMarker(key: MarkerKeyType, marker: StartEndType | string) {
     if (process.env.INTERNAL_DEV !== 'true') return

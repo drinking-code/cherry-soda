@@ -1,5 +1,5 @@
-import {ElementId, HashType} from '../jsx/VirtualElement'
-import {ClientTemplatesMapType} from '../compiler/template/types'
+import {type ElementId, type HashType} from '../jsx/VirtualElement'
+import {type ClientTemplatesMapType} from '../compiler/template/types'
 import {AbstractState} from './abstract-state'
 
 declare const refs: { [refId: string]: ElementId['fullPath'][] }

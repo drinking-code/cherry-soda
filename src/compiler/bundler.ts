@@ -1,10 +1,8 @@
 import path from 'path'
-import fs from 'fs'
 
 import esbuild, {type BuildOptions, type BuildResult} from 'esbuild'
 import browserslist from 'browserslist'
 
-import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {useFs} from './bundler/use-fs'
 import {assetLoader} from './bundler/asset-loader'
 import stylePlugin from './bundler/style-plugin'
@@ -60,7 +58,6 @@ const browserslistEsbuildMap = {
     'safari': 'safari',
 }
 
-const packageJson = JSON.parse(fs.readFileSync(resolveModuleRoot('package.json'), 'utf8'))
 global.cherrySoda.compiler.esWatching ??= false
 
 function getEsbuildOptions(): BuildOptions {
@@ -93,7 +90,7 @@ function getEsbuildOptions(): BuildOptions {
                 },
             }),
             assetLoader,
-            useFs({fs: getVolume(), defaultImports: packageJson.imports}),
+            useFs({fs: getVolume(), defaultImports: global.cherrySodaPackageJson.imports}),
             {
                 name: 'result-handler',
                 setup(build) {

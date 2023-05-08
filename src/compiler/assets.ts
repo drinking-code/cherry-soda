@@ -1,6 +1,7 @@
 // extract styles from components and compile them into a file
 
 import path from 'path'
+import fs from 'fs'
 
 import {styleFilter} from './bundler/style-plugin'
 import {imageFilter} from '../imports/images'
@@ -8,7 +9,6 @@ import {possibleExtensions} from './helpers/resolve-file'
 import {resolve as resolveProjectRoot} from '../utils/project-root'
 import {resolve as resolveModuleRoot} from '../utils/module-root'
 import {addMarker} from './profiler'
-import fs from 'fs'
 import resolveImportFileSpecifier from './helpers/resolve-import-file-specifier'
 
 let mappedStyleFiles: { [fileName: string]: string[] } = {}

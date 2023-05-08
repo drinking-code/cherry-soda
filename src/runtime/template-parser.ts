@@ -1,5 +1,5 @@
 import {makeError, messages as errors} from '../messages/errors'
-import {ClientTemplatesMapType} from '../compiler/template/types'
+import type {ClientTemplatesMapType} from '../compiler/template/types'
 
 type ParserMetadataType<T extends boolean = boolean> = {
     phase: 0 | 1 | 2

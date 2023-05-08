@@ -16,11 +16,11 @@ export default function cherrySoda(entry): (req: Request) => Promise<Response> {
         const res: Response = await serveStaticListener(req)
         if (res.status < 400) return res
         // try {
-            return new Response(render(), {
-                headers: {
-                    "Content-Type": "text/html; charset=utf-8"
-                }
-            })
+        return new Response(render(), {
+            headers: {
+                "Content-Type": "text/html; charset=utf-8"
+            }
+        })
         /*} catch (err) {
             console.error('Error during rendering:')
             console.log(pe.render(err))

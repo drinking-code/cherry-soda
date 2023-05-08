@@ -1,11 +1,13 @@
 // most stupid way to make the alphabet
 const firstLetterCode = 'a'.charCodeAt(0)
-const smallLetters = Array(26).fill('')
-    .map((v, i) => String.fromCharCode(firstLetterCode + i))
-    .join('')
-const numbers: string = Array(10).fill('')
-    .map((v, i) => i.toString())
-    .join('')
+let smallLetters: string = ''
+for (let i = 0; i < 26; i++) {
+    smallLetters += String.fromCharCode(firstLetterCode + i)
+}
+let numbers: string = ''
+for (let i = 0; i < 10; i++) {
+    numbers += i.toString()
+}
 
 
 const alphaNumeric = numbers + smallLetters + smallLetters.toUpperCase()

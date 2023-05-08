@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
-import {Plugin} from 'esbuild'
-import {BunPlugin} from 'bun'
+import {type Plugin} from 'esbuild'
+import {type BunPlugin} from 'bun'
 import {numberToHex} from '../utils/number-to-string'
 import {associateFile, cacheFileContent, getVolume, outputPath} from '../compiler/client-script/volume'
 

@@ -1,5 +1,5 @@
 import {ElementId} from '../jsx/VirtualElement'
-import {mapMapToArray, mapObjectToArray} from '../utils/iterate-object'
+import {iterateMap, iterateObject} from '../utils/iterate-object'
 import {getClientTemplates, getEntryHash} from './template'
 
 const wrapQuoteIfStartsWithNumber = value => value.match(/^[0-9]/) ? `"${value}"` : value
@@ -7,7 +7,7 @@ const wrapQuoteIfStartsWithNumber = value => value.match(/^[0-9]/) ? `"${value}"
 export function refsToJs(refs: { [refId: string]: ElementId['fullPath'][] }): string {
     let code = ''
     code += 'export const refs = {'
-    mapObjectToArray(refs, ([refId, refPaths]) => {
+    iterateObject(refs, ([refId, refPaths]) => {
         code += wrapQuoteIfStartsWithNumber(refId)
         code += ': ['
         refPaths.forEach(refPath => {
@@ -30,7 +30,7 @@ export function refsToJs(refs: { [refId: string]: ElementId['fullPath'][] }): st
 export function clientTemplatesToJs(): string {
     let code = ''
     code += 'export const templates = {'
-    mapMapToArray(getClientTemplates(), ([componentId, template]) => {
+    iterateMap(getClientTemplates(), ([componentId, template]) => {
         code += wrapQuoteIfStartsWithNumber(componentId)
         code += ':'
         code += `'${template.replace(/(['"])/g, '\\$1')}'`

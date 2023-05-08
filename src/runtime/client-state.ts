@@ -1,5 +1,4 @@
-import {HashType} from '../jsx/VirtualElement'
-import {ContextType} from '../compiler/template/state-usage'
+import {type HashType} from '../jsx/VirtualElement'
 import {AbstractState} from './abstract-state'
 import {getStateListenerCleanupMap} from './state-listener'
 import {updateStateUsages} from './state-usage'

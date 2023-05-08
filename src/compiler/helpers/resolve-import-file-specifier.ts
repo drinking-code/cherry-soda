@@ -7,7 +7,7 @@ import {resolve as resolveModuleRoot} from '../../utils/module-root'
 import {printWarning, messages as warningMessages} from '../../messages/warnings'
 
 const projectPackageJson = JSON.parse(fs.readFileSync(resolveProjectRoot('package.json'), 'utf8'))
-const modulePackageJson = JSON.parse(fs.readFileSync(resolveModuleRoot('package.json'), 'utf8'))
+const modulePackageJson = global.cherrySodaPackageJson
 
 export default function resolveImportFileSpecifier(base: string, fileSpecifier: string) {
     if (fileSpecifier.startsWith('#')) {

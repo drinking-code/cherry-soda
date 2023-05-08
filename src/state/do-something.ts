@@ -104,14 +104,10 @@ export function getStateListenersAsCode(): { [fileName: string]: string } {
         mainFile += `import {states as states_${id}} from './${componentFileName}'` + newLine
         mainFile += `${stateListenersParametersName}.set('${id}', states_${id});` + newLine
         files[componentFileName] = componentFile
-        // console.log()
-        // console.log(componentFile)
     })
     mainFile += `export {${stateListenersName}};` + newLine
     mainFile += `export {${stateListenersParametersName}};`
     // return code
     files[stateListenersFileName] = mainFile
-    // console.log()
-    // console.log(mainFile)
     return files
 }

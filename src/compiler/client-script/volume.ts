@@ -1,7 +1,7 @@
 import path from 'path'
 
 import createHybridFs from 'hybridfs'
-import {Volume} from 'memfs/lib/volume'
+import {type Volume} from 'memfs/lib/volume'
 
 import projectRoot, {resolve as resolveProjectRoot} from '../../utils/project-root'
 import {resolve as resolveModuleRoot} from '../../utils/module-root'
@@ -12,18 +12,23 @@ const mountFromSrc = ['runtime', 'messages', 'utils']
 export const outputPath = '/dist'
 export const virtualFilesPath = '/_virtual-files'
 
-export const hfsEntryDir = entryDir.replace(projectRoot, '')
+let hfsEntryDir = entryDir.replace(projectRoot, '')
+if (!hfsEntryDir.startsWith('/'))
+    hfsEntryDir = '/' + hfsEntryDir
+export {hfsEntryDir}
 
-const hfs: Volume = createHybridFs([
-    [resolveProjectRoot('node_modules'), '/node_modules'],
-    [entryDir, hfsEntryDir],
-    ...mountFromSrc.map(dir => [resolveModuleRoot('src', dir), '/' + dir]),
-])
-
-hfs.mkdirSync(outputPath)
-hfs.mkdirSync(virtualFilesPath)
+let hfs: Volume
 
 export function getVolume(): Volume {
+    if (!hfs) {
+        hfs = createHybridFs([
+            [resolveProjectRoot('node_modules'), '/node_modules'],
+            [entryDir, hfsEntryDir],
+            ...mountFromSrc.map(dir => [resolveModuleRoot('src', dir), '/' + dir]),
+        ])
+        hfs.mkdirSync(outputPath)
+        hfs.mkdirSync(virtualFilesPath)
+    }
     return hfs
 }
 

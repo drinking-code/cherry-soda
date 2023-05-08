@@ -1,4 +1,4 @@
-import {BunPlugin} from 'bun'
+import {type BunPlugin} from 'bun'
 import path from 'path'
 
 import getNames from 'css-modules-extractor'

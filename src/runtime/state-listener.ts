@@ -1,6 +1,6 @@
-import {HashType} from '../jsx/VirtualElement'
-import {State, StateChangeHandlerType} from './client-state'
-import {Ref} from './dom'
+import {type HashType} from '../jsx/VirtualElement'
+import {State, type StateChangeHandlerType} from './client-state'
+import {type Ref} from './dom'
 
 declare const stateListeners: Map<HashType, StateChangeHandlerType[]>
 declare const stateListenersParameters: Map<HashType, (State | Ref<any>)[][]>

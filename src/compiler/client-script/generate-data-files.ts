@@ -1,6 +1,5 @@
 import path from 'path'
 
-import projectRoot from '../../utils/project-root'
 import {iterateObject} from '../../utils/iterate-object'
 import {addMarker} from '../profiler'
 import {getRefs} from '../states-collector'
@@ -10,21 +9,25 @@ import {getStateUsagesAsCode} from '../template/state-usage'
 import {getStateListenersAsCode} from '../../state/do-something'
 
 const entryPoint = process.env.CHERRY_SODA_ENTRY
-export const entryDir = path.dirname(entryPoint)
+import {entryDir, hfsEntryDir} from './volume'
+export {entryDir}
 import {getVolume, virtualFilesPath} from './volume'
 export {outputPath, getVolume, virtualFilesPath} from './volume'
 export const stateListenersFileName = 'state-listeners.js'
 export const stateListenersFilePath = path.join(virtualFilesPath, stateListenersFileName)
 export const refsAndTemplatesFilePath = path.join(virtualFilesPath, 'refs-and-templates.js')
 
-export const hfsEntryDir = entryDir.replace(projectRoot, '')
-
 const newLine = "\n"
 
 export async function generateClientScriptFile() {
     let inputFile = ''
     const hfs = getVolume()
-    inputFile += getAssetsFilePaths().map(path => `import '${path}'`).join(newLine)
+    getAssetsFilePaths().forEach(path => {
+        if (!path.startsWith('/'))
+            path = '/' + path
+        inputFile += `import '${path}'`
+        inputFile += newLine
+    })
     inputFile += newLine
     iterateObject(getStateListenersAsCode(), ([fileName, fileContents]) => {
         if (fileName === stateListenersFileName) {

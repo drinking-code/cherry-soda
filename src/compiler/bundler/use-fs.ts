@@ -22,7 +22,7 @@ export function useFs(options: UseFsOptions): Plugin {
     optionsStorage = options
     const resolveFileExt = filePath => resolveFile(path.dirname(filePath), path.basename(filePath), options.fs)
     return {
-        name: 'image-loader',
+        name: 'use-fs',
         setup(builder) {
             builder.onResolve({filter: /^(\.\.?)?\//}, args => {
                 if (['./', '../'].some(prefix => args.path.startsWith(prefix))) {
