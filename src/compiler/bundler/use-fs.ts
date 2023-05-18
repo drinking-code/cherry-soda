@@ -36,6 +36,7 @@ export function useFs(options: UseFsOptions): Plugin {
                 }
             })
             builder.onResolve({filter: /^[a-z]/}, args => {
+                if (args.path.startsWith('data:')) return
                 if (args.path.match(/^https?:\/\//)) return
                 const packageDir = path.join('/node_modules', args.path)
                 const packageJsonPath = path.join(packageDir, 'package.json')

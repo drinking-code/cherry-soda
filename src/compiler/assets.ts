@@ -15,7 +15,7 @@ let mappedStyleFiles: { [fileName: string]: string[] } = {}
 const fileContents: { [fileName: string]: string } = {}
 let changedFiles: string[]
 
-export default async function collectAssetsFilePaths(entry: string): Promise<string[]> {
+export default function collectAssetsFilePaths(entry: string): Promise<string[]> {
     // todo: separate critical from non critical styles
     /* or into a level system:
     * 0: critical css      - must be immediately available

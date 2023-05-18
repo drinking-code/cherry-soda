@@ -25,7 +25,7 @@ if (!global.cherrySoda.compiler)
 
 global.cherrySoda.compiler.watching ??= false
 
-async function startWatch(entry: string) {
+function startWatch(entry: string) {
     global.cherrySoda.compiler.watching = true
     runCompiler(entry, true)
     getAllCurrentFiles().forEach(filename =>

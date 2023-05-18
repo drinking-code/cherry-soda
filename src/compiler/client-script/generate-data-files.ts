@@ -19,7 +19,7 @@ export const refsAndTemplatesFilePath = path.join(virtualFilesPath, 'refs-and-te
 
 const newLine = "\n"
 
-export async function generateClientScriptFile() {
+export function generateClientScriptFile() {
     let inputFile = ''
     const hfs = getVolume()
     getAssetsFilePaths().forEach(path => {

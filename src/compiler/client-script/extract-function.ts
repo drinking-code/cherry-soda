@@ -24,7 +24,7 @@ export function getLexicalScope(id: HashType, index: number) {
     return lexicalScopes[id][index]
 }
 
-export async function extractFunction(
+export function extractFunction(
     {functionName, filePath, line, column}: { functionName: string, filePath: string, line: number, column: number }
 ) {
     if (!parser)

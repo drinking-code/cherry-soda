@@ -29,7 +29,7 @@ if (!global.cherrySoda)
 if (!global.cherrySoda.compiler)
     global.cherrySoda.compiler = {}
 
-export default async function bundleVirtualFiles(watch: boolean = false): typeof watch extends true ? Promise<void> : Promise<BuildResult> {
+export default function bundleVirtualFiles(watch: boolean = false): typeof watch extends true ? Promise<void> : Promise<BuildResult> {
     addMarker('bundler', 'start')
     addMarker('bundler', 'generate-files')
     const hfs = getVolume()

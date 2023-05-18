@@ -10,7 +10,7 @@ export default function bunStylePlugin(): Parameters<BunPlugin>[0] {
     return {
         name: 'bun-style-plugin',
         setup(builder) {
-            builder.onLoad({filter: /\.module\.s?[ac]ss$/}, async args => {
+            builder.onLoad({filter: /\.module\.s?[ac]ss$/}, args => {
                 addMarker('template', `parse-style-${path.basename(args.path)}-start`)
                 const cssModulesJson = getNames(args.path, {
                     // scopeBehaviour: 'local',
@@ -24,7 +24,7 @@ export default function bunStylePlugin(): Parameters<BunPlugin>[0] {
                 }
             })
 
-            builder.onLoad({filter: /\.s?[ac]ss$/}, async args => {
+            builder.onLoad({filter: /\.s?[ac]ss$/}, args => {
                 return {
                     contents: '',
                     loader: 'js'
