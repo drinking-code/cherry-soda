@@ -107,13 +107,11 @@ function handleResult(result: BuildResult) {
     const hfs = getVolume()
     const virtualFilesDirName = virtualFilesPath.replace(/\//g, '')
     const matchFileComment = new RegExp(`^( *// ).+?(/${virtualFilesDirName}/.+)$`, 'gm')
-    result.outputFiles?.forEach(({path, contents}) => {
-        hfs.writeFileSync(path, path.endsWith('.js')
-            ? new TextDecoder().decode(contents)
-                .replace(matchFileComment, (match, insetComment, module) => {
-                    return insetComment + moduleToFileNameMap.get(module)
-                })
-            : contents)
+    result.outputFiles?.forEach(outfile => {
+        hfs.writeFileSync(outfile.path, outfile.path.endsWith('.js')
+            ? outfile.text.replace(matchFileComment, (match, insetComment, module) => {
+                return insetComment + moduleToFileNameMap.get(module)
+            }) : outfile.contents)
     })
     if (!measuredEnd) {
         resolveBundlerReadyPromise()
