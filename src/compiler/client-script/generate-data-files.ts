@@ -14,6 +14,7 @@ export {entryDir}
 import {getVolume, virtualFilesPath} from './volume'
 export {outputPath, getVolume, virtualFilesPath} from './volume'
 export const stateListenersFileName = 'state-listeners.js'
+export const callbacksFileName = 'callbacks.js'
 export const stateListenersFilePath = path.join(virtualFilesPath, stateListenersFileName)
 export const refsAndTemplatesFilePath = path.join(virtualFilesPath, 'refs-and-templates.js')
 
@@ -22,10 +23,10 @@ const newLine = "\n"
 export function generateClientScriptFile() {
     let inputFile = ''
     const hfs = getVolume()
-    getAssetsFilePaths().forEach(path => {
-        if (!path.startsWith('/'))
-            path = '/' + path
-        inputFile += `import '${path}'`
+    getAssetsFilePaths().forEach(filePath => {
+        if (!filePath.startsWith('/'))
+            filePath = '/' + filePath
+        inputFile += `import '${filePath}'`
         inputFile += newLine
     })
     inputFile += newLine

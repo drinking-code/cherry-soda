@@ -1,3 +1,5 @@
+import path from 'path'
+
 import {getClientState, type State as ClientState} from '../runtime/client-state'
 import State from './state'
 import {isRef, Ref} from './create-ref'
@@ -8,8 +10,8 @@ import {findNode} from '../runtime'
 import {getCallerPosition} from '../utils/get-caller-position'
 import {extractFunction} from '../compiler/client-script/extract-function'
 import {getStringifiedLexicalScope} from '../compiler/client-script/stringify-scope'
-import {entryDir, stateListenersFileName} from '../compiler/client-script/generate-data-files'
-import path from 'path'
+import {entryDir, stateListenersFileName, callbacksFileName} from '../compiler/client-script/generate-data-files'
+import {numberToAlphanumeric} from '../utils/number-to-string'
 
 export type StateOrRefType = State | Ref
 type StateType = State
@@ -40,7 +42,9 @@ export default function doSomething<States extends StateOrRefType[]>(callback: S
     extractFunction(getCallerPosition(2))
 }
 
-const stateListeners: Map<HashType, StateListenerType<any>[]> = new Map()
+const stateListeners: Map<HashType, HashType[]> = new Map()
+const callbacks: Map<HashType, StateListenerType<any>> = new Map()
+const callbackHashToComponentHashMap: Map<HashType, [HashType, number]> = new Map()
 const stateListenersParameters: Map<HashType, StateOrRefType[][]> = new Map()
 
 function includeStateListener(callback: StateListenerType<any>, statesAndRefs: StateOrRefType[]) {
@@ -49,7 +53,12 @@ function includeStateListener(callback: StateListenerType<any>, statesAndRefs: S
         stateListeners.set(id, [])
     if (!stateListenersParameters.has(id))
         stateListenersParameters.set(id, [])
-    stateListeners.get(id).push(callback)
+    const callbackHash = numberToAlphanumeric(Bun.hash(callback.toString()) as number)
+    if (!callbacks.has(callbackHash))
+        callbacks.set(callbackHash, callback)
+    if (!callbackHashToComponentHashMap.has(callbackHash))
+        callbackHashToComponentHashMap.set(callbackHash, [id, stateListeners.get(id).length])
+    stateListeners.get(id).push(callbackHash)
     stateListenersParameters.get(id).push(statesAndRefs)
 }
 
@@ -69,22 +78,34 @@ export function getStateListenersAsCode(): { [fileName: string]: string } {
     mainFile += `const ${stateListenersName} = new Map();` + newLine
     mainFile += `const ${stateListenersParametersName} = new Map();` + newLine
     const files: { [fileName: string]: string } = {}
+    let callbackFile = ''
+    callbacks.forEach((callback, hash) => {
+        const [id, index] = callbackHashToComponentHashMap.get(hash)
+        callbackFile += `let _${hash};`
+        callbackFile += '{'
+        callbackFile += getStringifiedLexicalScope(
+            id, Number(index),
+            importPath => path.join(entryDir, importPath)
+        ) + ';' + newLine
+        callbackFile += `_${hash} = ${callback.toString()}`
+        callbackFile += '}'
+        callbackFile += `export {_${hash}}`
+    })
     stateListeners.forEach((callbacks, id) => {
         const componentFileName = `${id}.js`
         let componentFile = ''
         const statesAndRefArrays = stateListenersParameters.get(id)
         let stringifiedCallbacks = '['
+        let componentFileImportNames = ''
         for (const index in callbacks) {
-            // todo: put lexical stuff here
-            componentFile += getStringifiedLexicalScope(
-                id, Number(index),
-                importPath => path.join(entryDir, importPath)
-            ) + newLine
-            stringifiedCallbacks += callbacks[index].toString()
+            componentFileImportNames += '_' + callbacks[index]
+            componentFileImportNames += ','
+            stringifiedCallbacks += `_${callbacks[index]}`
             stringifiedCallbacks += ','
         }
         stringifiedCallbacks += ']'
-        componentFile += 'export const callbacks = ' + stringifiedCallbacks + newLine
+        componentFile += `import {${componentFileImportNames}} from './${callbacksFileName}'` + newLine
+        componentFile += `export const callbacks = ${stringifiedCallbacks}` + newLine
         mainFile += `import {callbacks as callbacks_${id}} from './${componentFileName}'` + newLine
         mainFile += `${stateListenersName}.set('${id}', callbacks_${id});` + newLine
         componentFile += 'export const states = ['
@@ -107,7 +128,8 @@ export function getStateListenersAsCode(): { [fileName: string]: string } {
     })
     mainFile += `export {${stateListenersName}};` + newLine
     mainFile += `export {${stateListenersParametersName}};`
-    // return code
     files[stateListenersFileName] = mainFile
+    files[callbacksFileName] = callbackFile
+
     return files
 }

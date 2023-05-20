@@ -110,7 +110,7 @@ async function onStyleLoad(options: PluginOptions, args: OnLoadArgs): Promise<On
     let watchFiles = []
     let mapping = {data: {}}
     const processOptions = options.postcss ?? {} as PostCSS
-    let plugins = [...processOptions.plugins]
+    let plugins = processOptions.plugins ? [...processOptions.plugins] : []
 
     // Match file with extension .module. => styles.module.sass
     if (isCSSModule) {
