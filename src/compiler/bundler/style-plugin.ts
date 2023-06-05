@@ -1,9 +1,13 @@
 import path from 'path'
+import os from 'os'
+import fs from 'fs'
 
 import {type FileImporter} from 'sass'
-import postcss, {type AcceptedPlugin, type ProcessOptions} from 'postcss'
+import postcss, {type SourceMap, type AcceptedPlugin, type ProcessOptions} from 'postcss'
 import cssModules from 'postcss-modules'
 import type {OnLoadArgs, OnLoadResult, OnResolveArgs, OnResolveResult, PluginBuild} from 'esbuild'
+import {type RawSourceMap} from 'source-map-js'
+import resolveUrlLoader from 'resolve-url-loader'
 
 import type CssModulesOptions from './style-plugin-css-modules-options'
 import {addPostCSSWatchFiles, importPostcssConfigFile, type RenderOptions, renderStyle} from './style-plugin-render'
@@ -38,7 +42,7 @@ const handleCSSModules = (mapping: { data: any }, cssModulesOptions: CssModulesO
             if (typeof _getJSON === 'function') _getJSON(cssFilename, json, outputFilename)
             mapping.data = JSON.stringify(json, null, 2)
         }
-    })
+    } as Parameters<cssModules>[0])
 }
 
 async function onStyleResolve(build: PluginBuild, args: OnResolveArgs): Promise<OnResolveResult> {
@@ -115,7 +119,25 @@ async function onStyleLoad(options: PluginOptions, args: OnLoadArgs): Promise<On
     // Match file with extension .module. => styles.module.sass
     if (isCSSModule) {
         plugins ??= []
-        plugins.unshift(handleCSSModules(mapping, cssModulesOptions))
+        plugins.unshift(handleCSSModules(mapping, cssModulesOptions) as AcceptedPlugin)
+    }
+    if (true) {
+        let res
+        const waitForLoader: Promise<[Error | null, string | Buffer, RawSourceMap | undefined, any]> = new Promise(r => res = r)
+        resolveUrlLoader.call({
+            fs,
+            resourcePath: args.path,
+            context: path.dirname(args.path),
+            cacheable: () => 0, // todo
+            async: () => (error, content, sourceMap, meta) => res([error, content, sourceMap, meta]),
+            sourceMap: true
+        }, css, map)
+        let [err, content, sourceMap] = await waitForLoader
+        if (Buffer.isBuffer(content))
+            content = (new TextDecoder('utf-8')).decode(content)
+        css = content
+        if (sourceMap)
+            map = sourceMap
     }
 
     addMarker('bundler', `postcss-${path.basename(args.path)}`)

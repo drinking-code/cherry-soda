@@ -66,6 +66,7 @@
     "ora": "^6.3.0",
     "postcss": "^8.4.21",
     "postcss-modules": "^6.0.0",
+    "resolve-url-loader": "^5.0.0",
     "sass": "^1.55.0",
     "shrink-ray-current": "^4.1.3"
   },
