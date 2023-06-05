@@ -33,6 +33,7 @@ export function getStateUsagesAsCode() {
     code += `const ${stateUsagesName} = new Map();` + newLine
     code += `const ${stateUsagesParametersName} = new Map();` + newLine
     code += `const ${stateUsagesContextsName} = new Map();` + newLine
+    code += 'setTimeout(() => {' + newLine
     const stateStateUsagesMap = {}
     stateUsages.forEach((usage: StateUsage<any>, key: string) => {
         if (!usage.states.some(stateIsListenedTo)) return
@@ -56,6 +57,7 @@ export function getStateUsagesAsCode() {
         code += `${stateUsagesContextsName}.set('${key}', ${stateUsageContexts});` + newLine // todo: minify
         code += '}' + newLine
     })
+    code += '})' + newLine
     code += `export {${stateUsagesName}};` + newLine
     code += `export {${stateUsagesParametersName}};` + newLine
     code += `export {${stateUsagesContextsName}};` + newLine
