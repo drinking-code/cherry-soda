@@ -12,12 +12,6 @@
 
     "allowJs": true,
 
-    "types": ["bun-types", "jest"],
     "allowSyntheticDefaultImports": true,
-
-    "paths": {
-      "#cherry-soda": ["./src/index.ts"],
-      "#messages/colors": ["./src/messages/colors.bun.ts"],
-    }
   }
 }
