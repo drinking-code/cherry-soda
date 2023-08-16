@@ -1,6 +1,6 @@
-import './index.css'
-import App from './App'
+import {mount} from '#cherry-soda'
 
-export function main() {
-    return <App/>
-}
+import App from './App.js'
+import './index.css'
+
+mount(<App/>, document.querySelector('#app'))

@@ -12,6 +12,6 @@
 
     "allowJs": true,
 
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true
   }
 }

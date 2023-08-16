@@ -120,7 +120,7 @@ also need to pass in the array.
 Inside [`doSomething()`](#dosomething) a ref will be the actual node of the DOM. States can also be passed in the
 dependency array. A state will be passed to the function as an array of the state value and a function to change the
 state.  
-Here is an [example](/example/counter/App.jsx) to illustrate all those features:
+Here is an [example](/example/counter/App.tsx) to illustrate all those features:
 
 ```javascript
 import {createRef, createState, doSomething} from 'cherry-soda'
