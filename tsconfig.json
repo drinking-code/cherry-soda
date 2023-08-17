@@ -11,7 +11,10 @@
     "jsxImportSource": "src",
 
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
 
-    "allowSyntheticDefaultImports": true
+    "paths": {
+      "#cherry-soda": ["./src/index.ts"],
+    }
   }
 }

@@ -1,10 +1,12 @@
+import {render} from '#cherry-soda'
+
 import logo from './logo.svg'
 import logoLettering from './logo-lettering.svg'
 import './App.css'
 
 export default function App() {
-    return (
-        <div className={'App'}>
+    render(
+        <>
             <div className={'App-logo'}>
                 <img src={logo} className={'App-logo-animated'} alt={'logo'}/>
                 <img src={logoLettering} alt={'logo-lettering'}/>
@@ -19,6 +21,6 @@ export default function App() {
             >
                 Read the docs.
             </a>
-        </div>
+        </>
     )
 }

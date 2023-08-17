@@ -1,6 +1,6 @@
 import {mount} from '#cherry-soda'
 
-import App from './App.js'
 import './index.css'
+import App from './App'
 
 mount(<App/>, document.querySelector('#app'))

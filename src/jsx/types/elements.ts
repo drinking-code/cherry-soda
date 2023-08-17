@@ -1,5 +1,6 @@
 import type {HTMLAttributes} from './html-attr'
 import type {SVGAttributes} from './svg-attr'
+import type VNode from '../vNode'
 
 export interface IntrinsicElements {
     // HTML
@@ -182,30 +183,7 @@ export interface IntrinsicElements {
     view: SVGAttributes<SVGViewElement>;
 }
 
-export interface VNode<P = {}> {
-    type: FunctionComponent<P> | string;
-    props: P & {children: ComponentChildren};
-    /**
-     * ref is not guaranteed by React.ReactElement, for compatibility reasons
-     * with popular react libs we define it as optional too
-     */
-    ref?: string | null;
-    /**
-     * The time this `vnode` started rendering. Will only be set when
-     * the devtools are attached.
-     * Default value: `0`
-     */
-    startTime?: number;
-    /**
-     * The time that the rendering of this `vnode` was completed. Will only be
-     * set when the devtools are attached.
-     * Default value: `-1`
-     */
-    endTime?: number;
-}
-
-export interface Element extends VNode<any> {
-}
+export type Element = VNode
 
 export type ComponentChild =
     | VNode<any>
@@ -218,11 +196,8 @@ export type ComponentChild =
     | undefined;
 export type ComponentChildren = ComponentChild[] | ComponentChild;
 
-export type RenderableProps<P, RefType = any> = P &
-    Readonly<{children?: ComponentChildren; ref?: string}>;
-
 export interface FunctionComponent<P = {}> {
-    (props: RenderableProps<P>, context?: any): VNode<any> | null;
+    (props: P & Readonly<{children?: ComponentChildren; ref?: string}>, context?: any): void | any;
 
     displayName?: string;
     defaultProps?: Partial<P> | undefined;

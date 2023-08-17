@@ -16,8 +16,9 @@
     "./jsx-runtime": "./src/jsx-runtime.ts",
     "./jsx-dev-runtime": "./src/jsx-dev-runtime.ts"
   },
-  "imports": {},
-  "scripts": {},
+  "imports": {
+    "#cherry-soda": "./src/index.ts"
+  },
   "bin": {
     "cherry-soda": "cli/index"
   },
@@ -27,10 +28,12 @@
     "css": "onimportcss"
   },
   "dependencies": {
-    "commander": "^11.0.0"
+    "commander": "^11.0.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.5.0",
+    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
     "eslint": "^8.47.0",

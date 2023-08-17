@@ -1,7 +1,13 @@
 // Users who only use Preact for SSR might not specify "dom" in their lib in tsconfig.json
 /// <reference lib="dom" />
 
-import {IntrinsicElements as _IntrinsicElements} from './elements'
+import {
+    IntrinsicElements as _IntrinsicElements,
+    FunctionComponent as _FunctionComponent,
+    ComponentChildren as _ComponentChildren,
+    Element as _Element,
+    ElementType as _ElementType,
+} from './elements'
 
 type Defaultize<Props, Defaults> =
 // Distribute over unions
@@ -34,4 +40,8 @@ export namespace JSXInternal {
     }
 
     export type IntrinsicElements = _IntrinsicElements
+    export type FunctionComponent = _FunctionComponent
+    export type ComponentChildren = _ComponentChildren
+    export type Element = _Element
+    export type ElementType = _ElementType
 }
