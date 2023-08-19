@@ -1,6 +1,6 @@
 import type {HTMLAttributes} from './html-attr'
 import type {SVGAttributes} from './svg-attr'
-import type VNode from '../vNode'
+import type VNode from '../VNode'
 
 export interface IntrinsicElements {
     // HTML

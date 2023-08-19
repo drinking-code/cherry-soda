@@ -2,7 +2,9 @@ import {render} from '#cherry-soda'
 
 import styles from './App.module.scss'
 
-const state = (initialValue: any, methods: Record<string, Function>): typeof methods => methods
+const state = (initialValue: any, methods: Record<string, Function>): {
+    [key in keyof typeof methods]: () => void
+} => Object.fromEntries(Object.entries(methods).map(([key]) => [key, () => 0]))
 
 export default function App() {
     const count = state(0, {
@@ -16,8 +18,8 @@ export default function App() {
         <button className={styles.button} ref={'add-button'}>+</button>
     </>
 
-    // tree.get('@add-button').on.click(count.increase)
-    // tree.get('@subtract-button').on.click(count.decrease)
+    tree.getByRef('add-button').on.click(count.increase)
+    tree.getByRef('subtract-button').on.click(count.decrease)
 
     render(tree)
 }

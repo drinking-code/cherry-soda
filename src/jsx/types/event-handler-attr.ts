@@ -15,230 +15,273 @@ import type {
     WheelEventHandler
 } from './events'
 
-export interface PreactDOMAttributes {
+export interface DOMAttributes {
     children?: ComponentChildren;
     dangerouslySetInnerHTML?: {
         __html: string;
     };
 }
 
-export interface DOMAttributes<Target extends EventTarget> extends PreactDOMAttributes {
+export enum DOMEvents {
     // Image Events
-    onLoad?: GenericEventHandler<Target> | undefined;
-    onLoadCapture?: GenericEventHandler<Target> | undefined;
-    onError?: GenericEventHandler<Target> | undefined;
-    onErrorCapture?: GenericEventHandler<Target> | undefined;
+    load = 'load',
+    error = 'error',
 
     // Clipboard Events
-    onCopy?: ClipboardEventHandler<Target> | undefined;
-    onCopyCapture?: ClipboardEventHandler<Target> | undefined;
-    onCut?: ClipboardEventHandler<Target> | undefined;
-    onCutCapture?: ClipboardEventHandler<Target> | undefined;
-    onPaste?: ClipboardEventHandler<Target> | undefined;
-    onPasteCapture?: ClipboardEventHandler<Target> | undefined;
+    copy = 'copy',
+    cut = 'cut',
+    paste = 'paste',
 
     // Composition Events
-    onCompositionEnd?: CompositionEventHandler<Target> | undefined;
-    onCompositionEndCapture?: CompositionEventHandler<Target> | undefined;
-    onCompositionStart?: CompositionEventHandler<Target> | undefined;
-    onCompositionStartCapture?: CompositionEventHandler<Target> | undefined;
-    onCompositionUpdate?: CompositionEventHandler<Target> | undefined;
-    onCompositionUpdateCapture?: CompositionEventHandler<Target> | undefined;
+    compositionEnd = 'compositionEnd',
+    compositionStart = 'compositionStart',
+    compositionUpdate = 'compositionUpdate',
 
     // Details Events
-    onToggle?: GenericEventHandler<Target> | undefined;
+    toggle = 'toggle',
 
     // Dialog Events
-    onClose?: GenericEventHandler<Target> | undefined;
-    onCancel?: GenericEventHandler<Target> | undefined;
+    close = 'close',
+    cancel = 'cancel',
 
     // Focus Events
-    onFocus?: FocusEventHandler<Target> | undefined;
-    onFocusCapture?: FocusEventHandler<Target> | undefined;
-    onfocusin?: FocusEventHandler<Target> | undefined;
-    onfocusinCapture?: FocusEventHandler<Target> | undefined;
-    onfocusout?: FocusEventHandler<Target> | undefined;
-    onfocusoutCapture?: FocusEventHandler<Target> | undefined;
-    onBlur?: FocusEventHandler<Target> | undefined;
-    onBlurCapture?: FocusEventHandler<Target> | undefined;
+    focus = 'focus',
+    focusin = 'focusin',
+    focusout = 'focusout',
+    blur = 'blur',
 
     // Form Events
-    onChange?: GenericEventHandler<Target> | undefined;
-    onChangeCapture?: GenericEventHandler<Target> | undefined;
-    onInput?: GenericEventHandler<Target> | undefined;
-    onInputCapture?: GenericEventHandler<Target> | undefined;
-    onBeforeInput?: GenericEventHandler<Target> | undefined;
-    onBeforeInputCapture?: GenericEventHandler<Target> | undefined;
-    onSearch?: GenericEventHandler<Target> | undefined;
-    onSearchCapture?: GenericEventHandler<Target> | undefined;
-    onSubmit?: GenericEventHandler<Target> | undefined;
-    onSubmitCapture?: GenericEventHandler<Target> | undefined;
-    onInvalid?: GenericEventHandler<Target> | undefined;
-    onInvalidCapture?: GenericEventHandler<Target> | undefined;
-    onReset?: GenericEventHandler<Target> | undefined;
-    onResetCapture?: GenericEventHandler<Target> | undefined;
-    onFormData?: GenericEventHandler<Target> | undefined;
-    onFormDataCapture?: GenericEventHandler<Target> | undefined;
+    change = 'change',
+    input = 'input',
+    beforeInput = 'beforeInput',
+    search = 'search',
+    submit = 'submit',
+    invalid = 'invalid',
+    reset = 'reset',
+    formData = 'formData',
 
     // Keyboard Events
-    onKeyDown?: KeyboardEventHandler<Target> | undefined;
-    onKeyDownCapture?: KeyboardEventHandler<Target> | undefined;
-    onKeyPress?: KeyboardEventHandler<Target> | undefined;
-    onKeyPressCapture?: KeyboardEventHandler<Target> | undefined;
-    onKeyUp?: KeyboardEventHandler<Target> | undefined;
-    onKeyUpCapture?: KeyboardEventHandler<Target> | undefined;
+    keyDown = 'keyDown',
+    keyPress = 'keyPress',
+    keyUp = 'keyUp',
 
     // Media Events
-    onAbort?: GenericEventHandler<Target> | undefined;
-    onAbortCapture?: GenericEventHandler<Target> | undefined;
-    onCanPlay?: GenericEventHandler<Target> | undefined;
-    onCanPlayCapture?: GenericEventHandler<Target> | undefined;
-    onCanPlayThrough?: GenericEventHandler<Target> | undefined;
-    onCanPlayThroughCapture?: GenericEventHandler<Target> | undefined;
-    onDurationChange?: GenericEventHandler<Target> | undefined;
-    onDurationChangeCapture?: GenericEventHandler<Target> | undefined;
-    onEmptied?: GenericEventHandler<Target> | undefined;
-    onEmptiedCapture?: GenericEventHandler<Target> | undefined;
-    onEncrypted?: GenericEventHandler<Target> | undefined;
-    onEncryptedCapture?: GenericEventHandler<Target> | undefined;
-    onEnded?: GenericEventHandler<Target> | undefined;
-    onEndedCapture?: GenericEventHandler<Target> | undefined;
-    onLoadedData?: GenericEventHandler<Target> | undefined;
-    onLoadedDataCapture?: GenericEventHandler<Target> | undefined;
-    onLoadedMetadata?: GenericEventHandler<Target> | undefined;
-    onLoadedMetadataCapture?: GenericEventHandler<Target> | undefined;
-    onLoadStart?: GenericEventHandler<Target> | undefined;
-    onLoadStartCapture?: GenericEventHandler<Target> | undefined;
-    onPause?: GenericEventHandler<Target> | undefined;
-    onPauseCapture?: GenericEventHandler<Target> | undefined;
-    onPlay?: GenericEventHandler<Target> | undefined;
-    onPlayCapture?: GenericEventHandler<Target> | undefined;
-    onPlaying?: GenericEventHandler<Target> | undefined;
-    onPlayingCapture?: GenericEventHandler<Target> | undefined;
-    onProgress?: GenericEventHandler<Target> | undefined;
-    onProgressCapture?: GenericEventHandler<Target> | undefined;
-    onRateChange?: GenericEventHandler<Target> | undefined;
-    onRateChangeCapture?: GenericEventHandler<Target> | undefined;
-    onSeeked?: GenericEventHandler<Target> | undefined;
-    onSeekedCapture?: GenericEventHandler<Target> | undefined;
-    onSeeking?: GenericEventHandler<Target> | undefined;
-    onSeekingCapture?: GenericEventHandler<Target> | undefined;
-    onStalled?: GenericEventHandler<Target> | undefined;
-    onStalledCapture?: GenericEventHandler<Target> | undefined;
-    onSuspend?: GenericEventHandler<Target> | undefined;
-    onSuspendCapture?: GenericEventHandler<Target> | undefined;
-    onTimeUpdate?: GenericEventHandler<Target> | undefined;
-    onTimeUpdateCapture?: GenericEventHandler<Target> | undefined;
-    onVolumeChange?: GenericEventHandler<Target> | undefined;
-    onVolumeChangeCapture?: GenericEventHandler<Target> | undefined;
-    onWaiting?: GenericEventHandler<Target> | undefined;
-    onWaitingCapture?: GenericEventHandler<Target> | undefined;
+    abort = 'abort',
+    canPlay = 'canPlay',
+    canPlayThrough = 'canPlayThrough',
+    durationChange = 'durationChange',
+    emptied = 'emptied',
+    encrypted = 'encrypted',
+    ended = 'ended',
+    loadedData = 'loadedData',
+    loadedMetadata = 'loadedMetadata',
+    loadStart = 'loadStart',
+    pause = 'pause',
+    play = 'play',
+    playing = 'playing',
+    progress = 'progress',
+    rateChange = 'rateChange',
+    seeked = 'seeked',
+    seeking = 'seeking',
+    stalled = 'stalled',
+    suspend = 'suspend',
+    timeUpdate = 'timeUpdate',
+    volumeChange = 'volumeChange',
+    waiting = 'waiting',
 
     // MouseEvents
-    onClick?: MouseEventHandler<Target> | undefined;
-    onClickCapture?: MouseEventHandler<Target> | undefined;
-    onContextMenu?: MouseEventHandler<Target> | undefined;
-    onContextMenuCapture?: MouseEventHandler<Target> | undefined;
-    onDblClick?: MouseEventHandler<Target> | undefined;
-    onDblClickCapture?: MouseEventHandler<Target> | undefined;
-    onDrag?: DragEventHandler<Target> | undefined;
-    onDragCapture?: DragEventHandler<Target> | undefined;
-    onDragEnd?: DragEventHandler<Target> | undefined;
-    onDragEndCapture?: DragEventHandler<Target> | undefined;
-    onDragEnter?: DragEventHandler<Target> | undefined;
-    onDragEnterCapture?: DragEventHandler<Target> | undefined;
-    onDragExit?: DragEventHandler<Target> | undefined;
-    onDragExitCapture?: DragEventHandler<Target> | undefined;
-    onDragLeave?: DragEventHandler<Target> | undefined;
-    onDragLeaveCapture?: DragEventHandler<Target> | undefined;
-    onDragOver?: DragEventHandler<Target> | undefined;
-    onDragOverCapture?: DragEventHandler<Target> | undefined;
-    onDragStart?: DragEventHandler<Target> | undefined;
-    onDragStartCapture?: DragEventHandler<Target> | undefined;
-    onDrop?: DragEventHandler<Target> | undefined;
-    onDropCapture?: DragEventHandler<Target> | undefined;
-    onMouseDown?: MouseEventHandler<Target> | undefined;
-    onMouseDownCapture?: MouseEventHandler<Target> | undefined;
-    onMouseEnter?: MouseEventHandler<Target> | undefined;
-    onMouseEnterCapture?: MouseEventHandler<Target> | undefined;
-    onMouseLeave?: MouseEventHandler<Target> | undefined;
-    onMouseLeaveCapture?: MouseEventHandler<Target> | undefined;
-    onMouseMove?: MouseEventHandler<Target> | undefined;
-    onMouseMoveCapture?: MouseEventHandler<Target> | undefined;
-    onMouseOut?: MouseEventHandler<Target> | undefined;
-    onMouseOutCapture?: MouseEventHandler<Target> | undefined;
-    onMouseOver?: MouseEventHandler<Target> | undefined;
-    onMouseOverCapture?: MouseEventHandler<Target> | undefined;
-    onMouseUp?: MouseEventHandler<Target> | undefined;
-    onMouseUpCapture?: MouseEventHandler<Target> | undefined;
+    click = 'click',
+    contextMenu = 'contextMenu',
+    dblClick = 'dblClick',
+    drag = 'drag',
+    dragEnd = 'dragEnd',
+    dragEnter = 'dragEnter',
+    dragExit = 'dragExit',
+    dragLeave = 'dragLeave',
+    dragOver = 'dragOver',
+    dragStart = 'dragStart',
+    drop = 'drop',
+    mouseDown = 'mouseDown',
+    mouseEnter = 'mouseEnter',
+    mouseLeave = 'mouseLeave',
+    mouseMove = 'mouseMove',
+    mouseOut = 'mouseOut',
+    mouseOver = 'mouseOver',
+    mouseUp = 'mouseUp',
 
     // Selection Events
-    onSelect?: GenericEventHandler<Target> | undefined;
-    onSelectCapture?: GenericEventHandler<Target> | undefined;
+    select = 'select',
 
     // Touch Events
-    onTouchCancel?: TouchEventHandler<Target> | undefined;
-    onTouchCancelCapture?: TouchEventHandler<Target> | undefined;
-    onTouchEnd?: TouchEventHandler<Target> | undefined;
-    onTouchEndCapture?: TouchEventHandler<Target> | undefined;
-    onTouchMove?: TouchEventHandler<Target> | undefined;
-    onTouchMoveCapture?: TouchEventHandler<Target> | undefined;
-    onTouchStart?: TouchEventHandler<Target> | undefined;
-    onTouchStartCapture?: TouchEventHandler<Target> | undefined;
+    touchCancel = 'touchCancel',
+    touchEnd = 'touchEnd',
+    touchMove = 'touchMove',
+    touchStart = 'touchStart',
 
     // Pointer Events
-    onPointerOver?: PointerEventHandler<Target> | undefined;
-    onPointerOverCapture?: PointerEventHandler<Target> | undefined;
-    onPointerEnter?: PointerEventHandler<Target> | undefined;
-    onPointerEnterCapture?: PointerEventHandler<Target> | undefined;
-    onPointerDown?: PointerEventHandler<Target> | undefined;
-    onPointerDownCapture?: PointerEventHandler<Target> | undefined;
-    onPointerMove?: PointerEventHandler<Target> | undefined;
-    onPointerMoveCapture?: PointerEventHandler<Target> | undefined;
-    onPointerUp?: PointerEventHandler<Target> | undefined;
-    onPointerUpCapture?: PointerEventHandler<Target> | undefined;
-    onPointerCancel?: PointerEventHandler<Target> | undefined;
-    onPointerCancelCapture?: PointerEventHandler<Target> | undefined;
-    onPointerOut?: PointerEventHandler<Target> | undefined;
-    onPointerOutCapture?: PointerEventHandler<Target> | undefined;
-    onPointerLeave?: PointerEventHandler<Target> | undefined;
-    onPointerLeaveCapture?: PointerEventHandler<Target> | undefined;
-    onGotPointerCapture?: PointerEventHandler<Target> | undefined;
-    onGotPointerCaptureCapture?: PointerEventHandler<Target> | undefined;
-    onLostPointerCapture?: PointerEventHandler<Target> | undefined;
-    onLostPointerCaptureCapture?: PointerEventHandler<Target> | undefined;
+    pointerOver = 'pointerOver',
+    pointerEnter = 'pointerEnter',
+    pointerDown = 'pointerDown',
+    pointerMove = 'pointerMove',
+    pointerUp = 'pointerUp',
+    pointerCancel = 'pointerCancel',
+    pointerOut = 'pointerOut',
+    pointerLeave = 'pointerLeave',
+    gotPointerCapture = 'gotPointerCapture',
+    lostPointerCapture = 'lostPointerCapture',
 
     // UI Events
-    onScroll?: UIEventHandler<Target> | undefined;
-    onScrollCapture?: UIEventHandler<Target> | undefined;
+    scroll = 'scroll',
 
     // Wheel Events
-    onWheel?: WheelEventHandler<Target> | undefined;
-    onWheelCapture?: WheelEventHandler<Target> | undefined;
+    wheel = 'wheel',
 
     // Animation Events
-    onAnimationStart?: AnimationEventHandler<Target> | undefined;
-    onAnimationStartCapture?: AnimationEventHandler<Target> | undefined;
-    onAnimationEnd?: AnimationEventHandler<Target> | undefined;
-    onAnimationEndCapture?: AnimationEventHandler<Target> | undefined;
-    onAnimationIteration?: AnimationEventHandler<Target> | undefined;
-    onAnimationIterationCapture?: AnimationEventHandler<Target> | undefined;
+    animationStart = 'animationStart',
+    animationEnd = 'animationEnd',
+    animationIteration = 'animationIteration',
 
     // Transition Events
-    onTransitionCancel?: TransitionEventHandler<Target>;
-    onTransitionCancelCapture?: TransitionEventHandler<Target>;
-    onTransitionEnd?: TransitionEventHandler<Target>;
-    onTransitionEndCapture?: TransitionEventHandler<Target>;
-    onTransitionRun?: TransitionEventHandler<Target>;
-    onTransitionRunCapture?: TransitionEventHandler<Target>;
-    onTransitionStart?: TransitionEventHandler<Target>;
-    onTransitionStartCapture?: TransitionEventHandler<Target>;
+    transitionCancel = 'transitionCancel',
+    transitionEnd = 'transitionEnd',
+    transitionRun = 'transitionRun',
+    transitionStart = 'transitionStart',
 
     // PictureInPicture Events
-    onEnterPictureInPicture?: PictureInPictureEventHandler<Target>;
-    onEnterPictureInPictureCapture?: PictureInPictureEventHandler<Target>;
-    onLeavePictureInPicture?: PictureInPictureEventHandler<Target>;
-    onLeavePictureInPictureCapture?: PictureInPictureEventHandler<Target>;
-    onResize?: PictureInPictureEventHandler<Target>;
-    onResizeCapture?: PictureInPictureEventHandler<Target>;
+    enterPictureInPicture = 'enterPictureInPicture',
+    leavePictureInPicture = 'leavePictureInPicture',
+    resize = 'resize',
+}
+
+export type DOMEventHandler<Event extends DOMEvents, Target extends EventTarget> = DOMEventHandlers<Target>[Event]
+
+export interface DOMEventHandlers<Target extends EventTarget> {
+    // Image Events
+    [DOMEvents.load]: GenericEventHandler<Target>;
+    [DOMEvents.error]: GenericEventHandler<Target>;
+
+    // Clipboard Events
+    [DOMEvents.copy]: ClipboardEventHandler<Target>;
+    [DOMEvents.cut]: ClipboardEventHandler<Target>;
+    [DOMEvents.paste]: ClipboardEventHandler<Target>;
+
+    // Composition Events
+    [DOMEvents.compositionEnd]: CompositionEventHandler<Target>;
+    [DOMEvents.compositionStart]: CompositionEventHandler<Target>;
+    [DOMEvents.compositionUpdate]: CompositionEventHandler<Target>;
+
+    // Details Events
+    [DOMEvents.toggle]: GenericEventHandler<Target>;
+
+    // Dialog Events
+    [DOMEvents.close]: GenericEventHandler<Target>;
+    [DOMEvents.cancel]: GenericEventHandler<Target>;
+
+    // Focus Events
+    [DOMEvents.focus]: FocusEventHandler<Target>;
+    [DOMEvents.focusin]: FocusEventHandler<Target>;
+    [DOMEvents.focusout]: FocusEventHandler<Target>;
+    [DOMEvents.blur]: FocusEventHandler<Target>;
+
+    // Form Events
+    [DOMEvents.change]: GenericEventHandler<Target>;
+    [DOMEvents.input]: GenericEventHandler<Target>;
+    [DOMEvents.beforeInput]: GenericEventHandler<Target>;
+    [DOMEvents.search]: GenericEventHandler<Target>;
+    [DOMEvents.submit]: GenericEventHandler<Target>;
+    [DOMEvents.invalid]: GenericEventHandler<Target>;
+    [DOMEvents.reset]: GenericEventHandler<Target>;
+    [DOMEvents.formData]: GenericEventHandler<Target>;
+
+    // Keyboard Events
+    [DOMEvents.keyDown]: KeyboardEventHandler<Target>;
+    [DOMEvents.keyPress]: KeyboardEventHandler<Target>;
+    [DOMEvents.keyUp]: KeyboardEventHandler<Target>;
+
+    // Media Events
+    [DOMEvents.abort]: GenericEventHandler<Target>;
+    [DOMEvents.canPlay]: GenericEventHandler<Target>;
+    [DOMEvents.canPlayThrough]: GenericEventHandler<Target>;
+    [DOMEvents.durationChange]: GenericEventHandler<Target>;
+    [DOMEvents.emptied]: GenericEventHandler<Target>;
+    [DOMEvents.encrypted]: GenericEventHandler<Target>;
+    [DOMEvents.ended]: GenericEventHandler<Target>;
+    [DOMEvents.loadedData]: GenericEventHandler<Target>;
+    [DOMEvents.loadedMetadata]: GenericEventHandler<Target>;
+    [DOMEvents.loadStart]: GenericEventHandler<Target>;
+    [DOMEvents.pause]: GenericEventHandler<Target>;
+    [DOMEvents.play]: GenericEventHandler<Target>;
+    [DOMEvents.playing]: GenericEventHandler<Target>;
+    [DOMEvents.progress]: GenericEventHandler<Target>;
+    [DOMEvents.rateChange]: GenericEventHandler<Target>;
+    [DOMEvents.seeked]: GenericEventHandler<Target>;
+    [DOMEvents.seeking]: GenericEventHandler<Target>;
+    [DOMEvents.stalled]: GenericEventHandler<Target>;
+    [DOMEvents.suspend]: GenericEventHandler<Target>;
+    [DOMEvents.timeUpdate]: GenericEventHandler<Target>;
+    [DOMEvents.volumeChange]: GenericEventHandler<Target>;
+    [DOMEvents.waiting]: GenericEventHandler<Target>;
+
+    // MouseEvents
+    [DOMEvents.click]: MouseEventHandler<Target>;
+    [DOMEvents.contextMenu]: MouseEventHandler<Target>;
+    [DOMEvents.dblClick]: MouseEventHandler<Target>;
+    [DOMEvents.drag]: DragEventHandler<Target>;
+    [DOMEvents.dragEnd]: DragEventHandler<Target>;
+    [DOMEvents.dragEnter]: DragEventHandler<Target>;
+    [DOMEvents.dragExit]: DragEventHandler<Target>;
+    [DOMEvents.dragLeave]: DragEventHandler<Target>;
+    [DOMEvents.dragOver]: DragEventHandler<Target>;
+    [DOMEvents.dragStart]: DragEventHandler<Target>;
+    [DOMEvents.drop]: DragEventHandler<Target>;
+    [DOMEvents.mouseDown]: MouseEventHandler<Target>;
+    [DOMEvents.mouseEnter]: MouseEventHandler<Target>;
+    [DOMEvents.mouseLeave]: MouseEventHandler<Target>;
+    [DOMEvents.mouseMove]: MouseEventHandler<Target>;
+    [DOMEvents.mouseOut]: MouseEventHandler<Target>;
+    [DOMEvents.mouseOver]: MouseEventHandler<Target>;
+    [DOMEvents.mouseUp]: MouseEventHandler<Target>;
+
+    // Selection Events
+    [DOMEvents.select]: GenericEventHandler<Target>;
+
+    // Touch Events
+    [DOMEvents.touchCancel]: TouchEventHandler<Target>;
+    [DOMEvents.touchEnd]: TouchEventHandler<Target>;
+    [DOMEvents.touchMove]: TouchEventHandler<Target>;
+    [DOMEvents.touchStart]: TouchEventHandler<Target>;
+
+    // Pointer Events
+    [DOMEvents.pointerOver]: PointerEventHandler<Target>;
+    [DOMEvents.pointerEnter]: PointerEventHandler<Target>;
+    [DOMEvents.pointerDown]: PointerEventHandler<Target>;
+    [DOMEvents.pointerMove]: PointerEventHandler<Target>;
+    [DOMEvents.pointerUp]: PointerEventHandler<Target>;
+    [DOMEvents.pointerCancel]: PointerEventHandler<Target>;
+    [DOMEvents.pointerOut]: PointerEventHandler<Target>;
+    [DOMEvents.pointerLeave]: PointerEventHandler<Target>;
+    [DOMEvents.gotPointerCapture]: PointerEventHandler<Target>;
+    [DOMEvents.lostPointerCapture]: PointerEventHandler<Target>;
+
+    // UI Events
+    [DOMEvents.scroll]: UIEventHandler<Target>;
+
+    // Wheel Events
+    [DOMEvents.wheel]: WheelEventHandler<Target>;
+
+    // Animation Events
+    [DOMEvents.animationStart]: AnimationEventHandler<Target>;
+    [DOMEvents.animationEnd]: AnimationEventHandler<Target>;
+    [DOMEvents.animationIteration]: AnimationEventHandler<Target>;
+
+    // Transition Events
+    [DOMEvents.transitionCancel]: TransitionEventHandler<Target>;
+    [DOMEvents.transitionEnd]: TransitionEventHandler<Target>;
+    [DOMEvents.transitionRun]: TransitionEventHandler<Target>;
+    [DOMEvents.transitionStart]: TransitionEventHandler<Target>;
+
+    // PictureInPicture Events
+    [DOMEvents.enterPictureInPicture]: PictureInPictureEventHandler<Target>;
+    [DOMEvents.leavePictureInPicture]: PictureInPictureEventHandler<Target>;
+    [DOMEvents.resize]: PictureInPictureEventHandler<Target>;
 }

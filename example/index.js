@@ -70,7 +70,8 @@ const compiler = webpack({
                     importLoaders: 1,
                     sourceMap: true,
                     modules: {
-                        mode: 'local'
+                        mode: 'local',
+                        localIdentName: "[name]_[local]__[hash:base64:5]",
                     }
                 }
             }, ...postcssAndSass]

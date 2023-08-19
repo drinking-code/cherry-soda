@@ -24,7 +24,7 @@ export interface CSSProperties extends AllCSSProperties, DOMCSSProperties {
 }
 
 export interface HTMLAttributes<Target extends EventTarget = EventTarget>
-    extends CSAttributes, DOMAttributes<Target>, AriaAttributes {
+    extends CSAttributes, DOMAttributes, AriaAttributes {
     // Standard HTML Attributes
     accept?: string | undefined;
     acceptCharset?: string | undefined;

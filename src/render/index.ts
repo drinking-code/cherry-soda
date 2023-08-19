@@ -1,10 +1,20 @@
 import {JSX} from '../index'
 import {ComponentChild} from '../jsx/types/elements'
-import VNode from '../jsx/vNode'
+import VNode from '../jsx/VNode'
 import {Fragment} from '../jsx/factory'
 import {ensureArray} from '../utils/array'
 
 let parentingNode: VNode | null = null
+
+function renderTo(child: ComponentChild, node: JSX.Element, dom: HTMLElement) {
+    if (child instanceof VNode) {
+        child._parent = node
+        child._parentDom = dom
+        render(child)
+    } else {
+        dom.append(String(child))
+    }
+}
 
 export function render(node: JSX.Element): void {
     if (parentingNode && !node._parent) {
@@ -19,31 +29,17 @@ export function render(node: JSX.Element): void {
             if (key === 'className') key = 'class'
             node._dom.setAttribute(key, value as any)
         })
-        if ('children' in node.props) {
-            ;(ensureArray(node.props.children) as ComponentChild[]).forEach(child => {
-                if (child instanceof VNode) {
-                    child._parent = node
-                    child._parentDom = node._dom
-                    render(child)
-                } else {
-                    node._dom.append(String(child))
-                }
-            })
-        }
-
         node._parentDom.append(node._dom)
+        node.postRender()
+        if ('children' in node.props) {
+            ensureArray<ComponentChild>(node.props.children)
+                .forEach(child => renderTo(child, node, node._dom))
+        }
     } else if (node.type === Fragment) {
         node._parentDom = node._parent._parentDom
         if ('children' in node.props) {
-            ;(ensureArray(node.props.children) as ComponentChild[]).forEach(child => {
-                if (child instanceof VNode) {
-                    child._parent = node
-                    child._parentDom = node._parentDom
-                    render(child)
-                } else {
-                    node._parentDom.append(String(child))
-                }
-            })
+            ensureArray<ComponentChild>(node.props.children)
+                .forEach(child => renderTo(child, node, node._parentDom))
         }
     } else {
         parentingNode = node
