@@ -3,6 +3,7 @@ import webpack from 'webpack'
 import WebpackDevServer from 'webpack-dev-server'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import TerserPlugin from 'terser-webpack-plugin'
 
 const postcssAndSass = [{
     loader: 'resolve-url-loader',
@@ -18,7 +19,7 @@ const postcssAndSass = [{
 
 const compiler = webpack({
     entry: path.resolve(process.cwd(), process.argv[2]),
-    mode: 'development',
+    mode: process.env.NODE_ENV === 'build' ? 'production' : 'development',
     output: {
         filename: 'bundle.js',
         path: path.resolve('dist'),
@@ -71,7 +72,7 @@ const compiler = webpack({
                     sourceMap: true,
                     modules: {
                         mode: 'local',
-                        localIdentName: "[name]_[local]__[hash:base64:5]",
+                        localIdentName: '[name]_[local]__[hash:base64:5]'
                     }
                 }
             }, ...postcssAndSass]
@@ -80,19 +81,48 @@ const compiler = webpack({
             type: 'asset/inline'
         }]
     },
+    optimization: {
+        moduleIds: 'deterministic',
+        chunkIds: 'deterministic',
+        minimize: process.env.NODE_ENV === 'build',
+        minimizer: [
+            new TerserPlugin({
+                extractComments: false,
+                terserOptions: {
+                    compress: {
+                        arguments: true,
+                        booleans_as_integers: true,
+                        drop_console: true,
+                        ecma: '2015',
+                        passes: 2,
+                        toplevel: true,
+                    },
+                    mangle: {
+                        toplevel: true,
+                    },
+                    format: {
+                        comments: false,
+                        ecma: '2015',
+                    },
+                    toplevel: true,
+                },
+            }),
+        ],
+    },
     plugins: [new HtmlWebpackPlugin({
         templateContent: '<div id="app"></div>'
     }), new MiniCssExtractPlugin()]
 })
-const server = new WebpackDevServer({
-    open: true,
-    compress: true,
-    port: 9000
-}, compiler)
 
-const runServer = async () => {
+if (process.env.NODE_ENV === 'build') {
+    compiler.run()
+} else {
+    const server = new WebpackDevServer({
+        open: true,
+        compress: true,
+        port: 9000
+    }, compiler)
+
     console.log('Starting server...')
     await server.start()
 }
-
-runServer()

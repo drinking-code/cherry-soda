@@ -1,16 +1,22 @@
-import {JSX} from '../index'
+import {type JSX} from '../index'
 import {ComponentChild} from '../jsx/types/elements'
 import VNode from '../jsx/VNode'
 import {Fragment} from '../jsx/factory'
 import {ensureArray} from '../utils/array'
+import {isStateConsumer} from '../state/StateConsumer'
+import State, {isState} from '../state/State'
 
 let parentingNode: VNode | null = null
 
-function renderTo(child: ComponentChild, node: JSX.Element, dom: HTMLElement) {
+export function renderTo(child: ComponentChild, node: JSX.Element, dom: HTMLElement, shallow: boolean = false) {
     if (child instanceof VNode) {
         child._parent = node
         child._parentDom = dom
-        render(child)
+        if (!shallow) render(child)
+    } else if (isState(child) || isStateConsumer(child)) {
+        const stateConsumer = isState(child) ? child.use() : child
+        dom.append(String(stateConsumer.render()))
+        stateConsumer.states.forEach(state => state.tied_elements.push(node))
     } else {
         dom.append(String(child))
     }
