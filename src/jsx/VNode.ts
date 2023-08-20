@@ -10,27 +10,21 @@ export default class VNode<P = {}> {
     readonly type: VNodeType
     readonly props: VNodeProps<P>
     readonly ref?: string
-    // _vNodeId?: string
-    private readonly _children: JSX.ComponentChildren
+    readonly _children: JSX.ComponentChildren
     _parent: VNode
-    // _depth: number
     _dom?: HTMLElement
-    _parentDom?: HTMLElement
+    _renderedImmediateChildren: VNode[]
     private _listeners?: Listeners
-    // _nextDom: undefined
-    // _component: null
-    // _hydrating: null
-    // constructor: undefined
-    // _original: --vNodeId
-    __source: unknown
-    __self: unknown
+    // __source: unknown
+    // __self: unknown
 
     constructor(type: VNodeType, props: VNodeProps<P>, __source?, __self?) {
         this.type = type
         this.props = props
         this._children = props.children
-        this.__source = __source
-        this.__self = __self
+        this._renderedImmediateChildren = []
+        // this.__source = __source
+        // this.__self = __self
     }
 
     private static _hasVNodeChildOrArray(children): children is VNode | ComponentChild[] {

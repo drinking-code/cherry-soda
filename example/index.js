@@ -20,6 +20,7 @@ const postcssAndSass = [{
 const compiler = webpack({
     entry: path.resolve(process.cwd(), process.argv[2]),
     mode: process.env.NODE_ENV === 'build' ? 'production' : 'development',
+    devtool: 'source-map',
     output: {
         filename: 'bundle.js',
         path: path.resolve('dist'),

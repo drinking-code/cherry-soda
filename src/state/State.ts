@@ -6,12 +6,12 @@ import update from '../render/update'
 
 export default class State<V = any> extends Identifiable {
     protected _value: V
-    tied_elements: VNode[]
+    tied_elements: Set<VNode>
 
     constructor(initialValue: V) {
         super()
         this._value = initialValue
-        this.tied_elements = []
+        this.tied_elements = new Set()
     }
 
     _valueOf(): V {
