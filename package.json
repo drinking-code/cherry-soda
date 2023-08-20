@@ -16,9 +16,6 @@
     "./jsx-runtime": "./src/jsx-runtime.ts",
     "./jsx-dev-runtime": "./src/jsx-dev-runtime.ts"
   },
-  "imports": {
-    "#cherry-soda": "./src/index.ts"
-  },
   "bin": {
     "cherry-soda": "cli/index"
   },

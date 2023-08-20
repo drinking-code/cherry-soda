@@ -12,9 +12,5 @@
 
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-
-    "paths": {
-      "#cherry-soda": ["./src/index.ts"],
-    }
   }
 }

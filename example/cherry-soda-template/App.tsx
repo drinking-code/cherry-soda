@@ -1,4 +1,4 @@
-import {render} from '#cherry-soda'
+import {render} from 'cherry-soda'
 
 import logo from './logo.svg'
 import logoLettering from './logo-lettering.svg'

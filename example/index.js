@@ -27,10 +27,7 @@ const compiler = webpack({
         publicPath: '/'
     },
     resolve: {
-        extensions: ['.ts', '.tsx', '.js', '.jsx'],
-        alias: {
-            '#cherry-soda': path.resolve('..', 'src', 'index.ts')
-        }
+        extensions: ['.ts', '.tsx', '.js', '.jsx']
     },
     module: {
         rules: [{

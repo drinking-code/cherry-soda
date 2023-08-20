@@ -1,14 +1,18 @@
-import {type JSX} from '../index'
-import type {ComponentChild} from '../jsx/types/elements'
-import {ensureArray} from '../utils/array'
-import {renderTo} from './index'
+import VNode from '../jsx/VNode'
+import StateConsumer from '../state/StateConsumer'
 
-export default function update(node: JSX.Element): void {
-    if (typeof node.type === 'string') {
-        node._dom.innerHTML = ''
-        if ('children' in node.props) {
-            ensureArray<ComponentChild>(node.props.children)
-                .forEach(child => renderTo(child, node, node._dom, true))
-        }
+export function updateNodeChild(node: VNode, childIndex: number, consumer: StateConsumer) {
+    const nodeToReplace = node._dom.childNodes[childIndex]
+    const result = consumer.render()
+    if (result instanceof VNode) {
+        // todo
+    } else {
+        nodeToReplace.replaceWith(String(result))
     }
+}
+
+export function updateNodeProp(node: VNode, prop: string, consumer: StateConsumer) {
+    const result = consumer.render()
+    const value = result instanceof VNode ? result : String(result)
+    node._dom.setAttribute(prop, value as any)
 }
