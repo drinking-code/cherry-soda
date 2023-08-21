@@ -2,6 +2,10 @@
   "name": "example",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "install": "cd .. && npm i",
+    "start": "node ./index.js"
+  },
   "devDependencies": {
     "@babel/core": "^7.22.10",
     "@babel/plugin-transform-react-jsx": "^7.22.5",

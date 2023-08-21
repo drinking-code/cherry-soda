@@ -10,7 +10,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "src",
 
-    "allowJs": true,
+    "allowJs": false,
     "allowSyntheticDefaultImports": true,
   }
 }

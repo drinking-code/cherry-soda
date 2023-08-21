@@ -1,4 +1,4 @@
-import {render, state} from '#cherry-soda'
+import {render, state} from 'cherry-soda'
 
 import styles from './App.module.scss'
 

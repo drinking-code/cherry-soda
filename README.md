@@ -11,28 +11,22 @@
 
 ---
 
-Yet another JavaScript framework that nobody needs. It has an SSR-first approach, and uses stateful, functional JSX
-components to build apps. The components are rendered on the server, but contain state change handlers that are executed
-in the browser. Instead of bundling the full component, cherry-soda extracts and bundles only the necessary code (the
-event handler with its lexical scope, a template for client-side rendering, and styles) which can drastically reduce
-bundle size. Therefore, by default (i.e. without using state change handlers), there is no client side JavaScript
-whatsoever.  
-Currently, cherry-soda only runs on bun, Node compatibility is planned.
+Yet another JavaScript framework that nobody needs. Plan is to create an SSR-mode that shifts HTML rendering to the
+server completely. This means that only JavaScript, that does not render HTML will be bundled and send to / executed on
+the client.
 
 > **Warning**&nbsp;&nbsp;
 > Cherry-soda is experimental. Everything is subject to change.
 
 ## Test the waters, dip a toe
 
-If you just to test out cherry-soda, you can run the examples. For that you need to have [Bun](https://bun.sh)
-installed. Then, clone the repository, install the dependencies with `bun i`. Use cherry-soda's CLI to run an example:
+If you just to test out cherry-soda, you can run the examples. For that you need to have [Node](https://nodejs.org)
+installed. Then, clone the repository, go to `/example`, and install the dependencies with `npm i` there. Start an
+example like this:
 
 ```shell
-cli/index dev example/cherry-soda-template/index.jsx
+npm run start ./cherry-soda-template
 ```
-
-[//]: # (Visit `localhost:3000` and / or edit files in `example/cherry-soda-template/`. To test out the other examples, use the
-respective `index.jsx` as an argument instead.)
 
 ## Get started
 
@@ -42,24 +36,25 @@ In a new Bun project install cherry-soda with `bun i cherry-soda`, and add files
 
 ```javascript
 // src/index.js
+import {mount} from 'cherry-soda'
+
+import './index.css'
 import App from './App'
 
-export function main() {
-    return <App/>
-}
+mount(<App />, document.querySelector('#app'))
 ```
 
 ```javascript
 // src/App.js
+import {render} from 'cherry-soda'
+
 export default function App() {
-    return (
-        <h1>Hello world!</h1>
-    )
+    render(<h1>Hello world!</h1>)
 }
 ```
 
-`index.js` is the main entry point for cherry-soda. It will look for an exported function `main()` and will
-use the returned value to render HTML. `App.js` is an example component.
+`index.js` is the main entry point. The `mount()` function renders the given virtual node to the given DOM element. Each
+component can render virtual nodes to the DOM itself by calling `render()`.
 
 Then, add the cherry-soda JSX runtime to your `tsconfig.json` / `jsconfig.json`:
 
@@ -72,37 +67,9 @@ Then, add the cherry-soda JSX runtime to your `tsconfig.json` / `jsconfig.json`:
 }
 ```
 
+[//]: # (todo: add this cli usable dev server to code)
+
 Run `cherry-soda dev src/index.js` to start the dev server. Then, visit `localhost:3000`.
-
-Alternatively, you can use the [`cherrySoda()`](#cherrysoda) function in your own server to render the app. This also
-automatically serves the asset files (JavaScript, CSS, images, etc.).  
-For Bun.serve:
-
-```javascript
-// main.js
-import cherrySoda from 'cherry-soda'
-
-const cherrySodaApp = cherrySoda('src/index.js')
-
-Bun.serve({
-    async fetch(req) {
-        const url = new URL(req.url)
-        if (url.pathname.startsWith('/api'))
-            return new Response() // your custom responses
-        return await cherrySodaApp(req)
-    },
-    port: 3000,
-})
-```
-
-[//]: # (### Dev server &#40;HMR-like&#41;)
-
-[//]: # (Cherry-soda doesn't use webpack, so HMR isn't really an option. However, cherry-soda provides a feature &#40;preliminarily
-called dynamic code synchronisation&#41; that reflects changes made to your code in the browser immediately after saving.
-The `cherry-soda dev` command has this activated out of the box.  
-For usage with a custom server use the `dynamicCodeSynchronisation&#40;&#41;` function.)
-
-[//]: # (todo: example)
 
 ## Guides
 
@@ -287,7 +254,7 @@ import {createRef} from 'cherry-soda'
 function Component() {
     const myRef = createRef()
 
-    return <div ref={myRef}/>
+    return <div ref={myRef} />
 }
 ```
 
