@@ -63,8 +63,5 @@ node_modules/
 
 .vscode-test
 
-# node
-package-lock.json
-
 # babel
 dist

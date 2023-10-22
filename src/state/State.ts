@@ -28,9 +28,7 @@ export default class State<V = any> extends Identifiable {
     }
 
     _ensureTiedNodes() {
-        if (!this._tiedNodes) {
-            this._tiedNodes = []
-        }
+        this._tiedNodes ??= []
     }
 
     _hasNodeTied(data: TiedNodeData): boolean {
@@ -60,7 +58,7 @@ export default class State<V = any> extends Identifiable {
 
     update(newValue: V) {
         this._value = newValue
-        this._tiedNodes.forEach((tiedNodeData) => {
+        this._tiedNodes?.forEach((tiedNodeData) => {
             if ('childIndex' in tiedNodeData) {
                 updateNodeChild(tiedNodeData.node, tiedNodeData.childIndex, tiedNodeData.consumer)
             } else if ('prop' in tiedNodeData) {

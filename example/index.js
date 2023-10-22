@@ -17,9 +17,11 @@ const postcssAndSass = [{
     }
 }]
 
+const mode = process.env.NODE_ENV === 'build' ? 'production' : 'development'
+
 const compiler = webpack({
     entry: path.resolve(process.cwd(), process.argv[2]),
-    mode: process.env.NODE_ENV === 'build' ? 'production' : 'development',
+    mode,
     devtool: 'source-map',
     output: {
         filename: 'bundle.js',
@@ -93,23 +95,29 @@ const compiler = webpack({
                         drop_console: true,
                         ecma: '2015',
                         passes: 2,
-                        toplevel: true,
+                        toplevel: true
                     },
                     mangle: {
-                        toplevel: true,
+                        toplevel: true
                     },
                     format: {
                         comments: false,
-                        ecma: '2015',
+                        ecma: '2015'
                     },
-                    toplevel: true,
-                },
-            }),
-        ],
+                    toplevel: true
+                }
+            })
+        ]
     },
-    plugins: [new HtmlWebpackPlugin({
-        templateContent: '<div id="app"></div>'
-    }), new MiniCssExtractPlugin()]
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV' : JSON.stringify(mode),
+        }),
+        new HtmlWebpackPlugin({
+            templateContent: '<div id="app"></div>'
+        }),
+        new MiniCssExtractPlugin()
+    ]
 })
 
 if (process.env.NODE_ENV === 'build') {
@@ -118,7 +126,8 @@ if (process.env.NODE_ENV === 'build') {
     const server = new WebpackDevServer({
         open: true,
         compress: true,
-        port: 9000
+        port: 9000,
+        hot: 'only'
     }, compiler)
 
     console.log('Starting server...')

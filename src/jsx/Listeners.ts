@@ -1,5 +1,5 @@
 import type VNode from './VNode'
-import {DOMEventHandler, DOMEventHandlers, DOMEvents} from './types/event-handler-attr'
+import {DOMEventHandler, DOMEvents} from './types/event-handler-attr'
 
 interface Listener<Event extends DOMEvents, Target extends EventTarget> {
     id: number,

@@ -3,18 +3,17 @@
   height: $size;
   width: $size;
 
-  margin: 5rem;
-  padding-bottom: .7rem;
+  margin: 0 5rem;
 
   appearance: none;
-  background: transparent;
-  border: 2px solid lightgray;
+  border: none;
+  border-radius: 50%;
+  background: gainsboro;
   @media (prefers-color-scheme: dark) {
-    border-color: gray;
+    background: dimgray;
   }
-  font: {
-    size: 2.5rem;
-  };
+
+  font-size: 2.5rem;
   color: currentColor;
 
   cursor: pointer;
@@ -25,7 +24,5 @@
 }
 
 .count {
-  font: {
-    size: 5rem;
-  };
+  font-size: 5rem;
 }

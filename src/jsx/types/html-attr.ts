@@ -2,7 +2,8 @@ import type {AriaAttributes, AriaRole} from './aria'
 import type {DOMAttributes} from './event-handler-attr'
 
 export interface CSAttributes {
-    ref?: string;
+    /** @deprecated cherry-soda does not use refs */
+    ref?: never;
 }
 
 export type DOMCSSProperties = {

@@ -5,6 +5,7 @@ import {Fragment} from '../jsx/factory'
 import {ensureArray} from '../utils/array'
 import {isStateConsumer} from '../state/StateConsumer'
 import {isState} from '../state/State'
+import {registerElementRenderEnd, registerElementRenderStart} from './hmr/render-with-old-states'
 
 let parentingNode: VNode | null = null
 
@@ -33,6 +34,8 @@ export function renderTo(child: ComponentChild, node: JSX.Element, shallow: bool
 }
 
 export function _render(node: JSX.Element, rerender: boolean = true) {
+    if (process.env.NODE_ENV === 'development' && module.hot) registerElementRenderStart(node)
+
     if (parentingNode && !node._parent) {
         node._parent = parentingNode
         parentingNode._renderedImmediateChildren.push(node)
@@ -49,8 +52,9 @@ export function _render(node: JSX.Element, rerender: boolean = true) {
     if (isDOM) {
         if (rerender) {
             node._dom = document.createElement(node.type)
-            Object.entries(node.props).forEach(([key, value]) => {
-                if (key === 'children') return
+            for (let key in node.props) {
+                let value = node.props[key]
+                if (key === 'children') continue
                 if (key === 'className') key = 'class'
 
                 if (isState(value) || isStateConsumer(value)) {
@@ -71,7 +75,7 @@ export function _render(node: JSX.Element, rerender: boolean = true) {
                 }
 
                 node._dom.setAttribute(key, value as any)
-            })
+            }
         }
         node._parent._dom.append(node._dom)
         node.postRender()
@@ -93,4 +97,6 @@ export function _render(node: JSX.Element, rerender: boolean = true) {
         ensureArray<ComponentChild>(node.props.children)
             .forEach(child => renderTo(child, node, !rerender))
     }
+
+    if (process.env.NODE_ENV === 'development' && module.hot) registerElementRenderEnd(node)
 }

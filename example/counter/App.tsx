@@ -1,4 +1,4 @@
-import {render, state} from 'cherry-soda'
+import {defineDom, state} from 'cherry-soda'
 
 import styles from './App.module.scss'
 
@@ -8,14 +8,17 @@ export default function App() {
         decrease: value => Math.max(--value, 0)
     })
 
-    const tree = <>
-        <button className={styles.button} ref={'subtract-button'}>&minus;</button>
-        <span className={styles.count}>Count: {count}</span>
-        <button className={styles.button} ref={'add-button'}>&#43;</button>
-    </>
+    const subtractButton = <button className={styles.button}>&minus;</button>
+    subtractButton.on.click(count.decrease)
 
-    tree.getByRef('add-button').on.click(count.increase)
-    tree.getByRef('subtract-button').on.click(count.decrease)
+    const addButton = <button className={styles.button}>&#43;</button>
+    addButton.on.click(count.increase)
 
-    render(tree)
+    defineDom(
+        <>
+            {subtractButton}
+            <span className={styles.count}>Count: {count}</span>
+            {addButton}
+        </>
+    )
 }

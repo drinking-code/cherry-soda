@@ -1,11 +1,11 @@
-import {render} from 'cherry-soda'
+import {defineDom} from 'cherry-soda'
 
 import logo from './logo.svg'
 import logoLettering from './logo-lettering.svg'
 import './App.css'
 
 export default function App() {
-    render(
+    defineDom(
         <>
             <div className={'App-logo'}>
                 <img src={logo} className={'App-logo-animated'} alt={'logo'}/>
