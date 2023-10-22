@@ -1,6 +1,5 @@
 import {JSX} from '../../index'
 import State from '../../state/State'
-import isEqual from 'lodash.isequal'
 import VNode, {isEqualVNode} from '../../jsx/VNode'
 import TreeMap from './TreeMap'
 
@@ -25,21 +24,31 @@ declare global {
     }
 }
 
-window.csDev ??= {}
+let componentTree: ComponentTree,
+    oldComponentTree: ComponentTree,
+    stateMap: SearchableMap<JSX.Element, State[]>,
+    rebuildStateMap: Map<JSX.Element, State[]>,
+    stateInitialValues: WeakMap<State, any>,
+    isEqual: typeof import('lodash.isequal')
 type ComponentTree = TreeMap<VNode, ComponentTree>
 
-window.csDev.componentTree ??= new TreeMap()
-let componentTree: ComponentTree = window.csDev.componentTree
-window.csDev.oldComponentTree ??= new TreeMap()
-let oldComponentTree: ComponentTree = window.csDev.oldComponentTree
+if (process.env.NODE_ENV === 'development') {
+    isEqual = (await import('lodash.isequal')).default
+    window.csDev ??= {}
 
-window.csDev.stateMap ??= new SearchableMap()
-const stateMap: SearchableMap<JSX.Element, State[]> = window.csDev.stateMap
-window.csDev.rebuildStateMap ??= new Map()
-const rebuildStateMap: Map<JSX.Element, State[]> = window.csDev.rebuildStateMap
+    window.csDev.componentTree ??= new TreeMap()
+    componentTree = window.csDev.componentTree
+    window.csDev.oldComponentTree ??= new TreeMap()
+    oldComponentTree = window.csDev.oldComponentTree
 
-window.csDev.stateInitialValues = new WeakMap()
-const stateInitialValues: WeakMap<State, any> = window.csDev.stateInitialValues
+    window.csDev.stateMap ??= new SearchableMap()
+    stateMap = window.csDev.stateMap
+    window.csDev.rebuildStateMap ??= new Map()
+    rebuildStateMap = window.csDev.rebuildStateMap
+
+    window.csDev.stateInitialValues = new WeakMap()
+    stateInitialValues = window.csDev.stateInitialValues
+}
 
 export function registerElementRenderStart(node: JSX.Element) {
     const previousNode = elementRenderQueue.at(-1)

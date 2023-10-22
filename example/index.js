@@ -4,6 +4,7 @@ import WebpackDevServer from 'webpack-dev-server'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
+import {BundleAnalyzerPlugin} from 'webpack-bundle-analyzer'
 
 const postcssAndSass = [{
     loader: 'resolve-url-loader',
@@ -116,7 +117,8 @@ const compiler = webpack({
         new HtmlWebpackPlugin({
             templateContent: '<div id="app"></div>'
         }),
-        new MiniCssExtractPlugin()
+        new MiniCssExtractPlugin(),
+        // new BundleAnalyzerPlugin(),
     ]
 })
 

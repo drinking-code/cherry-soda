@@ -1,5 +1,5 @@
 import type VNode from './VNode'
-import {DOMEventHandler, DOMEvents} from './types/event-handler-attr'
+import {DOMEventHandler, type DOMEvents} from './types/event-handler-attr'
 
 interface Listener<Event extends DOMEvents, Target extends EventTarget> {
     id: number,
@@ -33,7 +33,6 @@ export default class Listeners {
         const thisRef = this
         return new Proxy(dingus, {
             get(target: null, key: DOMEvents | any): any {
-                if (!(key in DOMEvents)) throw new Error(`"${key}" is not a valid event`)
                 return (handler: DOMEventHandler<typeof key, typeof this._node._dom>, options?: boolean | AddEventListenerOptions) => {
                     const listener: Listener<typeof key, typeof this._node._dom> = {
                         id: thisRef._newId(),
