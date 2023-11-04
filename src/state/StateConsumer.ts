@@ -2,19 +2,19 @@ import type {JSX} from '../index'
 import type State from './State'
 import Identifiable from '../utils/Identifiable'
 
-export type StateUsageFunctionType<V> = (...values: V[]) => JSX.ComponentChildren
+export type StateUsageFunctionType<V, R> = (...values: V[]) => R
 
-export default class StateConsumer<V = any> extends Identifiable {
+export default class StateConsumer<V = any, R extends JSX.ComponentChildren = JSX.ComponentChildren> extends Identifiable {
     states: State<V> | State<V>[]
-    transform: StateUsageFunctionType<V>
+    transform: StateUsageFunctionType<V, R>
 
-    constructor(states: State<V> | State<V>[], transform: StateUsageFunctionType<V>) {
+    constructor(states: State<V> | State<V>[], transform: StateUsageFunctionType<V, R>) {
         super()
         this.states = states
         this.transform = transform
     }
 
-    render(): JSX.ComponentChildren {
+    render(): R {
         const values = Array.isArray(this.states)
             ? this.states.map(state => state._valueOf())
             : this.states._valueOf()
@@ -23,7 +23,7 @@ export default class StateConsumer<V = any> extends Identifiable {
                 ? this.transform(...values)
                 : this.transform(values)
         } else {
-            return values as JSX.ComponentChildren
+            return values as R
         }
     }
 }

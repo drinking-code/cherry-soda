@@ -1,7 +1,6 @@
 import type {HTMLAttributes} from './html-attr'
 
-export interface SVGAttributes<Target extends EventTarget = SVGElement>
-    extends HTMLAttributes<Target> {
+export interface SVGAttributes extends HTMLAttributes {
     accentHeight?: number | string | undefined;
     accumulate?: 'none' | 'sum' | undefined;
     additive?: 'replace' | 'sum' | undefined;

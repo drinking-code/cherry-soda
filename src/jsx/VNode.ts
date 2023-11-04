@@ -7,22 +7,45 @@ import {ensureArray} from '../utils/array'
 type VNodeType = JSX.FunctionComponent | typeof Fragment | keyof JSX.IntrinsicElements
 type VNodeProps<P> = P & {children: JSX.ComponentChildren}
 
+export const TextNode = Symbol.for('TextNode')
+
+export interface MinimallyCompatibleNode {
+    _dom: Text,
+    type: typeof TextNode,
+    original: Exclude<ComponentChild, VNode>
+}
+
 export default class VNode<P = {}> {
     readonly type: VNodeType
     readonly props: VNodeProps<P>
     readonly _children: JSX.ComponentChildren
     _parent: VNode
-    _dom?: HTMLElement
-    _renderedImmediateChildren: VNode[]
+    _dom?: HTMLElement | DocumentFragment
+    _fragmentChildren?: (HTMLElement | Text)[]
     private _listeners?: Listeners
     // __source: unknown
     // __self: unknown
+
+    get _actualDom() {
+        let nodeWithActualDom: VNode = this
+        while (!(nodeWithActualDom._dom instanceof HTMLElement))
+            nodeWithActualDom = nodeWithActualDom._parent
+        return nodeWithActualDom._dom
+    }
+
+    get _actualDomVirtualLength() { // -_- \\
+        const thisDomLength = this._dom.childNodes.length
+        if (this._dom instanceof DocumentFragment) {
+            return this._parent._actualDomVirtualLength + thisDomLength
+        } else {
+            return thisDomLength
+        }
+    }
 
     constructor(type: VNodeType, props: VNodeProps<P>, __source?, __self?) {
         this.type = type
         this.props = props
         this._children = props.children
-        this._renderedImmediateChildren = []
         // this.__source = __source
         // this.__self = __self
     }

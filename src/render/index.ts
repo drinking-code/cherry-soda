@@ -1,9 +1,9 @@
 import {type JSX} from '../index'
-import {_render} from './render'
+import {renderNode} from './render'
 import {isEqualVNode} from '../jsx/VNode'
 
 export function defineDom(node: JSX.Element): void {
-    _render(node, true)
+    renderNode(node)
 }
 
 const mountedElementDomEntry: Map<JSX.Element, HTMLElement> = new Map()

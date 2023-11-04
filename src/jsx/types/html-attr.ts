@@ -1,5 +1,7 @@
 import type {AriaAttributes, AriaRole} from './aria'
 import type {DOMAttributes} from './event-handler-attr'
+import State, {StateConcatenation} from '../../state/State'
+import StateConsumer from '../../state/StateConsumer'
 
 export interface CSAttributes {
     /** @deprecated cherry-soda does not use refs */
@@ -24,8 +26,7 @@ export interface CSSProperties extends AllCSSProperties, DOMCSSProperties {
     cssText?: string | null;
 }
 
-export interface HTMLAttributes<Target extends EventTarget = EventTarget>
-    extends CSAttributes, DOMAttributes, AriaAttributes {
+interface NativeHTMLAttributes extends CSAttributes, DOMAttributes, AriaAttributes {
     // Standard HTML Attributes
     accept?: string | undefined;
     acceptCharset?: string | undefined;
@@ -273,7 +274,10 @@ export interface HTMLAttributes<Target extends EventTarget = EventTarget>
     itemRef?: string | undefined;
 }
 
-export type DetailedHTMLProps<
-    HA extends HTMLAttributes<RefType>,
-    RefType extends EventTarget = EventTarget
-> = HA;
+export type HTMLAttributes = {
+    [Key in keyof NativeHTMLAttributes]:
+    | NativeHTMLAttributes[Key]
+    | State<NativeHTMLAttributes[Key]>
+    | StateConcatenation<NativeHTMLAttributes[Key]>
+    | StateConsumer<any, NativeHTMLAttributes[Key]>
+}
