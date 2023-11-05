@@ -39,15 +39,7 @@ const compiler = webpack({
             use: {
                 loader: 'babel-loader',
                 options: {
-                    presets: [
-                        '@babel/preset-typescript',
-                        ['@babel/env', {
-                            'targets': {
-                                'browsers': [
-                                    'last 2 versions'
-                                ]
-                            }
-                        }]],
+                    presets: ['@babel/preset-typescript', '@babel/env'],
                     plugins: [['@babel/plugin-transform-react-jsx', {
                         runtime: 'automatic',
                         importSource: path.resolve('..', 'src')
@@ -86,29 +78,7 @@ const compiler = webpack({
         moduleIds: 'deterministic',
         chunkIds: 'deterministic',
         minimize: process.env.NODE_ENV === 'build',
-        minimizer: [
-            new TerserPlugin({
-                extractComments: false,
-                terserOptions: {
-                    compress: {
-                        arguments: true,
-                        booleans_as_integers: true,
-                        drop_console: true,
-                        ecma: '2015',
-                        passes: 2,
-                        toplevel: true
-                    },
-                    mangle: {
-                        toplevel: true
-                    },
-                    format: {
-                        comments: false,
-                        ecma: '2015'
-                    },
-                    toplevel: true
-                }
-            })
-        ]
+        minimizer: [new TerserPlugin()]
     },
     plugins: [
         new webpack.DefinePlugin({
@@ -118,7 +88,7 @@ const compiler = webpack({
             templateContent: '<div id="app"></div>'
         }),
         new MiniCssExtractPlugin(),
-        // new BundleAnalyzerPlugin(),
+        new BundleAnalyzerPlugin(),
     ]
 })
 

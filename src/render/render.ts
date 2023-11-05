@@ -1,6 +1,6 @@
 import {type JSX} from '../index'
 import {ComponentChild} from '../jsx/types/elements'
-import VNode from '../jsx/VNode'
+import VNode, {yieldsDomNodes} from '../jsx/VNode'
 import {Fragment} from '../jsx/factory'
 import {ensureArray} from '../utils/array'
 import {isStateConsumer} from '../state/StateConsumer'
@@ -10,11 +10,16 @@ import {registerElementRenderEnd, registerElementRenderStart} from './hmr/render
 let currentNodePath: VNode[] = []
 
 const TextNode = Symbol.for('TextNode')
+const RawNode = Symbol.for('RawNode')
 
 interface MinimallyCompatibleNodeData {
-    type: typeof TextNode,
+    type: typeof TextNode | typeof RawNode,
     _dom: Node,
     _parent: VNode,
+}
+
+export function placeholderForStateComment() {
+    return document.createComment('Placeholder for surgical state updates')
 }
 
 export function renderChild(child: ComponentChild, parent: JSX.Element, insertAt?: number) {
@@ -24,7 +29,8 @@ export function renderChild(child: ComponentChild, parent: JSX.Element, insertAt
         const stateConsumer = isState(child) ? child.use() : child
         const result = stateConsumer.render()
 
-        const renderedChild = renderChild(result, parent, insertAt)
+        const childToRender = yieldsDomNodes(result) ? result : placeholderForStateComment()
+        const renderedChild = renderChild(childToRender, parent, insertAt)
         // because fragment node cannot be tracked as a dom element, the children are tracked, and fragment becomes the parent
         let parentNode = renderedChild.type === Fragment ? renderedChild : parent
         let nodes = renderedChild.type === Fragment
@@ -37,18 +43,19 @@ export function renderChild(child: ComponentChild, parent: JSX.Element, insertAt
             stateConsumer.states._tieNodeChild(parentNode, stateConsumer, nodes)
         }
     } else {
-        const node = document.createTextNode(String(child))
+        const useRawNode = child instanceof Node
+        const node = useRawNode ? child : document.createTextNode(String(child))
         if (!insertAt) parent._dom.append(node)
         else insertNodeAt(parent._actualDom, node, insertAt)
         return {
-            type: TextNode,
+            type: useRawNode ? RawNode : TextNode,
             _dom: node,
             _parent: parent
         } as MinimallyCompatibleNodeData
     }
 }
 
-function insertNodeAt(parent: HTMLElement | DocumentFragment, node: HTMLElement | DocumentFragment | Text, index: number) {
+function insertNodeAt(parent: HTMLElement | DocumentFragment, node: Node, index: number) {
     if (index && parent.childNodes.length > index) {
         parent.insertBefore(node, parent.childNodes[index])
     } else parent.append(node)

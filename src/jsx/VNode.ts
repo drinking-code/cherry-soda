@@ -7,14 +7,6 @@ import {ensureArray} from '../utils/array'
 type VNodeType = JSX.FunctionComponent | typeof Fragment | keyof JSX.IntrinsicElements
 type VNodeProps<P> = P & {children: JSX.ComponentChildren}
 
-export const TextNode = Symbol.for('TextNode')
-
-export interface MinimallyCompatibleNode {
-    _dom: Text,
-    type: typeof TextNode,
-    original: Exclude<ComponentChild, VNode>
-}
-
 export default class VNode<P = {}> {
     readonly type: VNodeType
     readonly props: VNodeProps<P>
@@ -23,8 +15,6 @@ export default class VNode<P = {}> {
     _dom?: HTMLElement | DocumentFragment
     _fragmentChildren?: (HTMLElement | Text)[]
     private _listeners?: Listeners
-    // __source: unknown
-    // __self: unknown
 
     get _actualDom() {
         let nodeWithActualDom: VNode = this
@@ -33,31 +23,10 @@ export default class VNode<P = {}> {
         return nodeWithActualDom._dom
     }
 
-    get _actualDomVirtualLength() { // -_- \\
-        const thisDomLength = this._dom.childNodes.length
-        if (this._dom instanceof DocumentFragment) {
-            return this._parent._actualDomVirtualLength + thisDomLength
-        } else {
-            return thisDomLength
-        }
-    }
-
-    constructor(type: VNodeType, props: VNodeProps<P>, __source?, __self?) {
+    constructor(type: VNodeType, props: VNodeProps<P>) {
         this.type = type
         this.props = props
         this._children = props.children
-        // this.__source = __source
-        // this.__self = __self
-    }
-
-    private static _hasVNodeChildOrArray(children: any): children is VNode | ComponentChild[] {
-        return (
-            children
-            && (
-                children instanceof VNode
-                || (Array.isArray(children) && children.length > 0)
-            )
-        )
     }
 
     postRender() {
@@ -95,4 +64,16 @@ export function isEqualVNode(target: VNode, test: VNode): boolean {
         }
         return true
     }
+}
+
+export function yieldsDomNodes(node: ComponentChild) {
+    if (node instanceof VNode) {
+        if (node.type === Fragment) {
+            if (Array.isArray(node._children)) return node._children.some(yieldsDomNodes)
+            else return yieldsDomNodes(node._children)
+        } else if (typeof node.type === 'function') {
+            // todo
+            return null
+        } else return true
+    } else return true
 }
