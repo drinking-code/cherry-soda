@@ -1,4 +1,4 @@
-import VNode, {yieldsDomNodes} from '../jsx/VNode'
+import VNode from '../jsx/VNode'
 import type {TiedNodeChildrenData, TiedNodePropData} from '../state/State'
 import {placeholderForStateComment, renderChild} from './render'
 import {Fragment} from '../jsx/factory'
@@ -13,8 +13,11 @@ export function updateNodeChild(tiedNodeChildrenData: TiedNodeChildrenData) {
         if (result.type === Fragment) result._parent = parent._parent
         else result._parent = parent
     }
-    const childToRender = yieldsDomNodes(result) ? result : placeholderForStateComment()
-    const renderedChild = renderChild(childToRender, parent, firstDomNodeIndex)
+    const renderedChild = renderChild(
+        result,
+        parent,
+        {insertAt: firstDomNodeIndex, fallbackDom: placeholderForStateComment()}
+    )
     tiedNodeChildrenData.domNodes = renderedChild.type === Fragment
         ? renderedChild._fragmentChildren
         : [renderedChild._dom as HTMLElement]

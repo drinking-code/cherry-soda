@@ -88,7 +88,7 @@ const compiler = webpack({
             templateContent: '<div id="app"></div>'
         }),
         new MiniCssExtractPlugin(),
-        new BundleAnalyzerPlugin(),
+        // new BundleAnalyzerPlugin(),
     ]
 })
 

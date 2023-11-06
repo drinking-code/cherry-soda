@@ -32,7 +32,7 @@ export default class Listeners {
     getActivators(): MappedActivators<typeof this._node._dom> {
         const thisRef = this
         return new Proxy(dingus, {
-            get(target: null, key: DOMEvents | any): any {
+            get(_target: null, key: DOMEvents | any): any {
                 return (handler: DOMEventHandler<typeof key, typeof this._node._dom>, options?: boolean | AddEventListenerOptions) => {
                     const listener: Listener<typeof key, typeof this._node._dom> = {
                         id: thisRef._newId(),
@@ -40,9 +40,15 @@ export default class Listeners {
                         handler,
                         options
                     }
-                    if (thisRef._node._dom) {
-                        thisRef._node._dom
-                            .addEventListener(listener.type as keyof HTMLElementEventMap, listener.handler, listener.options)
+                    const domNode = typeof thisRef._node.type === 'function'
+                        ? thisRef._node._childNode?._dom
+                        : thisRef._node._dom
+                    if (domNode) {
+                        domNode.addEventListener(
+                            listener.type as keyof HTMLElementEventMap,
+                            listener.handler,
+                            listener.options
+                        )
                         thisRef._activatedListeners.push(listener)
                     } else {
                         thisRef._queue.push(listener)
@@ -54,11 +60,17 @@ export default class Listeners {
     }
 
     activateQueued() {
-        if (!this._node._dom) throw new Error('No DOM element for VNode. This a problem with cherry-soda.')
+        const domNode = typeof this._node.type === 'function'
+            ? this._node._childNode._dom
+            : this._node._dom
+        if (!domNode) throw new Error('No DOM element for VNode. This a problem with cherry-soda.')
         const activatedListenersIndices: number[] = []
         this._queue.forEach((listener, index) => {
-            this._node._dom
-                .addEventListener(listener.type as keyof HTMLElementEventMap, listener.handler, listener.options)
+            domNode.addEventListener(
+                listener.type as keyof HTMLElementEventMap,
+                listener.handler,
+                listener.options
+            )
             activatedListenersIndices.push(index)
         })
         activatedListenersIndices.reverse()

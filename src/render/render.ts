@@ -1,6 +1,6 @@
 import {type JSX} from '../index'
 import {ComponentChild} from '../jsx/types/elements'
-import VNode, {yieldsDomNodes} from '../jsx/VNode'
+import VNode from '../jsx/VNode'
 import {Fragment} from '../jsx/factory'
 import {ensureArray} from '../utils/array'
 import {isStateConsumer} from '../state/StateConsumer'
@@ -19,18 +19,30 @@ interface MinimallyCompatibleNodeData {
 }
 
 export function placeholderForStateComment() {
-    return document.createComment('Placeholder for surgical state updates')
+    return document.createComment('^w^')
 }
 
-export function renderChild(child: ComponentChild, parent: JSX.Element, insertAt?: number) {
+interface RenderOptions {
+    insertAt?: number,
+    fallbackDom?: Comment
+}
+
+export function renderChild(child: ComponentChild, parent: JSX.Element, renderOptions?: RenderOptions) {
     if (child instanceof VNode) {
-        return renderNode(child, insertAt)
+        return renderNode(child, renderOptions)
     } else if (isState(child) || isStateConsumer(child)) {
+        let insertAt: RenderOptions['insertAt']
+        if (renderOptions) ({insertAt} = renderOptions)
+
         const stateConsumer = isState(child) ? child.use() : child
         const result = stateConsumer.render()
 
-        const childToRender = yieldsDomNodes(result) ? result : placeholderForStateComment()
-        const renderedChild = renderChild(childToRender, parent, insertAt)
+        const renderedChild = renderChild(
+            result,
+            parent,
+            {insertAt, fallbackDom: placeholderForStateComment()}
+        )
+
         // because fragment node cannot be tracked as a dom element, the children are tracked, and fragment becomes the parent
         let parentNode = renderedChild.type === Fragment ? renderedChild : parent
         let nodes = renderedChild.type === Fragment
@@ -43,12 +55,21 @@ export function renderChild(child: ComponentChild, parent: JSX.Element, insertAt
             stateConsumer.states._tieNodeChild(parentNode, stateConsumer, nodes)
         }
     } else {
+        let insertAt: RenderOptions['insertAt'], fallbackDom: RenderOptions['fallbackDom']
+        if (renderOptions) ({insertAt, fallbackDom} = renderOptions)
+
+        const useFallback = fallbackDom && (child === null || child === undefined)
         const useRawNode = child instanceof Node
-        const node = useRawNode ? child : document.createTextNode(String(child))
+        let node: Node
+        if (useFallback) node = fallbackDom
+        else if (!useRawNode) node = document.createTextNode(String(child))
+        else node = child
+
         if (!insertAt) parent._dom.append(node)
         else insertNodeAt(parent._actualDom, node, insertAt)
+
         return {
-            type: useRawNode ? RawNode : TextNode,
+            type: useRawNode || useFallback ? RawNode : TextNode,
             _dom: node,
             _parent: parent
         } as MinimallyCompatibleNodeData
@@ -61,26 +82,31 @@ function insertNodeAt(parent: HTMLElement | DocumentFragment, node: Node, index:
     } else parent.append(node)
 }
 
-export function renderNode(node: JSX.Element, insertAt?: number) {
+export function renderNode(
+    node: JSX.Element,
+    renderOptions?: RenderOptions
+): typeof node {
     if (process.env.NODE_ENV === 'development' && module.hot) registerElementRenderStart(node)
+    let insertAt: RenderOptions['insertAt'], fallbackDom: RenderOptions['fallbackDom']
+    if (renderOptions) ({insertAt, fallbackDom} = renderOptions)
 
     node._parent ??= currentNodePath.at(-1)
     currentNodePath.push(node)
+    if (node._parent && typeof node._parent.type === 'function') {
+        node._parent._childNode = node
+    }
 
     const isDOM = typeof node.type === 'string'
     const isComponent = typeof node.type === 'function'
     const isFragment = node.type === Fragment
 
-    if (isFragment || isComponent) {
-        node._dom ??= node._parent._dom
-    }
-
     if (isDOM) {
         renderVNodeDomElement(node)
-        node.postRender()
     }
 
     if (isComponent) {
+        // proxy this dom to parent
+        if (node._parent) node._dom = node._parent._dom
         node.type(node.props)
     }
 
@@ -94,16 +120,26 @@ export function renderNode(node: JSX.Element, insertAt?: number) {
         }
     }
 
+    if (fallbackDom) {
+        const fallback = fallbackDom as unknown as HTMLElement // trust me bro
+        if (isFragment && node._dom.childNodes.length === 0) {
+            node._dom.append(fallback)
+        } else if (isComponent && false /* todo */) {
+            node._dom = fallback
+        }
+    }
+
     if (isFragment) {
         // @ts-ignore
         node._fragmentChildren = Array.from(node._dom.childNodes.values())
     }
 
-    if (node._parent) {
+    if (node._parent && !isComponent) {
         if (!insertAt) node._parent._dom.append(node._dom)
         else insertNodeAt(node._parent._actualDom, node._dom, insertAt)
     }
 
+    node.postRender()
     if (currentNodePath.at(-1) === node) currentNodePath.pop()
 
     if (process.env.NODE_ENV === 'development' && module.hot) registerElementRenderEnd(node)

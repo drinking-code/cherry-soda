@@ -1,6 +1,5 @@
 import {JSX} from '../index'
 import {Fragment} from './factory'
-import {ComponentChild} from './types/elements'
 import Listeners from './Listeners'
 import {ensureArray} from '../utils/array'
 
@@ -11,6 +10,7 @@ export default class VNode<P = {}> {
     readonly type: VNodeType
     readonly props: VNodeProps<P>
     readonly _children: JSX.ComponentChildren
+    _childNode?: VNode // only for component types
     _parent: VNode
     _dom?: HTMLElement | DocumentFragment
     _fragmentChildren?: (HTMLElement | Text)[]
@@ -64,16 +64,4 @@ export function isEqualVNode(target: VNode, test: VNode): boolean {
         }
         return true
     }
-}
-
-export function yieldsDomNodes(node: ComponentChild) {
-    if (node instanceof VNode) {
-        if (node.type === Fragment) {
-            if (Array.isArray(node._children)) return node._children.some(yieldsDomNodes)
-            else return yieldsDomNodes(node._children)
-        } else if (typeof node.type === 'function') {
-            // todo
-            return null
-        } else return true
-    } else return true
 }

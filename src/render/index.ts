@@ -2,8 +2,8 @@ import {type JSX} from '../index'
 import {renderNode} from './render'
 import {isEqualVNode} from '../jsx/VNode'
 
-export function defineDom(node: JSX.Element): void {
-    renderNode(node)
+export function defineDom(node: JSX.Element): typeof node {
+    return renderNode(node)
 }
 
 const mountedElementDomEntry: Map<JSX.Element, HTMLElement> = new Map()
