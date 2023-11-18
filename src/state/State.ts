@@ -27,7 +27,7 @@ export default class State<V = any> extends Identifiable {
         this._value = initialValue
     }
 
-    _valueOf(): V {
+    valueOf(): V {
         return this._value
     }
 

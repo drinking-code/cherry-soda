@@ -78,7 +78,7 @@ export function registerElementRenderStart(node: JSX.Element) {
                 return isEqual(stateInitialValues.get(newState), stateInitialValues.get(oldStates[index]))
             })
         ) {
-            newStates.forEach((newState, index) => newState.update(oldStates[index]._valueOf()))
+            newStates.forEach((newState, index) => newState.update(oldStates[index].valueOf()))
         }
         stateMap.set(previousNode, newStates)
         rebuildStateMap.delete(previousNode)

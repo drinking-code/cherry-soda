@@ -16,8 +16,8 @@ export default class StateConsumer<V = any, R extends JSX.ComponentChildren = JS
 
     render(): R {
         const values = Array.isArray(this.states)
-            ? this.states.map(state => state._valueOf())
-            : this.states._valueOf()
+            ? this.states.map(state => state.valueOf())
+            : this.states.valueOf()
         if (this.transform) {
             return Array.isArray(values)
                 ? this.transform(...values)

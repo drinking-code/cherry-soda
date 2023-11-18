@@ -11,11 +11,12 @@
 
 ---
 
-Yet another JavaScript framework that nobody needs. Plan is to create an SSR-mode that shifts HTML rendering to the
-server completely. This means that only JavaScript, that does not render HTML will be bundled and send to / executed on
-the client.
+Yet another JavaScript framework that nobody needs. Instead of re-rendering whole components after state value changes,
+it updates only affected spots in the DOM.  
+The plan is to create an SSR-mode that shifts HTML rendering to the server completely. This means that only JavaScript,
+that does not render HTML will be bundled and send to / executed on the client.
 
-> **Warning**&nbsp;&nbsp;
+> [!WARNING]
 > Cherry-soda is experimental. Everything is subject to change.
 
 ## Test the waters, dip a toe
@@ -32,261 +33,160 @@ npm run start ./cherry-soda-template
 
 [//]: # (todo: add command to add boilerplate code)
 
-In a new Bun project install cherry-soda with `bun i cherry-soda`, and add files `src/index.js` and `src/App.js`:
+In a new Node project install cherry-soda with `npm i cherry-soda`, and add files `src/index.js` and `src/App.js`:
 
 ```javascript
 // src/index.js
 import {mount} from 'cherry-soda'
-
-import './index.css'
 import App from './App'
 
 mount(<App />, document.querySelector('#app'))
 ```
 
+if you use webpack HMR, append
+
+```javascript
+if (module.hot) {
+    module.hot.accept();
+}
+```
+
 ```javascript
 // src/App.js
-import {render} from 'cherry-soda'
+import {defineDom} from 'cherry-soda'
 
 export default function App() {
-    render(<h1>Hello world!</h1>)
+    defineDom(<h1>Hello world!</h1>)
 }
 ```
 
-`index.js` is the main entry point. The `mount()` function renders the given virtual node to the given DOM element. Each
-component can render virtual nodes to the DOM itself by calling `render()`.
-
-Then, add the cherry-soda JSX runtime to your `tsconfig.json` / `jsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "cherry-soda"
-  }
-}
-```
+`index.js` is the main entry point. The `mount()` function renders the given JSX element to the given DOM element. Each
+component can render a JSX element to the DOM itself by calling `defineDom()`.
 
 [//]: # (todo: add this cli usable dev server to code)
 
-Run `cherry-soda dev src/index.js` to start the dev server. Then, visit `localhost:3000`.
+Use webpack (or a bundler of your choice) with a configuration like this:
+
+```javascript
+import webpack from 'webpack'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+
+module.exports = {
+    entry: 'path/to/src/index.js',
+    output: {
+        filename: 'bundle.js',
+        path: 'path/to/dist/',
+        publicPath: '/'
+    },
+    module: {
+        rules: [{
+            test: /\.jsx?$/,
+            exclude: /node_modules/,
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: ['@babel/env'],
+                    plugins: [['@babel/plugin-transform-react-jsx', {
+                        runtime: 'automatic',
+                        importSource: 'cherry-soda'
+                    }]]
+                }
+            }
+        }]
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(mode)
+        }),
+        new HtmlWebpackPlugin({
+            templateContent: '<div id="app"></div>'
+        })
+    ]
+}
+```
+
+Of course, add SCSS, Less, TypeScript, etc. according to taste.  
+Notice the [HtmlWebpackPlugin](https://webpack.js.org/plugins/html-webpack-plugin/): You'll need an HTML file that
+imports the bundled script and has a mounting point (in this case a `<div>`) with `id="app"`. Make sure bundle is
+executed after the document is loaded, or adjust your `src/index.js` so that `mount()` is called after document load.
 
 ## Guides
 
-### Add client-side code
+[//]: # (### State management)
 
-In a function component typically all code is executed on the server. To execute code on the client you can use
-the [`doSomething()`](#dosomething) function. The callback provided will only be executed on the client. You can provide
-states and/or refs to listen to in an array as the second parameter. If given, the callback will be called every time a
-state or ref changes. To clean up, the callback may return a function, which will be called before the callback is
-called immediately before a state change.
+[//]: # (### Route on the server, and the client will route, too)
 
-[//]: # (todo: ref changing ??? wtf)
-To refer to an element that the component returns you can use a ref with [`createRef()`](#createref), which you will
-also need to pass in the array.
-Inside [`doSomething()`](#dosomething) a ref will be the actual node of the DOM. States can also be passed in the
-dependency array. A state will be passed to the function as an array of the state value and a function to change the
-state.  
-Here is an [example](/example/counter/App.tsx) to illustrate all those features:
-
-```javascript
-import {createRef, createState, doSomething} from 'cherry-soda'
-
-export default function Counter() {
-    // create a state with an initial value `0`
-    /* the returned value is an "State" object that can be used 
-     * as a child, prop value, as is or with ".use()"
-     */
-    const count = createState(0)
-    // two refs for the two buttons
-    const addButton = createRef()
-    const subtractButton = createRef()
-
-    /* "doSomething" takes the function (client-side code) as the first 
-     * and an array of dependencies as the second parameter.
-     * The dependencies will be fed into the function in the same order as provided.
-     * The "count" state gets converted into a (client-side) state
-     * and a function to change the state's value.
-     */
-    doSomething(([count, setCount], addButton, subtractButton) => {
-        /* "addButton" and "subtractButton" are now just DOM elements
-         * and not refs anymore.
-         */
-        addButton.addEventListener('click', () => {
-            setCount(count + 1)
-        })
-        subtractButton.addEventListener('click', () => {
-            setCount(Math.max(count - 1, 0))
-        })
-    }, [count, addButton, subtractButton])
-
-    return <>
-        {/* The ref object must be passed here as prop "ref" to assign this node */}
-        <button ref={addButton}>+</button>
-        {/* The state object can be used here just like that. 
-        It'll be converted to a number (or rather a string) internally. */}
-        <span>Count: {count}</span>
-        <button ref={subtractButton}>-</button>
-    </>
-}
-```
-
-### Route on the server, and the client will route, too
-
-### Section you app with `<Island>`s
+[//]: # (### Section your app with `<Island>`s)
 
 ## Reference
 
-### Rendering and function components
-
-#### Rendering
-
-<h5 id="cherrysoda">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/cherry-soda-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/cherry-soda-light.svg">
-    <img src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/cherry-soda-light.svg" alt="cherrySoda(entry: string)" width="262.5" height="24">
-  </picture>
-</h5>
-
-To render an app, you can use the `cherrySoda()` function. It returns a request handler for `Bun.serve()` and handles
-compiling / building and watching all the files belonging to your app.
-
-**Parameters:**
-
-- `entry: string` Absolute path to the [entry file](#entry-file)
-
-**Returns:**
-
-- `(req: Request) => Response`
-
-[//]: # (todo: document the element children find method)
-
-#### Entry file
-
-Every cherry-soda app has a single entry file. This file exports a function `main()`, which returns the main function
-component (usually called `<App/>`). If this component does not yield a `<html>` tag, cherry-soda will automatically
-wrap the resulting HTML in a standard document.
-
-[//]: # (todo: create option to turn that off)
-
-#### Function components
-
-Apps are built with stateful function components. Each component is a function that accept props as a parameter and
-return JSX element/s. All code in a function component gets executed on the server.  
-Internally, function components are called once on startup in production mode, and immediately after they are changed in
-development mode. This can cause unexpected effects for example when a function component writes to a database. This is
-why you should use [`sideEffect()`](#sideeffect) for any non-deterministic server-side code and code that must be
-executed during the render.    
-If you want to execute code for a component in the browser, use
-[`doSomething()`](#dosomething).
-Cherry-soda collects the code given as the callback to `doSomething()` at build time and bundles it into a single file
-together with code from other `doSomething()`s and cherry-soda's runtime.
-
-<h5 id="dosomething">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/do-something-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/do-something-light.svg">
-    <img src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/do-something-light.svg" alt="doSomething(callback: (...args: ([any, (value: any) => void] | HTMLElement))[]) => void | Function, recallOn: (State | Ref)[])" width="586.25" height="108">
-  </picture>
-</h5>
-
-This function lets you execute code in the browser. The function `callback` and its lexical scope get extracted by
-cherry-soda's compiler and bundled into the frontend JavaScript. All [refs](#refs) and [states](#states) that are used
-in the `callback` should be passed in the `recallOn` array.  
-The values you passed in the array will be passed in the same order into the `callback` function on the client. If a ref
-is passed into the array, the passed value for the function will be the matching HTML element. If a state is passed into
-the array, the passed value for the function will be an array with the value as the first entry and a function for
-changing the state value as the second entry.  
-The callback function may return another function. This (returned) function will be called before a state changes
-value (after calling the function to change the state value). You can use this function to clean up if you need to.
-
-**Parameters:**
-
-- `callback: (...args: any[]) => void | Function` A function that is executed on the client. The function may return
-  another function. The returned function will be called anytime the component's elements are removed from the DOM.
-- `recallOn: (State | Ref)[]` An array of states, whose values are listened to and trigger the callback when they
-  change.
-
-<h5 id="sideeffect">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-light.svg">
-    <img src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/side-effect-light.svg" alt="sideEffect(callback: (...args: any[]) => void)" width="455" height="108">
-  </picture>
-</h5>
-
-This function lets you execute code on render-time. On startup, or when a file is changed in development, cherry-soda
-compiles the app's components into templates, which are used for rendering. This essentially bakes any dynamic content
-into the template. Use states to include dynamic content into your app. You can set the value of the state
-with [`doSomething()`](#dosomething) on the client, or with `sideEffect()` on the server.
-For setting state values inside the callback function, `sideEffect()` accepts an array of states that are updated by the
-callback as its second argument. These states are passed as arrays with the value as the first entry and a function for
-changing the state to the callback, similarly to [`doSomething()`](#dosomething).
-
-**Parameters:**
-
-- `callback: (...args: any[]) => void` A function with the code that is executed everytime the app is rendered.
-- `recallOn: State[]` An array of states that should be passed to callback (as `[value, setValue()]` pairs).
-
-### Refs
-
-Refs are a way to work with the DOM nodes that your function components return. To use, get a reference instance by
-calling the [`createRef()`](#createref) function, and pass it to the desired element with the `ref` parameter. When you
-pass the ref object in the `recallOn` array of [`doSomething()`](#dosomething) cherry-soda will pass the actual DOM
-element to the callback on the client. You can also pass one ref to multiple elements.
-If you do that, cherry-soda will pass a `HTMLCollection` containing the respective DOM elements inside
-the [`doSomething()`](#dosomething) callback.
-
-<h4 id="createref">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-ref-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-ref-light.svg">
-    <img src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-ref-light.svg" alt="createRef(): Ref" width="175" height="24">
-  </picture>
-</h4>
-
-Returns a new `Ref`. Pass this to an element like so:
-
-```javascript
-import {createRef} from 'cherry-soda'
-
-function Component() {
-    const myRef = createRef()
-
-    return <div ref={myRef} />
-}
-```
-
-**Returns:**
-
-- `Ref` A new `Ref` instance.
+### JSX Elements
 
 ### States
 
-You can create states with [`createState()`](#createstate). This will return a `State` object that holds a value.
-Passing this state into [`doSomething()`](#dosomething) or [`sideEffect()`](#sideeffect) will convert it into an array
-in which the first entry in the state object and the second entry is a function for changing the value of the state.
+You can create states with [`state()`](#createstate). This will return a `State` object that holds a value. During
+rendering states are automatically converted into their respective values. They can also drive dynamic values
 
 <h4 id="createstate">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-light.svg">
-    <img alt="createState(initialValue: any): State" height="24" src="https://cdn.jsdelivr.net/gh/drinking-code/cherry-soda/img/headlines/create-state-light.svg">
-  </picture>
+  <code>state&lt;V>(initialValue: V, methods?: StateMethods&lt;V>, updater?: UpdaterInitializer): State&lt;V></code>
 </h4>
+
+> Where
+> ```
+> StateMethods<V> = { 
+>   [method: string]: (currentValue: V, ...rest: any[]) => V
+> }
+> ```
+> and
+> ```
+> UpdaterInitializer = (update: (newValue: V) => void) => void
+> ```
 
 Creates a `State` object with the given value.
 
+The `methods` parameter allows you to define methods to update the state value besides calling `.update()`. For example,
+you might want to create a toggle:
+
+```javascript
+// normal state update
+const isPlaying = state(false)
+
+button.on.click(() => {
+    isPlaying.update(!isPlaying.valueOf())
+})
+
+// with method
+const isPlaying = state(false, {
+    toggle: (currentValue) => !currentValue
+})
+
+button.on.click(isPlaying.toggle)
+```
+
+To have a state being updated, you can set an updater with the `updater` parameter. The updater has to be a function,
+which gets an `update()` function passed to it. For example, you might want to tie a state value to an element's
+dimensions:
+
+```javascript
+const elementDimensions = state(myElement.getBoundingClientRect(), {}, update => {
+    const resizeObserver = new ResizeObserver((entries) => {
+        update(entries[0].contentRect)
+    })
+    resizeObserver.observe(myElement)
+})
+```
+
 **Parameters:**
 
-- `initialValue: any` The initial value for this state.
+- `initialValue: any` – The initial value for this state.
+- `methods?: StateMethods` – Functions that can be called on this state to update it.
+- `updater?: Function` – Function for setting up updaters.
 
 **Returns:**
 
-- `State` A `State` object with `initialValue` as its value.
+- `State` – A `State` object with `initialValue` as its value, and `methods` as methods.
 
-#### `State` (Server-Side)
+#### `State`
 
 The `State` object holds the initial value of the state and can be passed into [`doSomething()`](#dosomething)
 or [`sideEffect()`](#sideeffect) or used in the DOM by using it like a value:
@@ -342,47 +242,3 @@ function Component() {
 
 > Fun fact: using `myState` is the same as `myState.use()` is the same as `myState.use(value => value)`
 
-### Location and Routing
-
-### Essential built-in components
-
-Cherry-soda provides some built-in components that help you manage the basic document structure.
-
-#### `<Html>`
-
-Renders a `<html>` element and manages the lang attribute (if you're building a multilingual app).
-
-#### `<Head>`
-
-Renders a `<head>` element and manages the loading of scripts and assets. It can also automatically generate metadata
-for SEO, and icons from your given configuration. You can pass your own elements into `<Head>`. These will just be
-rendered inside the `<head>` and replace the generated elements if any.  
-For example:
-
-```javascript
-import {Html, Head, Body} from 'cherry-soda'
-
-function App() {
-    return (
-        <Html>
-            <Head>
-                {/* title element overrides the default <title>Title</title> */}
-                <title>My App</title>
-            </Head>
-        </Html>
-    )
-}
-```
-
-[//]: # (todo: show config and all features that are not implemented yet)
-
-#### `<Body>`
-
-Renders a `<body>` element.
-
-#### `<Bundle>`
-
-Renders the necessary `<link>` / `<style>`, and `<script>` elements to import generated JavaScript and CSS. Use this if
-you do not want to manage them yourself and also do not want to use [`<Head>`](#head).
-
-### Islands

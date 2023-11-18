@@ -13,7 +13,7 @@ export function state<V = any, U extends StateMethods<V> = StateMethods<V>>(init
         get(target: typeof state, key: keyof U | keyof State | any) {
             if (Reflect.has(target, key)) return state[key]
             if (key in methods) return (...args) => {
-                const newValue = methods[key as keyof U](state._valueOf(), ...args)
+                const newValue = methods[key as keyof U](state.valueOf(), ...args)
                 state.update(newValue)
             }
             return undefined
