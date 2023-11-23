@@ -12,7 +12,7 @@
 ---
 
 Yet another JavaScript framework that nobody needs. Instead of re-rendering whole components after state value changes,
-it updates only affected spots in the DOM.  
+it updates only areas in the DOM defined by the developer as affected by state changes.  
 The plan is to create an SSR-mode that shifts HTML rendering to the server completely. This means that only JavaScript,
 that does not render HTML will be bundled and send to / executed on the client.
 
