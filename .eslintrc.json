@@ -1,0 +1,29 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "prettier"],
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "rules": {
+    "prettier/prettier": "warn",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-unused-vars": ["warn", {"ignoreRestSiblings": true}],
+    "@typescript-eslint/no-empty-function": "warn",
+    "arrow-parens": ["warn", "as-needed"],
+    "no-console": ["warn", {"allow": ["warn", "error", "debug"]}],
+    "prefer-const": ["warn"],
+    "no-constant-condition": "warn",
+    "no-restricted-syntax": ["error"]
+  },
+  "parser": "@typescript-eslint/parser"
+}

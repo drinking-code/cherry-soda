@@ -1,24 +1,13 @@
-import {VirtualElement} from './VirtualElement'
-import {ElementChildren} from './ElementChildren'
-import {Props} from './cherry-soda'
+import VNode from './VNode'
 
-function createVirtualElement(
-    type: VirtualElement['type'] | VirtualElement['function'] | typeof Fragment,
-    props: Props<VirtualElement> & { children?: ElementChildren } & { [p: string]: any }
-): VirtualElement | ElementChildren {
-    const children = new ElementChildren(props.children)
-    delete props.children
-    if (type === Fragment)
-        return children
-
-    return new VirtualElement(type, props, children)
+export function createElement(type: VNode['type'], props: VNode['props']) {
+    return new VNode(type, props)
 }
 
-const Fragment = Symbol.for('cherry-soda.fragment')
+export const Fragment = Symbol.for('Fragment')
 
 export {
-    createVirtualElement as jsx,
-    createVirtualElement as jsxs,
-    createVirtualElement as jsxDEV,
-    Fragment
+    createElement as jsx,
+    createElement as jsxs,
+    createElement as jsxDEV
 }

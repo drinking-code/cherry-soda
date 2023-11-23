@@ -8,29 +8,18 @@ import render from './render.js'
 import start from './start.js'
 import dev from './dev.js'
 
-import projectRoot from '../src/utils/project-root.js'
-import moduleRoot from '../src/utils/module-root.js'
-
-global.cherrySodaPackageJson ??= JSON.parse(
+const packageJson = JSON.parse(
     fs.readFileSync(
         path.join(
-            path.dirname((new URL(import.meta.url)).pathname),
-            '..',
-            'package.json'
+            path.dirname((new URL(import.meta.url)).pathname), '..', 'package.json'
         ), 'utf8')
 )
-
-if (process.argv.includes('start') || process.argv.includes('dev'))
-    process.env.INTERNAL_DEV = projectRoot === moduleRoot ? 'true' : 'false'
-
-if (!process.env.PORT)
-    process.env.PORT = '3000'
 
 const program = new Command()
 
 program
-    .name(cherrySodaPackageJson.name)
-    .version(cherrySodaPackageJson.version)
+    .name(packageJson.name)
+    .version(packageJson.version)
 
 program.command('build')
     .description('Build assets for client')

@@ -10,14 +10,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "src",
 
-    "allowJs": true,
-
-    "types": ["bun-types", "jest"],
+    "allowJs": false,
     "allowSyntheticDefaultImports": true,
-
-    "paths": {
-      "#cherry-soda": ["./src/index.ts"],
-      "#messages/colors": ["./src/messages/colors.bun.ts"],
-    }
   }
 }

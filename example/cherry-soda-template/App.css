@@ -1,4 +1,4 @@
-.App {
+#app {
     min-height: 100vh;
     text-align: center;
 
@@ -9,7 +9,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-    .App {
+    #app {
         background: #222;
         color: #fff;
     }
