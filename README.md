@@ -3,8 +3,8 @@
 </div>
 <div align="center">
     <a href="#get-started">Get started</a>
-    &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-    <a href="#guides">Guides</a>
+    <!--&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+    <a href="#guides">Guides</a>-->
     &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
     <a href="#reference">Reference</a>
 </div>
@@ -110,17 +110,84 @@ Notice the [HtmlWebpackPlugin](https://webpack.js.org/plugins/html-webpack-plugi
 imports the bundled script and has a mounting point (in this case a `<div>`) with `id="app"`. Make sure bundle is
 executed after the document is loaded, or adjust your `src/index.js` so that `mount()` is called after document load.
 
-## Guides
+[//]: # (## Guides)
 
 [//]: # (### State management)
-
-[//]: # (### Route on the server, and the client will route, too)
 
 [//]: # (### Section your app with `<Island>`s)
 
 ## Reference
 
 ### JSX Elements
+
+Cherry-soda exports [`createElement()`](#createelement) which allows you to create virtual elements, that form a
+template for rendering the actual DOM later on. `createElement()` is exported as `jsx` in `jsx-runtime.ts`, so you can
+call it by using JSX:
+
+```jsx
+// this
+import {createElement} from 'cherry-soda'
+
+const myDivElement = createElement('div')
+
+// is the same as 
+const myDivElement = <div />
+```
+
+<h4 id="createelement">
+  <code>createElement(type: VNodeType, props: Record&lt;string, any>): VNode</code>
+</h4>
+
+> Where
+> ```
+> VNodeType = 
+>     | (props: Record<string, any>) => void
+>     | typeof Fragment
+>     | string
+> ```
+
+Creates a cherry-soda element.
+
+**Parameters:**
+
+- `type: VNodeType` – Either the tag name of a DOM element, the `Fragment` symbol, or a function (that may or may not
+  call [`defineDom()`](#definedom)).
+- `Record<string, any>` – Either attributes for a DOM element, or properties passed to the function passed as `type`.
+
+**Returns:**
+
+- `VNode` – A `VNode` with the given `type` & `props`.
+
+<h4 id="definedom">
+  <code>defineDom(node: JSX.Element): JSX.Element</code>
+</h4>
+
+> This function should only be called in a function component, and should at most be called once per function component, otherwise might break things.
+
+Defines the JSX element `node` for the current function component. Converts internally to DOM elements and renders to DOM appropriately.
+
+**Parameters:**
+
+- `node: JSX.Element` – JSX element to be defined for the function component.
+
+**Returns:**
+
+- `JSX.Element` – The node that was passed as `node`.
+
+<h4 id="mount">
+  <code>mount&lt;V>(node: JSX.Element, to: HTMLElement): void</code>
+</h4>
+
+Defines the JSX element `node` for the given DOM element `to`. Converts internally to DOM elements and renders to the DOM element appropriately.
+
+**Parameters:**
+
+- `node: JSX.Element` – JSX element to be defined for the given DOM element.
+- `to: HTMLElement` – DOM element to which elements should be rendered.
+
+[//]: # (<h4 id="hydrate">)
+[//]: # (  <code>hydrate&lt;V>&#40;node: JSX.Element, to: HTMLElement&#41;: void</code>)
+[//]: # (</h4>)
 
 ### States
 
@@ -188,57 +255,57 @@ const elementDimensions = state(myElement.getBoundingClientRect(), {}, update =>
 
 #### `State`
 
-The `State` object holds the initial value of the state and can be passed into [`doSomething()`](#dosomething)
-or [`sideEffect()`](#sideeffect) or used in the DOM by using it like a value:
+The `State` object holds the initial value of the state and can be used in the DOM like a value:
 
 ```javascript
-import {createState} from 'cherry-soda'
+import {defineDom, state} from 'cherry-soda'
 
 function Component() {
-    const myState = createState('foo')
+    const myState = state('foo')
 
-    return <div id={myState}>
-        {myState}
-    </div>
+    defineDom(
+        <div id={myState}>
+            {myState}
+        </div>
+    )
 }
 ```
 
-Sometimes, you don't want to use the states value directly, but a transformed version of it. To do that, use
-the `.use()` method. It takes a callback which itself receives the state value as a parameter:
+Sometimes, you might not want to use the states value directly, but a transformed version of it. To do that, call
+the `.use()` method. It takes a callback to which the state value is passed as a parameter:
 
 ```javascript
-import {createState} from 'cherry-soda'
+import {defineDom, state} from 'cherry-soda'
 
 function Component() {
-    const elementType = createState('a')
+    const elementType = state('a')
     const label = 'foo'
 
-    return <>
+    defineDom(<>
         {elementType.use(tagName => {
             if (tagName === 'a')
                 return <a>{label}</a>
             else
                 return <span>{label}</span>
         })}
-    </>
+    </>)
 }
 ```
 
-You can also use multiple states in one `.use()` by concatenating them with `.and()`. The state's values are passed in
-the order they were concatenated in:
+You can also process multiple states in one `.use()` by concatenating them with `.and()`. The state's values are passed
+in the order they were concatenated in:
 
 ```javascript
-import {createState} from 'cherry-soda'
+import {defineDom, state} from 'cherry-soda'
 
 function Component() {
-    const revenue = createState(5)
-    const expenses = createState(3)
+    const revenue = state(5)
+    const expenses = state(3)
 
-    return <>
-        Profit: {revenue.and(expenses).use((a, b) => a - b)}
-    </>
+    defineDom(<>
+        Profit: {revenue.and(expenses).use((rev, exp) => rev - exp)}
+    </>)
 }
 ```
 
-> Fun fact: using `myState` is the same as `myState.use()` is the same as `myState.use(value => value)`
-
+> Tip: using `myState` in JSX is the same as `myState.use()` is the same as `myState.use(value => value)`

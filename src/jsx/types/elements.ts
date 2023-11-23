@@ -197,7 +197,7 @@ export type ComponentChild =
 export type ComponentChildren = ComponentChild[] | ComponentChild;
 
 export interface FunctionComponent<P = {}> {
-    (props: P & Readonly<{children?: ComponentChildren}>, context?: any): void | any;
+    (props: P & Readonly<{children?: ComponentChildren}>): void | any;
 
     displayName?: string;
     defaultProps?: Partial<P> | undefined;
