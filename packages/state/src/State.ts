@@ -1,12 +1,13 @@
-import type {JSX} from '../index'
-import type VNode from '../jsx/VNode'
-import Identifiable from '../utils/Identifiable'
+import type {JSX} from '@cherry-soda/core'
+import type VNode from '@cherry-soda/core/src/jsx/VNode'
+import {Identifiable} from '@cherry-soda/core'
 import StateConsumer, {StateUsageFunctionType} from './StateConsumer'
-import {updateNodeChild, updateNodeProp} from '../render/update'
+import {updateNodeChild, updateNodeProp} from './update'
 
 export type TiedNodeChildrenData = {
     parent: VNode,
     domNodes: (HTMLElement | Text)[],
+    render: Function,
     consumer: StateConsumer,
 }
 
@@ -53,9 +54,9 @@ export default class State<V = any> extends Identifiable {
         })
     }
 
-    _tieNodeChild(parent: VNode, consumer: StateConsumer, domNodes?: (HTMLElement | Text)[]) {
+    _tieNodeChild(parent: VNode, consumer: StateConsumer, render: Function, domNodes?: (HTMLElement | Text)[]) {
         this._ensureTiedNodes()
-        const data: TiedNodeData = {parent, domNodes, consumer}
+        const data: TiedNodeData = {parent, domNodes, consumer, render}
         if (this._hasNodeTied(data)) return
         this._tiedNodes.push(data)
     }

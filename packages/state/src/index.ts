@@ -1,5 +1,6 @@
+import './render'
 import State from './State'
-import {registerAndHandleStateCreation} from '../render/hmr/render-with-old-states'
+// import {registerAndHandleStateCreation} from '../render/hmr/render-with-old-states'
 
 type StateMethods<V> = Record<string, (value: V, ...rest: any[]) => V>
 type ParametersExceptFirst<F> = F extends (arg0: any, ...rest: infer R) => any ? R : never;

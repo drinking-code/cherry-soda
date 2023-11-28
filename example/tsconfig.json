@@ -8,9 +8,6 @@
     "moduleResolution": "node",
 
     "jsx": "react-jsx",
-    "jsxImportSource": ".",
-
-    "allowJs": false,
-    "allowSyntheticDefaultImports": true,
+    "jsxImportSource": "cherry-soda"
   }
 }

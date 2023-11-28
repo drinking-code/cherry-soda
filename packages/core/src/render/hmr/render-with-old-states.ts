@@ -1,7 +1,9 @@
 import {JSX} from '../../index'
-import State from '../../state/State'
+// import State from '../../state/State'
 import VNode, {isEqualVNode} from '../../jsx/VNode'
 import TreeMap from './TreeMap'
+
+type State = any
 
 const elementRenderQueue: JSX.Element[] = []
 

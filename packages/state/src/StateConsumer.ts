@@ -1,6 +1,6 @@
-import type {JSX} from '../index'
+import type {JSX} from '@cherry-soda/core'
 import type State from './State'
-import Identifiable from '../utils/Identifiable'
+import {Identifiable} from '@cherry-soda/core'
 
 export type StateUsageFunctionType<V, R> = (...values: V[]) => R
 

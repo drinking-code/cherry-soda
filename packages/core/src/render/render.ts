@@ -3,16 +3,17 @@ import {ComponentChild} from '../jsx/types/elements'
 import VNode from '../jsx/VNode'
 import {Fragment} from '../jsx/factory'
 import {ensureArray} from '../utils/array'
-import {isStateConsumer} from '../state/StateConsumer'
-import {isState} from '../state/State'
+// import {isStateConsumer} from '../state/StateConsumer'
+// import {isState} from '../state/State'
 import {registerElementRenderEnd, registerElementRenderStart} from './hmr/render-with-old-states'
+import {renderHooks} from './hooks'
 
 let currentNodePath: VNode[] = []
 
 const TextNode = Symbol.for('TextNode')
 const RawNode = Symbol.for('RawNode')
 
-interface MinimallyCompatibleNodeData {
+export interface MinimallyCompatibleNodeData {
     type: typeof TextNode | typeof RawNode,
     _dom: Node,
     _parent: VNode,
@@ -30,49 +31,40 @@ interface RenderOptions {
 export function renderChild(child: ComponentChild, parent: JSX.Element, renderOptions?: RenderOptions) {
     if (child instanceof VNode) {
         return renderNode(child, renderOptions)
-    } else if (isState(child) || isStateConsumer(child)) {
-        let insertAt: RenderOptions['insertAt']
-        if (renderOptions) ({insertAt} = renderOptions)
-
-        const stateConsumer = isState(child) ? child.use() : child
-        const result = stateConsumer.render()
-
-        const renderedChild = renderChild(
-            result,
-            parent,
-            {insertAt, fallbackDom: placeholderForStateComment()}
-        )
-
-        // because fragment node cannot be tracked as a dom element, the children are tracked, and fragment becomes the parent
-        let parentNode = renderedChild.type === Fragment ? renderedChild : parent
-        let nodes = renderedChild.type === Fragment
-            ? renderedChild._fragmentChildren
-            : [renderedChild._dom as HTMLElement]
-
-        if (Array.isArray(stateConsumer.states)) {
-            stateConsumer.states.forEach(state => state._tieNodeChild(parentNode, stateConsumer, nodes))
-        } else {
-            stateConsumer.states._tieNodeChild(parentNode, stateConsumer, nodes)
-        }
     } else {
+        let matchingHook: typeof renderHooks extends Map<any, infer I> ? I : never
+        for (let matcher of renderHooks.keys()) {
+            if (matcher(child)) {
+                matchingHook = renderHooks.get(matcher)
+                break
+            }
+        }
         let insertAt: RenderOptions['insertAt'], fallbackDom: RenderOptions['fallbackDom']
         if (renderOptions) ({insertAt, fallbackDom} = renderOptions)
 
-        const useFallback = fallbackDom && (child === null || child === undefined)
-        const useRawNode = child instanceof Node
-        let node: Node
-        if (useFallback) node = fallbackDom
-        else if (!useRawNode) node = document.createTextNode(String(child))
-        else node = child
+        if (matchingHook) {
+            matchingHook(child, (child) => renderChild(
+                child,
+                parent,
+                {insertAt, fallbackDom: placeholderForStateComment()}
+            ))
+        } else {
+            const useFallback = fallbackDom && (child === null || child === undefined)
+            const useRawNode = child instanceof Node
+            let node: Node
+            if (useFallback) node = fallbackDom
+            else if (!useRawNode) node = document.createTextNode(String(child))
+            else node = child
 
-        if (!insertAt) parent._dom.append(node)
-        else insertNodeAt(parent._actualDom, node, insertAt)
+            if (!insertAt) parent._dom.append(node)
+            else insertNodeAt(parent._actualDom, node, insertAt)
 
-        return {
-            type: useRawNode || useFallback ? RawNode : TextNode,
-            _dom: node,
-            _parent: parent
-        } as MinimallyCompatibleNodeData
+            return {
+                type: useRawNode || useFallback ? RawNode : TextNode,
+                _dom: node,
+                _parent: parent
+            } as MinimallyCompatibleNodeData
+        }
     }
 }
 
@@ -155,7 +147,7 @@ export function renderVNodeDomElement(node: JSX.Element) {
         if (key === 'children') continue
         if (key === 'className') key = 'class'
 
-        if (isState(value) || isStateConsumer(value)) {
+        /*if (isState(value) || isStateConsumer(value)) {
             const stateConsumer = isState(value) ? value.use() : value
             const result = stateConsumer.render()
             value = String(result)
@@ -165,7 +157,7 @@ export function renderVNodeDomElement(node: JSX.Element) {
             } else {
                 stateConsumer.states._tieNodeProp(node, stateConsumer, key)
             }
-        }
+        }*/
 
         node._dom.setAttribute(key, value as any)
     }

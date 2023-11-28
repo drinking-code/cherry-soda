@@ -1,7 +1,9 @@
 test
 img
-jest.config.js
 example
+packages
+
+jest.config.js
 .unimportedrc.json
 
 .idea

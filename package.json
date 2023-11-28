@@ -1,7 +1,8 @@
 {
   "name": "cherry-soda",
   "description": "Just another (super cool) JavaScript web framework.",
-  "version": "0.2.0-experimental",
+  "version": "0.3.0-experimental",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/drinking-code/cherry-soda.git"
@@ -9,30 +10,27 @@
   "bugs": {
     "url": "https://github.com/drinking-code/cherry-soda/issues"
   },
-  "main": "src/index.ts",
-  "module": "src/index.ts",
+  "main": "index.ts",
+  "module": "index.ts",
+  "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./jsx-runtime": "./src/jsx-runtime.ts",
-    "./jsx-dev-runtime": "./src/jsx-dev-runtime.ts"
+    ".": "./index.ts",
+    "./jsx-runtime": "./jsx-runtime.ts",
+    "./jsx-dev-runtime": "./jsx-dev-runtime.ts"
   },
   "bin": {
-    "cherry-soda": "cli/index"
+    "cherry-soda": "cli/new-project.js"
   },
-  "type": "module",
-  "framework": {
-    "displayName": "cherry-soda",
-    "css": "onimportcss"
+  "scripts": {
+    "prepack": "node ./publishing/prepublish.js",
+    "postpack": "node ./publishing/postpublish.js"
   },
   "dependencies": {
-    "commander": "^11.0.0",
-    "lodash.isequal": "^4.5.0",
-    "uuid": "^9.0.0"
+    "@cherry-soda/core": "./packages/core",
+    "@cherry-soda/state": "./packages/state"
   },
   "devDependencies": {
-    "@types/lodash.isequal": "^4.5.7",
     "@types/node": "^20.5.0",
-    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
     "eslint": "^8.47.0",

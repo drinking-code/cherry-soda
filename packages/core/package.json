@@ -1,0 +1,30 @@
+{
+  "name": "@cherry-soda/core",
+  "description": "Renderer for cherry-soda",
+  "version": "0.3.0-experimental",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drinking-code/cherry-soda.git"
+  },
+  "bugs": {
+    "url": "https://github.com/drinking-code/cherry-soda/issues"
+  },
+  "scripts": {
+    "prepack": "node ../../publishing/prepublish.js",
+    "postpack": "node ../../publishing/postpublish.js"
+  },
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./jsx-runtime": "./src/jsx-runtime.ts",
+    "./jsx-dev-runtime": "./src/jsx-dev-runtime.ts",
+    "./Identifiable": "./src/utils/Identifiable"
+  },
+  "dependencies": {
+    "lodash.isequal": "^4.5.0",
+    "uuid": "^9.0.0"
+  }
+}

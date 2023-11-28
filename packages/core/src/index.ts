@@ -2,4 +2,7 @@ export {JSXInternal as JSX} from './jsx/types/jsx'
 export {Fragment, createElement} from './jsx/factory'
 
 export {defineDom, mount} from './render'
-export {state} from './state'
+export {registerRenderHook} from './render/hooks'
+
+export {default as Identifiable} from './utils/Identifiable'
+export {isVNode} from './jsx/VNode'

@@ -41,6 +41,10 @@ export default class VNode<P = {}> {
     }
 }
 
+export function isVNode(value: any): value is VNode {
+    return value instanceof VNode
+}
+
 export function isEqualVNode(target: VNode, test: VNode): boolean {
     if (typeof test.type === 'function') {
         return test.type === target.type
