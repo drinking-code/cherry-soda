@@ -2,14 +2,24 @@ import {ComponentChild} from '../jsx/types/elements'
 import {MinimallyCompatibleNodeData} from './render'
 import {JSX} from '../index'
 
-export const renderHooks: Map<RenderHookMatcher, RenderHookCallback> = new Map()
+export const renderChildHooks: Map<RenderHookMatcher, RenderHookChildCallback> = new Map()
+export const renderPropHooks: Map<RenderHookMatcher, RenderHookPropCallback> = new Map()
 
-type RenderHookMatcher<V = any> = (value: any) => value is V
-type RenderHookCallback<V = any> = (
+export type RenderHookMatcher<V = any> = (value: any) => value is V
+export type RenderHookChildCallback<V = any> = (
     value: V,
     render: (child: ComponentChild) => MinimallyCompatibleNodeData | JSX.Element
-) => void
+) => boolean | void
+export type RenderHookPropCallback<V = any> = (
+    value: V,
+    setProp: (prop: string | number | boolean) => void,
+    ctx: {
+        node: JSX.Element,
+        key: string,
+    }
+) => boolean | void
 
-export function registerRenderHook<V = any>(match: RenderHookMatcher<V>, callback: RenderHookCallback<V>) {
-    renderHooks.set(match, callback)
+export function registerRenderHook<V = any>(match: RenderHookMatcher<V>, renderChild: RenderHookChildCallback<V>, renderProp?: RenderHookPropCallback<V>) {
+    renderChildHooks.set(match, renderChild)
+    renderProp && renderPropHooks.set(match, renderProp)
 }

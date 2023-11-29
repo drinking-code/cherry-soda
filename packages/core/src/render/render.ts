@@ -3,10 +3,8 @@ import {ComponentChild} from '../jsx/types/elements'
 import VNode from '../jsx/VNode'
 import {Fragment} from '../jsx/factory'
 import {ensureArray} from '../utils/array'
-// import {isStateConsumer} from '../state/StateConsumer'
-// import {isState} from '../state/State'
 import {registerElementRenderEnd, registerElementRenderStart} from './hmr/render-with-old-states'
-import {renderHooks} from './hooks'
+import {renderChildHooks, renderPropHooks} from './hooks'
 
 let currentNodePath: VNode[] = []
 
@@ -32,39 +30,32 @@ export function renderChild(child: ComponentChild, parent: JSX.Element, renderOp
     if (child instanceof VNode) {
         return renderNode(child, renderOptions)
     } else {
-        let matchingHook: typeof renderHooks extends Map<any, infer I> ? I : never
-        for (let matcher of renderHooks.keys()) {
-            if (matcher(child)) {
-                matchingHook = renderHooks.get(matcher)
-                break
-            }
-        }
         let insertAt: RenderOptions['insertAt'], fallbackDom: RenderOptions['fallbackDom']
         if (renderOptions) ({insertAt, fallbackDom} = renderOptions)
 
-        if (matchingHook) {
-            matchingHook(child, (child) => renderChild(
-                child,
-                parent,
-                {insertAt, fallbackDom: placeholderForStateComment()}
-            ))
-        } else {
-            const useFallback = fallbackDom && (child === null || child === undefined)
-            const useRawNode = child instanceof Node
-            let node: Node
-            if (useFallback) node = fallbackDom
-            else if (!useRawNode) node = document.createTextNode(String(child))
-            else node = child
-
-            if (!insertAt) parent._dom.append(node)
-            else insertNodeAt(parent._actualDom, node, insertAt)
-
-            return {
-                type: useRawNode || useFallback ? RawNode : TextNode,
-                _dom: node,
-                _parent: parent
-            } as MinimallyCompatibleNodeData
+        for (let matcher of renderChildHooks.keys()) {
+            if (!matcher(child)) continue
+            const hook = renderChildHooks.get(matcher)
+            const renderOptions = {insertAt, fallbackDom: placeholderForStateComment()}
+            const hasRendered = hook(child, (child) => renderChild(child, parent, renderOptions))
+            if (hasRendered !== false) return
         }
+
+        const useFallback = fallbackDom && (child === null || child === undefined)
+        const useRawNode = child instanceof Node
+        let node: Node
+        if (useFallback) node = fallbackDom
+        else if (!useRawNode) node = document.createTextNode(String(child))
+        else node = child
+
+        if (!insertAt) parent._dom.append(node)
+        else insertNodeAt(parent._actualDom, node, insertAt)
+
+        return {
+            type: useRawNode || useFallback ? RawNode : TextNode,
+            _dom: node,
+            _parent: parent
+        } as MinimallyCompatibleNodeData
     }
 }
 
@@ -147,17 +138,16 @@ export function renderVNodeDomElement(node: JSX.Element) {
         if (key === 'children') continue
         if (key === 'className') key = 'class'
 
-        /*if (isState(value) || isStateConsumer(value)) {
-            const stateConsumer = isState(value) ? value.use() : value
-            const result = stateConsumer.render()
-            value = String(result)
-
-            if (Array.isArray(stateConsumer.states)) {
-                stateConsumer.states.forEach(state => state._tieNodeProp(node, stateConsumer, key))
-            } else {
-                stateConsumer.states._tieNodeProp(node, stateConsumer, key)
-            }
-        }*/
+        for (let matcher of renderPropHooks.keys()) {
+            if (!matcher(value)) continue
+            const hook = renderPropHooks.get(matcher)
+            const hasRendered = hook(
+                value,
+                (result) => value = String(result),
+                {node, key}
+            )
+            if (hasRendered !== false) return
+        }
 
         node._dom.setAttribute(key, value as any)
     }

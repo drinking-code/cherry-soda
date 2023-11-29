@@ -1,4 +1,4 @@
-import {isVNode, Fragment} from '@cherry-soda/core'
+import {isElement, Fragment} from '@cherry-soda/core'
 import type {TiedNodeChildrenData, TiedNodePropData} from './State'
 
 export function updateNodeChild(tiedNodeChildrenData: TiedNodeChildrenData) {
@@ -6,7 +6,7 @@ export function updateNodeChild(tiedNodeChildrenData: TiedNodeChildrenData) {
     const result = consumer.render()
     for (let i = 0; i < domNodes.length; i++) domNodes[i].remove()
 
-    if (isVNode(result)) {
+    if (isElement(result)) {
         if (result.type === Fragment) result._parent = parent._parent
         else result._parent = parent
     }
@@ -19,7 +19,7 @@ export function updateNodeChild(tiedNodeChildrenData: TiedNodeChildrenData) {
 export function updateNodeProp(tiedNodePropData: TiedNodePropData) {
     const {node, prop, consumer} = tiedNodePropData
     const result = consumer.render()
-    const value = isVNode(result) ? result : String(result)
+    const value = isElement(result) ? result : String(result)
     if (node._dom instanceof HTMLElement)
         node._dom.setAttribute(prop, value as any)
 }

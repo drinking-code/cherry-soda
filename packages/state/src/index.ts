@@ -9,7 +9,7 @@ export function state<V = any, U extends StateMethods<V> = StateMethods<V>>(init
     [K in keyof U]: (...args: ParametersExceptFirst<U[K]>) => ReturnType<U[K]>
 } {
     const state = new State<V>(initialValue)
-    if (process.env.NODE_ENV === 'development' && module.hot) registerAndHandleStateCreation(state, initialValue)
+    // if (process.env.NODE_ENV === 'development' && module.hot) registerAndHandleStateCreation(state, initialValue)
     return new Proxy(state, {
         get(target: typeof state, key: keyof U | keyof State | any) {
             if (Reflect.has(target, key)) return state[key]

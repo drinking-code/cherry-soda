@@ -5,4 +5,6 @@ export {defineDom, mount} from './render'
 export {registerRenderHook} from './render/hooks'
 
 export {default as Identifiable} from './utils/Identifiable'
-export {isVNode} from './jsx/VNode'
+export {isVNode as isElement} from './jsx/VNode'
+
+export type {RenderHookMatcher, RenderHookChildCallback, RenderHookPropCallback} from './render/hooks'
